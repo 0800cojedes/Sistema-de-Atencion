@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ===== ESTILOS EXISTENTES ===== */
         body{background:#eef2f7;font-family:'Segoe UI',Roboto,system-ui;margin:0;}
         .auth-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a2e44 0%,#0b5e7e 50%,#1a8fa8 100%);padding:1rem;}
         .auth-card{background:white;border-radius:1.2rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:460px;width:100%;overflow:hidden;}
@@ -47,6 +48,10 @@
         @keyframes shakeX{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
         .card-shadow{box-shadow:0 6px 14px rgba(0,0,0,0.05);border-radius:1rem;border:none;}
         .card-header-custom{background:linear-gradient(135deg,#0b5e7e,#0a4b6e);color:white;border-radius:1rem 1rem 0 0!important;padding:0.8rem 1rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+        .card-header-custom .accordion-toggle{background:rgba(255,255,255,0.15);border:none;color:white;padding:0.2rem 0.7rem;border-radius:2rem;font-size:0.78rem;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:0.4rem;}
+        .card-header-custom .accordion-toggle:hover{background:rgba(255,255,255,0.25);}
+        .card-header-custom .accordion-toggle .arrow{transition:transform 0.3s ease;display:inline-block;}
+        .card-header-custom .accordion-toggle .arrow.open{transform:rotate(180deg);}
         .nav-tabs-custom .nav-link{font-weight:600;color:#1e4663;border:none;margin-right:0.5rem;border-radius:2rem;padding:0.5rem 1rem;}
         .nav-tabs-custom .nav-link.active{background-color:#0b5e7e;color:white;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
         .stats-card{border-left:5px solid;background:white;}
@@ -57,7 +62,7 @@
         .footer-text{font-size:0.75rem;text-align:center;margin-top:2rem;color:#5a6e7c;}
         .analytics-card{height:100%;}
         .compact-table td,.compact-table th{padding:0.4rem 0.5rem;font-size:0.85rem;}
-        .btn-print{background:white!important;color:#0b5e7e!important;border-radius:0.5rem;padding:0.25rem 0.6rem;font-size:0.8rem;font-weight:600;cursor:pointer;transition:0.2s;}
+        .btn-print{background:white!important;color:#0b5e7e!important;border-radius:0.5rem;padding:0.25rem 0.6rem;font-size:0.8rem;font-weight:600;cursor:pointer;transition:0.2s;border:1px solid transparent;}
         .btn-print:hover{background:#e8f4f8!important;color:#084c64!important;transform:scale(1.03);}
         .datos-cargados{color:#27ae60;font-weight:600;font-size:0.8rem;padding:0.6rem 1rem;background:#d5f5e5;border-radius:0.5rem;display:none;margin-bottom:1rem;animation:fadeIn 0.4s;}
         @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
@@ -101,6 +106,55 @@
         .config-error .steps{text-align:left;background:#f0f7fc;padding:1rem;border-radius:0.5rem;margin-top:1rem;font-size:0.85rem;}
         .config-error .btn-retry{margin-top:1rem;background:#0b5e7e;color:white;border:none;padding:0.6rem 1.5rem;border-radius:0.5rem;font-weight:600;cursor:pointer;font-size:0.9rem;}
         .config-error .btn-retry:hover{background:#084c64;}
+        
+        /* ===== NUEVOS ESTILOS PARA EL ACORDEÓN ===== */
+        .accordion-table-body {
+            transition: all 0.35s ease-in-out;
+            overflow: hidden;
+        }
+        .accordion-table-body.collapsed {
+            max-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            opacity: 0;
+        }
+        .accordion-table-body:not(.collapsed) {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        .table-wrapper-scroll {
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        .table-wrapper-scroll::-webkit-scrollbar { width: 6px; }
+        .table-wrapper-scroll::-webkit-scrollbar-thumb { background:#b0c4d8; border-radius:4px; }
+        .table-wrapper-scroll::-webkit-scrollbar-track { background:#f1f4f8; border-radius:4px; }
+        .badge-count {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 0.1rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .btn-crear-registro {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 2rem;
+            padding: 0.25rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-crear-registro:hover {
+            background: rgba(255,255,255,0.35);
+            color: white;
+            transform: scale(1.02);
+        }
     </style>
 </head>
 <body>
@@ -148,8 +202,8 @@
     <div class="auth-card">
         <div class="auth-header">
             <div class="auth-icon"><i class="fas fa-hospital"></i></div>
-            <h2>CRM 0800-COJEDES </h2>
-            <p>Sistema de gestión y atencion medico integral</p>
+            <h2>CRM 0800-COJEDES</h2>
+            <p>Sistema de gestión y atención médico integral</p>
         </div>
         <div class="auth-tabs">
             <button class="auth-tab active" id="tabLogin" type="button">Iniciar sesión</button>
@@ -226,21 +280,151 @@
         <li class="nav-item admin-tab"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analisis" type="button"><i class="fas fa-chart-line me-1"></i> Análisis</button></li>
     </ul>
     <div class="tab-content" id="mainTabContent">
+        <!-- ============================================================ -->
+        <!-- TAB LLAMADAS (con acordeón)                                    -->
+        <!-- ============================================================ -->
         <div class="tab-pane fade show active" id="llamadas" role="tabpanel">
-            <div class="bg-white p-2 rounded-4 shadow-sm mb-3"><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label-custom">Desde</label><input type="date" id="filterFechaDesde" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label-custom">Hasta</label><input type="date" id="filterFechaHasta" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label-custom">Tipo</label><select id="filterTipo" class="form-select form-select-sm"><option value="todos">Todos</option><option value="Consulta">Consulta</option><option value="Urgencia">Urgencia</option><option value="Seguimiento">Seguimiento</option><option value="Otro">Otro</option></select></div><div class="col-md-2"><label class="form-label-custom">Buscar</label><input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Paciente/Teléfono"></div><div class="col-md-2 d-flex gap-1"><button id="btnAplicarFiltros" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i></button><button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-eraser"></i></button></div></div></div>
-            <div class="card card-shadow mb-4"><div class="card-header-custom"><span><i class="fas fa-list-ul me-2"></i>Atenciones telefónicas</span><div><span class="badge bg-light text-dark me-2" id="registrosCount">0</span><button class="btn-print" id="btnPrintLlamadas" type="button"><i class="fas fa-print me-1"></i>Imprimir</button></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover table-sm align-middle mb-0"><thead class="table-light"><tr><th>Fecha/Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Duración</th><th>Tipo</th><th>Operador</th><th>Dirección</th><th>Acciones</th></tr></thead><tbody id="tablaBodyLlamadas"></tbody></table></div></div></div>
-            <div class="card card-shadow"><div class="card-header-custom"><span><i class="fas fa-edit me-2"></i><span id="formTitleLlamada">Registrar nueva atención telefónica</span></span></div><div class="card-body p-3"><form id="interaccionForm" novalidate><div class="row g-2"><div class="col-md-3"><label class="form-label-custom">Paciente *</label><input type="text" id="paciente" class="form-control form-control-sm" required></div><div class="col-md-2"><label class="form-label-custom">Cédula</label><input type="text" id="cedula" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label-custom">Teléfono *</label><input type="text" id="telefono" class="form-control form-control-sm" required></div><div class="col-md-3"><label class="form-label-custom">Fecha y hora *</label><input type="datetime-local" id="fechaHora" class="form-control form-control-sm" required></div><div class="col-md-2"><label class="form-label-custom">Duración (min)</label><input type="number" step="0.5" min="0.5" id="duracion" class="form-control form-control-sm" required></div><div class="col-md-2"><label class="form-label-custom">Operador *</label><input type="text" id="operador" class="form-control form-control-sm" required></div><div class="col-md-2"><label class="form-label-custom">Tipo</label><select id="tipoAtencion" class="form-select form-control-sm"><option value="Consulta">Consulta</option><option value="Urgencia">Urgencia</option><option value="Seguimiento">Seguimiento</option><option value="Otro">Otro</option></select></div><div class="col-md-5"><label class="form-label-custom">Dirección</label><input type="text" id="direccion" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label-custom">Descripción</label><textarea id="descripcion" rows="1" class="form-control form-control-sm"></textarea></div></div><div class="mt-3 d-flex gap-2"><button type="submit" class="btn btn-success btn-sm" id="btnSubmitLlamada"><i class="fas fa-save me-1"></i>Guardar</button><button type="button" id="btnCancelarEdicionLlamada" class="btn btn-secondary btn-sm d-none"><i class="fas fa-times me-1"></i>Cancelar</button></div></form></div></div>
+            <!-- Filtros -->
+            <div class="bg-white p-2 rounded-4 shadow-sm mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3"><label class="form-label-custom">Desde</label><input type="date" id="filterFechaDesde" class="form-control form-control-sm"></div>
+                    <div class="col-md-3"><label class="form-label-custom">Hasta</label><input type="date" id="filterFechaHasta" class="form-control form-control-sm"></div>
+                    <div class="col-md-2"><label class="form-label-custom">Tipo</label><select id="filterTipo" class="form-select form-select-sm"><option value="todos">Todos</option><option value="Consulta">Consulta</option><option value="Urgencia">Urgencia</option><option value="Seguimiento">Seguimiento</option><option value="Otro">Otro</option></select></div>
+                    <div class="col-md-2"><label class="form-label-custom">Buscar</label><input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Paciente/Teléfono"></div>
+                    <div class="col-md-2 d-flex gap-1"><button id="btnAplicarFiltros" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i></button><button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-eraser"></i></button></div>
+                </div>
+            </div>
+
+            <!-- ========== ACORDEÓN DE ATENCIONES TELEFÓNICAS ========== -->
+            <div class="card card-shadow mb-4">
+                <div class="card-header-custom">
+                    <div class="d-flex align-items-center gap-2">
+                        <span><i class="fas fa-list-ul me-2"></i>Atenciones telefónicas</span>
+                        <span class="badge-count" id="registrosCountHeader">0</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn-crear-registro" id="btnCrearNuevoLlamada" type="button">
+                            <i class="fas fa-plus-circle"></i> Nuevo
+                        </button>
+                        <button class="btn-print" id="btnPrintLlamadas" type="button"><i class="fas fa-print me-1"></i>Imprimir</button>
+                        <button class="accordion-toggle" id="toggleLlamadasTable" type="button">
+                            <span>Ocultar</span>
+                            <span class="arrow open"><i class="fas fa-chevron-up"></i></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="accordion-table-body" id="llamadasTableBody">
+                    <div class="card-body p-0">
+                        <div class="table-wrapper-scroll">
+                            <table class="table table-hover table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha/Hora</th>
+                                        <th>Paciente</th>
+                                        <th>Cédula</th>
+                                        <th>Teléfono</th>
+                                        <th>Duración</th>
+                                        <th>Tipo</th>
+                                        <th>Operador</th>
+                                        <th>Dirección</th>
+                                        <th>Municipio</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaBodyLlamadas"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== FORMULARIO DE REGISTRO (con Municipio) ========== -->
+            <div class="card card-shadow" id="formLlamadaCard">
+                <div class="card-header-custom">
+                    <span><i class="fas fa-edit me-2"></i><span id="formTitleLlamada">Registrar nueva atención telefónica</span></span>
+                </div>
+                <div class="card-body p-3">
+                    <form id="interaccionForm" novalidate>
+                        <div class="row g-2">
+                            <div class="col-md-3"><label class="form-label-custom">Paciente *</label><input type="text" id="paciente" class="form-control form-control-sm" required></div>
+                            <div class="col-md-2"><label class="form-label-custom">Cédula</label><input type="text" id="cedula" class="form-control form-control-sm"></div>
+                            <div class="col-md-2"><label class="form-label-custom">Teléfono *</label><input type="text" id="telefono" class="form-control form-control-sm" required></div>
+                            <div class="col-md-3"><label class="form-label-custom">Fecha y hora *</label><input type="datetime-local" id="fechaHora" class="form-control form-control-sm" required></div>
+                            <div class="col-md-2"><label class="form-label-custom">Duración (min)</label><input type="number" step="0.5" min="0.5" id="duracion" class="form-control form-control-sm" required></div>
+                            <div class="col-md-2"><label class="form-label-custom">Operador *</label><input type="text" id="operador" class="form-control form-control-sm" required></div>
+                            <div class="col-md-2"><label class="form-label-custom">Tipo</label><select id="tipoAtencion" class="form-select form-control-sm"><option value="Consulta">Consulta</option><option value="Urgencia">Urgencia</option><option value="Seguimiento">Seguimiento</option><option value="Otro">Otro</option></select></div>
+                            <div class="col-md-4"><label class="form-label-custom">Dirección</label><input type="text" id="direccion" class="form-control form-control-sm"></div>
+                            <div class="col-md-3">
+                                <label class="form-label-custom">Municipio</label>
+                                <select id="municipio" class="form-select form-control-sm">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Ezequiel Zamora">Ezequiel Zamora</option>
+                                    <option value="Romulo Gallegos">Romulo Gallegos</option>
+                                    <option value="Tinaco">Tinaco</option>
+                                    <option value="Tinaquillo">Tinaquillo</option>
+                                    <option value="Pao">Pao</option>
+                                    <option value="Girardot">Girardot</option>
+                                    <option value="Lima Blanco">Lima Blanco</option>
+                                    <option value="Anzoategui">Anzoategui</option>
+                                    <option value="Ricaurte">Ricaurte</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5"><label class="form-label-custom">Descripción</label><textarea id="descripcion" rows="1" class="form-control form-control-sm"></textarea></div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-sm" id="btnSubmitLlamada"><i class="fas fa-save me-1"></i>Guardar</button>
+                            <button type="button" id="btnCancelarEdicionLlamada" class="btn btn-secondary btn-sm d-none"><i class="fas fa-times me-1"></i>Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB EMERGENCIAS                                               -->
+        <!-- ============================================================ -->
         <div class="tab-pane fade" id="emergencias" role="tabpanel">
             <div class="bg-white p-2 rounded-4 shadow-sm mb-3"><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label-custom">Desde</label><input type="date" id="filtroEmergenciaDesde" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label-custom">Hasta</label><input type="date" id="filtroEmergenciaHasta" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label-custom">Profesional</label><input type="text" id="filtroEmergenciaProf" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label-custom">Paciente</label><input type="text" id="filtroEmergenciaSearch" class="form-control form-control-sm"></div><div class="col-md-2 d-flex gap-1"><button id="btnFiltrarEmergencias" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i></button><button id="btnLimpiarEmergencias" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-eraser"></i></button></div></div></div>
             <div class="card card-shadow mb-4"><div class="card-header-custom"><span><i class="fas fa-hand-holding-heart me-2"></i>Atenciones presenciales</span><div><span class="badge bg-light text-dark me-2" id="emergenciasCount">0</span><button class="btn-print" id="btnPrintAtenciones" type="button"><i class="fas fa-print me-1"></i>Imprimir</button></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover table-sm align-middle compact-table"><thead class="table-light"><tr><th>Fecha/Hora</th><th>Paciente</th><th>Cédula</th><th>Profesional</th><th>Tipo</th><th>Duración</th><th>Dirección</th><th>Insumos</th><th>Acciones</th></tr></thead><tbody id="emergenciasBody"></tbody></table></div></div></div>
             <div class="card card-shadow"><div class="card-header-custom"><span><i class="fas fa-plus-circle me-2"></i><span id="emergenciaFormTitle">Registrar nueva atención</span></span></div><div class="card-body p-3"><form id="emergenciaForm" novalidate><div class="row g-2"><div class="col-md-3"><label class="form-label-custom">Paciente *</label><input type="text" id="emergPaciente" class="form-control form-control-sm" required></div><div class="col-md-2"><label class="form-label-custom">Cédula</label><input type="text" id="emergCedula" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label-custom">Teléfono</label><input type="text" id="emergTelefono" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label-custom">Fecha y hora *</label><input type="datetime-local" id="emergFechaHora" class="form-control form-control-sm" required></div><div class="col-md-2"><label class="form-label-custom">Duración (min)</label><input type="number" step="0.5" min="0.5" id="emergDuracion" class="form-control form-control-sm" required></div><div class="col-md-3"><label class="form-label-custom">Profesional *</label><input type="text" id="emergProfesional" class="form-control form-control-sm" required></div><div class="col-md-4"><label class="form-label-custom">Tipo atención</label><input type="text" id="emergTipo" class="form-control form-control-sm"></div><div class="col-md-5"><label class="form-label-custom">Dirección</label><input type="text" id="emergDireccion" class="form-control form-control-sm"></div><div class="col-md-4"><label class="form-label-custom">Diagnóstico</label><textarea id="emergNotas" rows="2" class="form-control form-control-sm"></textarea></div></div><div class="mt-2 border p-2 rounded bg-light"><label class="form-label-custom"><i class="fas fa-capsules"></i>Insumos</label><div class="row g-1 align-items-end mb-1"><div class="col-md-4"><select id="selectInsumoEmerg" class="form-select form-select-sm"></select></div><div class="col-md-2"><input type="number" id="cantidadInsumoEmerg" class="form-control form-control-sm" value="1" min="1"></div><div class="col-md-3"><button type="button" id="btnAgregarInsumoEmerg" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-plus"></i>Añadir</button></div></div><div id="listaInsumosEmerg" class="d-flex flex-wrap gap-1 mt-1"><small class="text-muted">Sin insumos</small></div></div><div class="mt-3 d-flex gap-2"><button type="submit" class="btn btn-success btn-sm" id="btnSubmitEmergencia"><i class="fas fa-save me-1"></i>Guardar</button><button type="button" id="btnCancelarEmergencia" class="btn btn-secondary btn-sm d-none"><i class="fas fa-times me-1"></i>Cancelar</button></div></form></div></div>
         </div>
-        <div class="tab-pane fade admin-tab" id="inventario" role="tabpanel"><div class="card card-shadow"><div class="card-header-custom"><span><i class="fas fa-boxes"></i>Stock de insumos</span><div class="admin-only-flex"><button id="btnNuevoInsumoInventario" class="btn btn-light btn-sm me-2"><i class="fas fa-plus-circle"></i>Nuevo</button></div><button class="btn-print" id="btnPrintInventario" type="button"><i class="fas fa-print me-1"></i>Imprimir</button></div><div class="card-body p-2 restricted-overlay"><div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-light"><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th><th>Estado</th><th class="admin-only">Acciones</th></tr></thead><tbody id="inventarioBody"></tbody></table></div></div></div></div>
+
+        <!-- ============================================================ -->
+        <!-- TAB INVENTARIO                                                -->
+        <!-- ============================================================ -->
+        <div class="tab-pane fade admin-tab" id="inventario" role="tabpanel">
+            <div class="card card-shadow">
+                <div class="card-header-custom">
+                    <span><i class="fas fa-boxes"></i>Stock de insumos</span>
+                    <div>
+                        <div class="admin-only-flex" style="display:inline-flex;">
+                            <button id="btnNuevoInsumoInventario" class="btn btn-light btn-sm me-2"><i class="fas fa-plus-circle"></i>Nuevo</button>
+                        </div>
+                        <button class="btn-print" id="btnPrintInventario" type="button"><i class="fas fa-print me-1"></i>Imprimir</button>
+                    </div>
+                </div>
+                <div class="card-body p-2 restricted-overlay">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle">
+                            <thead class="table-light"><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th><th>Estado</th><th class="admin-only">Acciones</th></tr></thead>
+                            <tbody id="inventarioBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB RENDIMIENTO                                               -->
+        <!-- ============================================================ -->
         <div class="tab-pane fade admin-tab" id="rendimiento" role="tabpanel">
             <div class="card card-shadow mb-4"><div class="card-header-custom"><span><i class="fas fa-headset me-2"></i>Operadores telefónicos</span><div><button class="btn-print" id="btnPrintRendimiento" type="button"><i class="fas fa-print me-1"></i>Imprimir</button></div></div><div class="card-body"><div class="row g-3"><div class="col-lg-6"><canvas id="operadorLlamadasChart" style="max-height:220px;"></canvas></div><div class="col-lg-6"><canvas id="operadorDuracionLlamadasChart" style="max-height:220px;"></canvas></div><div class="col-12"><table class="table table-sm table-striped compact-table"><thead class="table-light"><tr><th>Operador</th><th>Total</th><th>Promedio (min)</th><th>Tipos frecuentes</th></tr></thead><tbody id="rendimientoOperadoresBody"></tbody></table></div></div></div></div>
             <div class="card card-shadow"><div class="card-header-custom"><span><i class="fas fa-hand-holding-heart me-2"></i>Profesionales</span></div><div class="card-body"><div class="row g-3"><div class="col-lg-6"><canvas id="operadorEmergChart" style="max-height:220px;"></canvas></div><div class="col-lg-6"><canvas id="duracionEmergChart" style="max-height:220px;"></canvas></div><div class="col-12"><table class="table table-sm table-striped compact-table"><thead class="table-light"><tr><th>Profesional</th><th>Total</th><th>Promedio</th><th>Tipos frecuentes</th><th>Insumos prom.</th></tr></thead><tbody id="rendimientoEmergBody"></tbody></table></div></div></div></div>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB ANÁLISIS                                                  -->
+        <!-- ============================================================ -->
         <div class="tab-pane fade admin-tab" id="analisis" role="tabpanel">
             <div class="d-flex justify-content-end mb-3"><button class="btn-print" id="btnPrintAnalisis" type="button" style="font-size:0.85rem;padding:0.35rem 0.9rem;"><i class="fas fa-print me-1"></i>Imprimir reporte</button></div>
             <div class="row g-3">
@@ -283,6 +467,7 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
  *   tipo_atencion text,
  *   descripcion text,
  *   direccion text,
+ *   municipio text,
  *   created_at timestamptz DEFAULT now()
  * );
  * ALTER TABLE public.interacciones ENABLE ROW LEVEL SECURITY;
@@ -327,40 +512,6 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
  * );
  * ALTER TABLE public.perfiles ENABLE ROW LEVEL SECURITY;
  * CREATE POLICY "own_profile" ON public.perfiles FOR ALL TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
- *
- * 
- * 
- * 
- *-- ─── POLÍTICAS PARA LA TABLA inventario ───────────────────────────────────
-
- *-- Eliminar políticas anteriores si existen (evita conflictos)
- *DROP POLICY IF EXISTS "auth_users_all" ON public.inventario;
- *DROP POLICY IF EXISTS "inventario_select" ON public.inventario;
- *DROP POLICY IF EXISTS "inventario_insert" ON public.inventario;
- *DROP POLICY IF EXISTS "inventario_update" ON public.inventario;
- *DROP POLICY IF EXISTS "inventario_delete" ON public.inventario;
-
- *-- Asegurarse de que RLS esté activado
- *ALTER TABLE public.inventario ENABLE ROW LEVEL SECURITY;
-
- *-- Política única: usuarios autenticados pueden hacer todo
- *CREATE POLICY "inventario_authenticated_all"
- *ON public.inventario
- *FOR ALL
- *TO authenticated
- *USING (true)
- *WITH CHECK (true);
-
- *-- ─── LO MISMO PARA atenciones (necesario para guardar insumos en JSONB) ───
-
- *DROP POLICY IF EXISTS "auth_users_all" ON public.atenciones;
- *ALTER TABLE public.atenciones ENABLE ROW LEVEL SECURITY;
- *CREATE POLICY "atenciones_authenticated_all"
- *ON public.atenciones
- *FOR ALL
- *TO authenticated
- *USING (true)
- *WITH CHECK (true);
  * 
  * ───────────────────────────────────────────────────────────────────────────
  */
@@ -378,6 +529,7 @@ var currentEditingEmergId = null;
 var tempInsumosEmerg = [];
 var chartsMap = {};
 var crmInitialized = false;
+var llamadasTableCollapsed = false;
 
 /* ========== UTILIDADES ========== */
 function esc(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]; }); }
@@ -388,9 +540,55 @@ function showAuthSuccess(m) { var el = document.getElementById('authSuccess'); i
 function showAuthLoading() { var l = document.getElementById('authLoading'); if (l) l.style.display = 'block'; var e = document.getElementById('authError'); if (e) e.style.display = 'none'; var s = document.getElementById('authSuccess'); if (s) s.style.display = 'none'; }
 function hideAuthMsg() { var ids = ['authError','authSuccess','authLoading']; ids.forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
 function setBtnLoading(btn, on) { if (!btn) return; if (on) { btn.disabled = true; btn._h = btn.innerHTML; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando...'; } else { btn.disabled = false; btn.innerHTML = btn._h || btn.innerHTML; } }
-function toLocalInput(iso) { if (!iso) return ''; var d = new Date(iso); if (isNaN(d.getTime())) return ''; return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function toLocalInput(iso) { 
+    if (!iso) return ''; 
+    var d = new Date(iso); 
+    if (isNaN(d.getTime())) return ''; 
+    var year = d.getFullYear();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    var hours = String(d.getHours()).padStart(2, '0');
+    var minutes = String(d.getMinutes()).padStart(2, '0');
+    return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+}
 function hideAllPanels() { ['cdnError','configErrorPanel','authPanel','crmPanel'].forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
-function showOnlyPanel(id) { hideAllPanels(); var el = document.getElementById(id); if (!el) return; /* crmPanel uses block layout, auth panels use flex */ el.style.display = (id === 'crmPanel') ? 'block' : 'flex'; }
+function showOnlyPanel(id) { hideAllPanels(); var el = document.getElementById(id); if (!el) return; el.style.display = (id === 'crmPanel') ? 'block' : 'flex'; }
+
+/* ========== FUNCIONES PARA MANEJO DE FECHAS ========== */
+function formatLocalDateTime(isoString) {
+    if (!isoString) return '—';
+    try {
+        var d = new Date(isoString);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    } catch (e) {
+        return '—';
+    }
+}
+
+function toISOStringLocal(date) {
+    if (!date) return null;
+    // Ajustar para que no haya desplazamiento de zona horaria
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    var hours = String(date.getHours()).padStart(2, '0');
+    var minutes = String(date.getMinutes()).padStart(2, '0');
+    var seconds = String(date.getSeconds()).padStart(2, '0');
+    // Usar el offset de zona horaria local
+    var tzOffset = -date.getTimezoneOffset();
+    var sign = tzOffset >= 0 ? '+' : '-';
+    var offsetHours = String(Math.floor(Math.abs(tzOffset) / 60)).padStart(2, '0');
+    var offsetMinutes = String(Math.abs(tzOffset) % 60).padStart(2, '0');
+    return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds + sign + offsetHours + ':' + offsetMinutes;
+}
 
 /* ========== INIT SUPABASE ========== */
 var initError = null;
@@ -466,13 +664,11 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         var res = await sb.auth.signUp({ email: email, password: pass, options: { data: { full_name: name, role: role } } });
         if (res.error) throw res.error;
         if (res.data && res.data.user && !res.data.session) {
-            /* Intentar crear perfil si el usuario fue creado aunque no tenga sesión aún */
             try {
                 await sb.from('perfiles').upsert({ id: res.data.user.id, role: role, full_name: name, email: email }, { onConflict: 'id' });
             } catch (pe) { console.warn('[CRM] No se pudo crear perfil (tabla perfiles puede no existir):', pe); }
             showAuthSuccess('Cuenta creada como ' + role.toUpperCase() + '. Revise su correo para confirmar.'); document.getElementById('registerForm').reset(); document.getElementById('roleOperador').checked = true; }
         else if (res.data && res.data.session && res.data.user) {
-            /* Sesión activa (email confirm desactivado) — crear perfil y entrar */
             try {
                 await sb.from('perfiles').upsert({ id: res.data.user.id, role: role, full_name: name, email: email }, { onConflict: 'id' });
             } catch (pe) { console.warn('[CRM] No se pudo crear perfil:', pe); }
@@ -502,8 +698,6 @@ document.getElementById('btnLogout').addEventListener('click', async function() 
 async function onLoginSuccess(user) {
     currentUser = user;
     var meta = user.user_metadata || {};
-    /* Intentar obtener el rol desde la tabla perfiles primero (más seguro en producción),
-       luego fallback a user_metadata, y finalmente 'operador' por defecto */
     userRole = 'operador';
     try {
         var rp = await sb.from('perfiles').select('role').eq('id', user.id).maybeSingle();
@@ -513,7 +707,6 @@ async function onLoginSuccess(user) {
             userRole = meta.role;
         }
     } catch (e) {
-        /* Si la tabla perfiles no existe, usar user_metadata */
         if (meta.role) userRole = meta.role;
     }
     document.getElementById('userDisplayName').textContent = meta.full_name || user.email.split('@')[0];
@@ -564,7 +757,6 @@ async function cargarDatosUsuario() {
     } catch (err) {
         console.error('[CRM] Error cargando datos:', err);
         toast('Error: ' + err.message, 'error');
-        /* Inicializar CRM de todas formas para que la UI sea usable */
         inicializarCRM();
     }
 }
@@ -592,29 +784,143 @@ function inicializarCRM() {
     document.getElementById('btnGlobalPrint').addEventListener('click', function(e){e.stopPropagation();document.getElementById('printDropdownMenu').classList.toggle('show');});
     document.querySelectorAll('.print-dropdown-item').forEach(function(item){item.addEventListener('click',function(e){e.stopPropagation();document.getElementById('printDropdownMenu').classList.remove('show');imprimirReporte(this.getAttribute('data-mod'));});});
     document.addEventListener('click',function(e){if(!document.getElementById('printDropdown').contains(e.target))document.getElementById('printDropdownMenu').classList.remove('show');});
+
+    /* ========== EVENTOS DEL ACORDEÓN ========== */
+    var toggleBtn = document.getElementById('toggleLlamadasTable');
+    var tableBody = document.getElementById('llamadasTableBody');
+    
+    toggleBtn.addEventListener('click', function() {
+        llamadasTableCollapsed = !llamadasTableCollapsed;
+        var arrow = this.querySelector('.arrow');
+        var span = this.querySelector('span:first-child');
+        if (llamadasTableCollapsed) {
+            tableBody.classList.add('collapsed');
+            span.textContent = 'Mostrar';
+            arrow.classList.remove('open');
+            arrow.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        } else {
+            tableBody.classList.remove('collapsed');
+            span.textContent = 'Ocultar';
+            arrow.classList.add('open');
+            arrow.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        }
+    });
+
+    document.getElementById('btnCrearNuevoLlamada').addEventListener('click', function() {
+        if (llamadasTableCollapsed) {
+            toggleBtn.click();
+        }
+        var formCard = document.getElementById('formLlamadaCard');
+        formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (currentEditingId) {
+            rstLL();
+        }
+        setTimeout(function() {
+            document.getElementById('paciente').focus();
+        }, 400);
+    });
 }
 
-/* ========== CRUD LLAMADAS ========== */
+/* ========== CRUD LLAMADAS (con Municipio y corrección de fecha) ========== */
 async function savLL(e) {
     e.preventDefault(); var btn = document.getElementById('btnSubmitLlamada'); setBtnLoading(btn, true);
-    var p = { fecha:document.getElementById('fechaHora').value, paciente:document.getElementById('paciente').value.trim(), cedula:document.getElementById('cedula').value.trim()||null, telefono:document.getElementById('telefono').value.trim(), duracion:parseFloat(document.getElementById('duracion').value)||0, operador:document.getElementById('operador').value.trim(), tipo_atencion:document.getElementById('tipoAtencion').value, descripcion:document.getElementById('descripcion').value.trim()||null, direccion:document.getElementById('direccion').value.trim()||null };
-    if (!p.paciente||!p.telefono||!p.fecha||!p.operador) { toast('Complete campos obligatorios','error'); setBtnLoading(btn,false); return; }
+    
+    // Obtener la fecha del input datetime-local (formato local)
+    var fechaLocal = document.getElementById('fechaHora').value;
+    if (!fechaLocal) { toast('Seleccione una fecha y hora', 'error'); setBtnLoading(btn, false); return; }
+    
+    // Convertir a objeto Date con la zona horaria local
+    var dateParts = fechaLocal.split('T');
+    var datePart = dateParts[0].split('-');
+    var timePart = dateParts[1].split(':');
+    var fechaObj = new Date(
+        parseInt(datePart[0]),
+        parseInt(datePart[1]) - 1,
+        parseInt(datePart[2]),
+        parseInt(timePart[0]),
+        parseInt(timePart[1])
+    );
+    
+    if (isNaN(fechaObj.getTime())) { toast('Fecha inválida', 'error'); setBtnLoading(btn, false); return; }
+    
+    // Convertir a ISO string con offset de zona horaria local
+    var fechaISO = toISOStringLocal(fechaObj);
+    
+    var p = { 
+        fecha: fechaISO,
+        paciente: document.getElementById('paciente').value.trim(), 
+        cedula: document.getElementById('cedula').value.trim() || null, 
+        telefono: document.getElementById('telefono').value.trim(), 
+        duracion: parseFloat(document.getElementById('duracion').value) || 0, 
+        operador: document.getElementById('operador').value.trim(), 
+        tipo_atencion: document.getElementById('tipoAtencion').value, 
+        descripcion: document.getElementById('descripcion').value.trim() || null, 
+        direccion: document.getElementById('direccion').value.trim() || null,
+        municipio: document.getElementById('municipio').value || null
+    };
+    if (!p.paciente || !p.telefono || !p.operador) { toast('Complete campos obligatorios', 'error'); setBtnLoading(btn, false); return; }
     try {
-        if (currentEditingId) { var r=await sb.from('interacciones').update(p).eq('id',currentEditingId).select(); if(r.error)throw r.error; var idx=interacciones.findIndex(function(i){return i.id===currentEditingId;}); if(idx!==-1&&r.data&&r.data.length)interacciones[idx]=r.data[0]; toast('Actualizada','success'); }
-        else { var r2=await sb.from('interacciones').insert([p]).select(); if(r2.error)throw r2.error; if(r2.data&&r2.data.length)interacciones.push(r2.data[0]); toast('Registrada','success'); }
+        if (currentEditingId) { 
+            var r = await sb.from('interacciones').update(p).eq('id', currentEditingId).select(); 
+            if (r.error) throw r.error; 
+            var idx = interacciones.findIndex(function(i) { return i.id === currentEditingId; }); 
+            if (idx !== -1 && r.data && r.data.length) interacciones[idx] = r.data[0]; 
+            toast('Actualizada', 'success'); 
+        } else { 
+            var r2 = await sb.from('interacciones').insert([p]).select(); 
+            if (r2.error) throw r2.error; 
+            if (r2.data && r2.data.length) interacciones.push(r2.data[0]); 
+            toast('Registrada', 'success'); 
+        }
         rstLL(); updAll();
-    } catch(err){toast('Error: '+err.message,'error');}
-    setBtnLoading(btn,false);
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+    setBtnLoading(btn, false);
 }
-async function edLL(id){var i=interacciones.find(function(x){return x.id===id;});if(!i)return;currentEditingId=id;document.getElementById('paciente').value=i.paciente||'';document.getElementById('cedula').value=i.cedula||'';document.getElementById('telefono').value=i.telefono||'';document.getElementById('fechaHora').value=toLocalInput(i.fecha);document.getElementById('duracion').value=i.duracion;document.getElementById('operador').value=i.operador||'';document.getElementById('tipoAtencion').value=i.tipo_atencion||'Consulta';document.getElementById('descripcion').value=i.descripcion||'';document.getElementById('direccion').value=i.direccion||'';document.getElementById('formTitleLlamada').innerText='Editar atención telefónica';document.getElementById('btnCancelarEdicionLlamada').classList.remove('d-none');document.getElementById('interaccionForm').scrollIntoView({behavior:'smooth',block:'center'});}
-async function elLL(id){var i=interacciones.find(function(x){return x.id===id;});if(!i||!confirm('¿Eliminar "'+i.paciente+'"?'))return;try{var r=await sb.from('interacciones').delete().eq('id',id);if(r.error)throw r.error;interacciones=interacciones.filter(function(x){return x.id!==id;});if(currentEditingId===id)rstLL();updAll();toast('Eliminada','info');}catch(err){toast('Error: '+err.message,'error');}}
-function rstLL(){['paciente','cedula','telefono','fechaHora','duracion','operador','descripcion','direccion'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('tipoAtencion').value='Consulta';currentEditingId=null;document.getElementById('formTitleLlamada').innerText='Registrar nueva atención telefónica';document.getElementById('btnCancelarEdicionLlamada').classList.add('d-none');}
+
+async function edLL(id) {
+    var i = interacciones.find(function(x) { return x.id === id; });
+    if (!i) return;
+    currentEditingId = id;
+    document.getElementById('paciente').value = i.paciente || '';
+    document.getElementById('cedula').value = i.cedula || '';
+    document.getElementById('telefono').value = i.telefono || '';
+    document.getElementById('fechaHora').value = toLocalInput(i.fecha);
+    document.getElementById('duracion').value = i.duracion;
+    document.getElementById('operador').value = i.operador || '';
+    document.getElementById('tipoAtencion').value = i.tipo_atencion || 'Consulta';
+    document.getElementById('descripcion').value = i.descripcion || '';
+    document.getElementById('direccion').value = i.direccion || '';
+    document.getElementById('municipio').value = i.municipio || '';
+    document.getElementById('formTitleLlamada').innerText = 'Editar atención telefónica';
+    document.getElementById('btnCancelarEdicionLlamada').classList.remove('d-none');
+    document.getElementById('interaccionForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function elLL(id) {
+    var i = interacciones.find(function(x) { return x.id === id; });
+    if (!i || !confirm('¿Eliminar "' + i.paciente + '"?')) return;
+    try {
+        var r = await sb.from('interacciones').delete().eq('id', id);
+        if (r.error) throw r.error;
+        interacciones = interacciones.filter(function(x) { return x.id !== id; });
+        if (currentEditingId === id) rstLL();
+        updAll();
+        toast('Eliminada', 'info');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+}
+
+function rstLL() {
+    ['paciente', 'cedula', 'telefono', 'fechaHora', 'duracion', 'operador', 'descripcion', 'direccion'].forEach(function(id) {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('municipio').value = '';
+    document.getElementById('tipoAtencion').value = 'Consulta';
+    currentEditingId = null;
+    document.getElementById('formTitleLlamada').innerText = 'Registrar nueva atención telefónica';
+    document.getElementById('btnCancelarEdicionLlamada').classList.add('d-none');
+}
 
 /* ========== CRUD ATENCIONES ========== */
-
-/* Aplica delta de insumos al stock en Supabase y en el array local.
-   delta > 0 = descuento (se usaron), delta < 0 = devolución (se quitaron/eliminaron).
-   Retorna true si todo OK, false si algún item falló (sigue guardando). */
 async function aplicarDeltaStock(insumosNuevos, insumosAnteriores) {
     var delta = {};
     (insumosNuevos || []).forEach(function(i) { delta[i.nombre] = (delta[i.nombre] || 0) + i.cantidad; });
@@ -634,7 +940,6 @@ async function aplicarDeltaStock(insumosNuevos, insumosAnteriores) {
                 item.stock = r.data[0].stock;
                 console.log('[INV] Confirmado: ' + nombre + ' stock=' + item.stock);
             } else {
-                /* RLS silencioso: update ejecutado pero SELECT bloqueado */
                 console.warn('[INV] UPDATE sin datos devueltos para "' + nombre + '" - verificando con SELECT...');
                 var ck = await sb.from('inventario').select('stock').eq('id', item.id).single();
                 if (ck.error) {
@@ -654,292 +959,598 @@ async function aplicarDeltaStock(insumosNuevos, insumosAnteriores) {
 }
 
 async function savEm(e) {
-    e.preventDefault(); var btn=document.getElementById('btnSubmitEmergencia'); setBtnLoading(btn,true);
-    var p={fecha:document.getElementById('emergFechaHora').value,paciente:document.getElementById('emergPaciente').value.trim(),cedula:document.getElementById('emergCedula').value.trim()||null,telefono:document.getElementById('emergTelefono').value.trim()||null,duracion:parseFloat(document.getElementById('emergDuracion').value)||0,profesional:document.getElementById('emergProfesional').value.trim(),tipo_atencion:document.getElementById('emergTipo').value.trim()||null,notas:document.getElementById('emergNotas').value.trim()||null,insumos:tempInsumosEmerg||[],direccion:document.getElementById('emergDireccion').value.trim()||null};
-    if(!p.paciente||!p.fecha||!p.profesional){toast('Complete campos obligatorios','error');setBtnLoading(btn,false);return;}
-    try{
-        if(currentEditingEmergId){
-            /* Guardar insumos anteriores antes de actualizar para calcular delta */
-            var anterior = emergencias.find(function(a){return a.id===currentEditingEmergId;});
+    e.preventDefault(); var btn = document.getElementById('btnSubmitEmergencia'); setBtnLoading(btn, true);
+    
+    var fechaLocal = document.getElementById('emergFechaHora').value;
+    if (!fechaLocal) { toast('Seleccione una fecha y hora', 'error'); setBtnLoading(btn, false); return; }
+    
+    var dateParts = fechaLocal.split('T');
+    var datePart = dateParts[0].split('-');
+    var timePart = dateParts[1].split(':');
+    var fechaObj = new Date(
+        parseInt(datePart[0]),
+        parseInt(datePart[1]) - 1,
+        parseInt(datePart[2]),
+        parseInt(timePart[0]),
+        parseInt(timePart[1])
+    );
+    
+    if (isNaN(fechaObj.getTime())) { toast('Fecha inválida', 'error'); setBtnLoading(btn, false); return; }
+    var fechaISO = toISOStringLocal(fechaObj);
+    
+    var p = {
+        fecha: fechaISO,
+        paciente: document.getElementById('emergPaciente').value.trim(),
+        cedula: document.getElementById('emergCedula').value.trim() || null,
+        telefono: document.getElementById('emergTelefono').value.trim() || null,
+        duracion: parseFloat(document.getElementById('emergDuracion').value) || 0,
+        profesional: document.getElementById('emergProfesional').value.trim(),
+        tipo_atencion: document.getElementById('emergTipo').value.trim() || null,
+        notas: document.getElementById('emergNotas').value.trim() || null,
+        insumos: tempInsumosEmerg || [],
+        direccion: document.getElementById('emergDireccion').value.trim() || null
+    };
+    if (!p.paciente || !p.fecha || !p.profesional) { toast('Complete campos obligatorios', 'error'); setBtnLoading(btn, false); return; }
+    try {
+        if (currentEditingEmergId) {
+            var anterior = emergencias.find(function(a) { return a.id === currentEditingEmergId; });
             var insumosAnteriores = (anterior && anterior.insumos) ? JSON.parse(JSON.stringify(anterior.insumos)) : [];
-            var r=await sb.from('atenciones').update(p).eq('id',currentEditingEmergId).select();
-            if(r.error)throw r.error;
-            var idx=emergencias.findIndex(function(a){return a.id===currentEditingEmergId;});
-            if(idx!==-1&&r.data&&r.data.length)emergencias[idx]=Object.assign({},emergencias[idx],r.data[0],{tipoEmergencia:r.data[0].tipo_atencion||''});
-            /* Ajustar stock: devolver anteriores, descontar nuevos */
+            var r = await sb.from('atenciones').update(p).eq('id', currentEditingEmergId).select();
+            if (r.error) throw r.error;
+            var idx = emergencias.findIndex(function(a) { return a.id === currentEditingEmergId; });
+            if (idx !== -1 && r.data && r.data.length) emergencias[idx] = Object.assign({}, emergencias[idx], r.data[0], { tipoEmergencia: r.data[0].tipo_atencion || '' });
             await aplicarDeltaStock(tempInsumosEmerg, insumosAnteriores);
-            toast('Atención actualizada','success');
+            toast('Atención actualizada', 'success');
         } else {
-            var r2=await sb.from('atenciones').insert([p]).select();
-            if(r2.error)throw r2.error;
-            if(r2.data&&r2.data.length)emergencias.push(Object.assign({},r2.data[0],{tipoEmergencia:r2.data[0].tipo_atencion||''}));
-            /* Descontar del stock los insumos usados (sin anteriores) */
+            var r2 = await sb.from('atenciones').insert([p]).select();
+            if (r2.error) throw r2.error;
+            if (r2.data && r2.data.length) emergencias.push(Object.assign({}, r2.data[0], { tipoEmergencia: r2.data[0].tipo_atencion || '' }));
             await aplicarDeltaStock(tempInsumosEmerg, []);
-            toast('Atención registrada','success');
+            toast('Atención registrada', 'success');
         }
         rstEm(); updAll();
-    }catch(err){toast('Error: '+err.message,'error');}
-    setBtnLoading(btn,false);
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+    setBtnLoading(btn, false);
 }
-async function edEm(id){var e=emergencias.find(function(x){return x.id===id;});if(!e)return;currentEditingEmergId=id;document.getElementById('emergPaciente').value=e.paciente||'';document.getElementById('emergCedula').value=e.cedula||'';document.getElementById('emergTelefono').value=e.telefono||'';document.getElementById('emergFechaHora').value=toLocalInput(e.fecha);document.getElementById('emergDuracion').value=e.duracion;document.getElementById('emergProfesional').value=e.profesional||'';document.getElementById('emergTipo').value=e.tipoEmergencia||'';document.getElementById('emergNotas').value=e.notas||'';document.getElementById('emergDireccion').value=e.direccion||'';tempInsumosEmerg=e.insumos?JSON.parse(JSON.stringify(e.insumos)):[];updInsUI();document.getElementById('emergenciaFormTitle').innerText='Editar atención presencial';document.getElementById('btnCancelarEmergencia').classList.remove('d-none');document.getElementById('emergenciaForm').scrollIntoView({behavior:'smooth',block:'center'});}
-async function elEm(id){var e=emergencias.find(function(x){return x.id===id;});if(!e||!confirm('¿Eliminar "'+e.paciente+'"? Se devolverá el stock de los insumos usados.'))return;try{var r=await sb.from('atenciones').delete().eq('id',id);if(r.error)throw r.error;/* Devolver al stock los insumos de la atención eliminada */var insumosAtencion=e.insumos?JSON.parse(JSON.stringify(e.insumos)):[];await aplicarDeltaStock([], insumosAtencion);emergencias=emergencias.filter(function(x){return x.id!==id;});if(currentEditingEmergId===id)rstEm();updAll();toast('Atención eliminada · Stock restaurado','info');}catch(err){toast('Error: '+err.message,'error');}}
-function rstEm(){['emergPaciente','emergCedula','emergTelefono','emergFechaHora','emergDuracion','emergProfesional','emergTipo','emergNotas','emergDireccion'].forEach(function(id){document.getElementById(id).value='';});tempInsumosEmerg=[];updInsUI();currentEditingEmergId=null;document.getElementById('emergenciaFormTitle').innerText='Registrar nueva atención';document.getElementById('btnCancelarEmergencia').classList.add('d-none');}
+
+async function edEm(id) {
+    var e = emergencias.find(function(x) { return x.id === id; });
+    if (!e) return;
+    currentEditingEmergId = id;
+    document.getElementById('emergPaciente').value = e.paciente || '';
+    document.getElementById('emergCedula').value = e.cedula || '';
+    document.getElementById('emergTelefono').value = e.telefono || '';
+    document.getElementById('emergFechaHora').value = toLocalInput(e.fecha);
+    document.getElementById('emergDuracion').value = e.duracion;
+    document.getElementById('emergProfesional').value = e.profesional || '';
+    document.getElementById('emergTipo').value = e.tipoEmergencia || '';
+    document.getElementById('emergNotas').value = e.notas || '';
+    document.getElementById('emergDireccion').value = e.direccion || '';
+    tempInsumosEmerg = e.insumos ? JSON.parse(JSON.stringify(e.insumos)) : [];
+    updInsUI();
+    document.getElementById('emergenciaFormTitle').innerText = 'Editar atención presencial';
+    document.getElementById('btnCancelarEmergencia').classList.remove('d-none');
+    document.getElementById('emergenciaForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function elEm(id) {
+    var e = emergencias.find(function(x) { return x.id === id; });
+    if (!e || !confirm('¿Eliminar "' + e.paciente + '"? Se devolverá el stock de los insumos usados.')) return;
+    try {
+        var r = await sb.from('atenciones').delete().eq('id', id);
+        if (r.error) throw r.error;
+        var insumosAtencion = e.insumos ? JSON.parse(JSON.stringify(e.insumos)) : [];
+        await aplicarDeltaStock([], insumosAtencion);
+        emergencias = emergencias.filter(function(x) { return x.id !== id; });
+        if (currentEditingEmergId === id) rstEm();
+        updAll();
+        toast('Atención eliminada · Stock restaurado', 'info');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+}
+
+function rstEm() {
+    ['emergPaciente', 'emergCedula', 'emergTelefono', 'emergFechaHora', 'emergDuracion', 'emergProfesional', 'emergTipo', 'emergNotas', 'emergDireccion'].forEach(function(id) {
+        document.getElementById(id).value = '';
+    });
+    tempInsumosEmerg = [];
+    updInsUI();
+    currentEditingEmergId = null;
+    document.getElementById('emergenciaFormTitle').innerText = 'Registrar nueva atención';
+    document.getElementById('btnCancelarEmergencia').classList.add('d-none');
+}
 
 /* ========== INSUMOS ========== */
-function updDropIns(){
-    var s=document.getElementById('selectInsumoEmerg');
-    if(!s)return;
-    s.innerHTML='';
-    if(!inventario.length){s.innerHTML='<option>Sin insumos</option>';return;}
-    inventario.forEach(function(i){
-        var o=document.createElement('option');
-        o.value=i.nombre;
-        /* Stock disponible: si es edición, sumar la cantidad que ya tenía la atención original */
+function updDropIns() {
+    var s = document.getElementById('selectInsumoEmerg');
+    if (!s) return;
+    s.innerHTML = '';
+    if (!inventario.length) { s.innerHTML = '<option>Sin insumos</option>'; return; }
+    inventario.forEach(function(i) {
+        var o = document.createElement('option');
+        o.value = i.nombre;
         var stockDisp = i.stock;
-        if(currentEditingEmergId){
-            var ant=emergencias.find(function(a){return a.id===currentEditingEmergId;});
-            if(ant&&ant.insumos){var antIns=ant.insumos.find(function(x){return x.nombre===i.nombre;});if(antIns)stockDisp+=antIns.cantidad;}
+        if (currentEditingEmergId) {
+            var ant = emergencias.find(function(a) { return a.id === currentEditingEmergId; });
+            if (ant && ant.insumos) { var antIns = ant.insumos.find(function(x) { return x.nombre === i.nombre; }); if (antIns) stockDisp += antIns.cantidad; }
         }
-        var enForm=tempInsumosEmerg.find(function(x){return x.nombre===i.nombre;});
-        var disponible=stockDisp-(enForm?enForm.cantidad:0);
-        o.textContent=i.nombre+' (disp: '+Math.max(0,disponible)+' '+i.unidad+')';
-        if(disponible<=0)o.style.color='#c0392b';
+        var enForm = tempInsumosEmerg.find(function(x) { return x.nombre === i.nombre; });
+        var disponible = stockDisp - (enForm ? enForm.cantidad : 0);
+        o.textContent = i.nombre + ' (disp: ' + Math.max(0, disponible) + ' ' + i.unidad + ')';
+        if (disponible <= 0) o.style.color = '#c0392b';
         s.appendChild(o);
     });
 }
-function updInsUI(){var c=document.getElementById('listaInsumosEmerg');if(!c)return;c.innerHTML='';if(!tempInsumosEmerg.length){c.innerHTML='<small class="text-muted">Sin insumos asignados</small>';return;}tempInsumosEmerg.forEach(function(ins,idx){var d=document.createElement('div');d.className='dynamic-insumo-item';d.innerHTML='<span><strong>'+esc(ins.nombre)+'</strong> x'+ins.cantidad+'</span><button class="remove-insumo-btn" data-index="'+idx+'"><i class="fas fa-times-circle"></i></button>';c.appendChild(d);});document.querySelectorAll('.remove-insumo-btn').forEach(function(b){b.addEventListener('click',function(){var idx=parseInt(this.getAttribute('data-index'));if(!isNaN(idx)&&idx>=0&&idx<tempInsumosEmerg.length){tempInsumosEmerg.splice(idx,1);updInsUI();}});});}
-function addIns(){
-    var n=document.getElementById('selectInsumoEmerg').value;
-    if(!n){toast('Seleccione insumo','error');return;}
-    var c=parseInt(document.getElementById('cantidadInsumoEmerg').value);
-    if(isNaN(c)||c<1)c=1;
-    /* Validar stock disponible: stock real - lo ya asignado en este formulario */
-    var item=inventario.find(function(i){return i.nombre===n;});
-    if(item){
-        var yaAsignado=0;
-        var enForm=tempInsumosEmerg.find(function(i){return i.nombre===n;});
-        if(enForm) yaAsignado=enForm.cantidad;
-        /* Si es edición, el stock ya fue descontado antes; no hay que restar el original nuevamente */
+
+function updInsUI() {
+    var c = document.getElementById('listaInsumosEmerg');
+    if (!c) return;
+    c.innerHTML = '';
+    if (!tempInsumosEmerg.length) { c.innerHTML = '<small class="text-muted">Sin insumos asignados</small>'; return; }
+    tempInsumosEmerg.forEach(function(ins, idx) {
+        var d = document.createElement('div');
+        d.className = 'dynamic-insumo-item';
+        d.innerHTML = '<span><strong>' + esc(ins.nombre) + '</strong> x' + ins.cantidad + '</span><button class="remove-insumo-btn" data-index="' + idx + '"><i class="fas fa-times-circle"></i></button>';
+        c.appendChild(d);
+    });
+    document.querySelectorAll('.remove-insumo-btn').forEach(function(b) {
+        b.addEventListener('click', function() {
+            var idx = parseInt(this.getAttribute('data-index'));
+            if (!isNaN(idx) && idx >= 0 && idx < tempInsumosEmerg.length) {
+                tempInsumosEmerg.splice(idx, 1);
+                updInsUI();
+            }
+        });
+    });
+}
+
+function addIns() {
+    var n = document.getElementById('selectInsumoEmerg').value;
+    if (!n) { toast('Seleccione insumo', 'error'); return; }
+    var c = parseInt(document.getElementById('cantidadInsumoEmerg').value);
+    if (isNaN(c) || c < 1) c = 1;
+    var item = inventario.find(function(i) { return i.nombre === n; });
+    if (item) {
+        var yaAsignado = 0;
+        var enForm = tempInsumosEmerg.find(function(i) { return i.nombre === n; });
+        if (enForm) yaAsignado = enForm.cantidad;
         var disponible = currentEditingEmergId
-            ? item.stock + (function(){ var ant=emergencias.find(function(a){return a.id===currentEditingEmergId;}); if(!ant||!ant.insumos)return 0; var antIns=ant.insumos.find(function(i){return i.nombre===n;}); return antIns?antIns.cantidad:0; }()) - yaAsignado
+            ? item.stock + (function() { var ant = emergencias.find(function(a) { return a.id === currentEditingEmergId; }); if (!ant || !ant.insumos) return 0; var antIns = ant.insumos.find(function(i) { return i.nombre === n; }); return antIns ? antIns.cantidad : 0; }()) - yaAsignado
             : item.stock - yaAsignado;
-        if(c > disponible){
-            toast('Stock insuficiente: disponible '+disponible+' '+item.unidad,'error');
+        if (c > disponible) {
+            toast('Stock insuficiente: disponible ' + disponible + ' ' + item.unidad, 'error');
             return;
         }
     }
-    var ex=tempInsumosEmerg.find(function(i){return i.nombre===n;});
-    if(ex)ex.cantidad+=c;else tempInsumosEmerg.push({nombre:n,cantidad:c});
+    var ex = tempInsumosEmerg.find(function(i) { return i.nombre === n; });
+    if (ex) ex.cantidad += c;
+    else tempInsumosEmerg.push({ nombre: n, cantidad: c });
     updInsUI();
-    document.getElementById('cantidadInsumoEmerg').value=1;
+    document.getElementById('cantidadInsumoEmerg').value = 1;
 }
 
 /* ========== INVENTARIO ========== */
-async function addInv(){var n=prompt('Nombre del insumo:');if(!n||!n.trim())return;var u=prompt('Unidad de medida:','unidad')||'unidad';var s=parseInt(prompt('Stock inicial:','0'));if(isNaN(s)||s<0)s=0;try{var r=await sb.from('inventario').insert([{nombre:n.trim(),stock:s,unidad:u.trim()}]).select();if(r.error)throw r.error;if(r.data&&r.data.length)inventario.push(r.data[0]);updAll();toast('"'+n.trim()+'" agregado','success');}catch(err){toast('Error: '+err.message,'error');}}
-function usoIns(){var m={};emergencias.forEach(function(e){if(e.insumos)e.insumos.forEach(function(i){m[i.nombre]=(m[i.nombre]||0)+i.cantidad;});});return m;}
-function updInv(){var tb=document.getElementById('inventarioBody');if(!tb)return;var um=usoIns();tb.innerHTML='';inventario.forEach(function(item){var u=um[item.nombre]||0,d=item.stock-u,lb=item.stock<20;var r=document.createElement('tr');if(lb)r.className='inventory-low';r.innerHTML='<td><strong>'+esc(item.nombre)+'</strong></td><td>'+item.stock+'</td><td>'+esc(item.unidad)+'</td><td>'+u+'</td><td>'+d+'</td><td>'+(lb?'<span class="badge bg-warning text-dark">Bajo</span>':'<span class="badge bg-success">OK</span>')+'</td><td class="admin-only"><button class="btn btn-sm btn-outline-primary ajStockBtn" data-id="'+item.id+'"><i class="fas fa-plus-minus"></i></button> <button class="btn btn-sm btn-outline-danger delInvBtn" data-id="'+item.id+'"><i class="fas fa-trash"></i></button></td>';tb.appendChild(r);});document.querySelectorAll('.ajStockBtn').forEach(function(b){b.addEventListener('click',async function(){var id=this.getAttribute('data-id'),v=prompt('Ajuste (ej: +5, -3):','0');if(v===null||v===''||isNaN(parseFloat(v)))return;try{var it=inventario.find(function(i){return i.id===id;});if(!it)return;var ns=Math.max(0,it.stock+parseFloat(v)),r=await sb.from('inventario').update({stock:ns}).eq('id',id).select();if(r.error)throw r.error;if(r.data&&r.data.length)it.stock=r.data[0].stock;updInv();updDropIns();toast('Stock ajustado a '+ns,'info');}catch(err){toast('Error: '+err.message,'error');}});});document.querySelectorAll('.delInvBtn').forEach(function(b){b.addEventListener('click',async function(){var id=this.getAttribute('data-id'),it=inventario.find(function(i){return i.id===id;});if(!it||!confirm('¿Eliminar "'+it.nombre+'"?'))return;try{var r=await sb.from('inventario').delete().eq('id',id);if(r.error)throw r.error;inventario=inventario.filter(function(i){return i.id!==id;});updInv();updDropIns();toast('Eliminado','info');}catch(err){toast('Error: '+err.message,'error');}});});}
+async function addInv() {
+    var n = prompt('Nombre del insumo:');
+    if (!n || !n.trim()) return;
+    var u = prompt('Unidad de medida:', 'unidad') || 'unidad';
+    var s = parseInt(prompt('Stock inicial:', '0'));
+    if (isNaN(s) || s < 0) s = 0;
+    try {
+        var r = await sb.from('inventario').insert([{ nombre: n.trim(), stock: s, unidad: u.trim() }]).select();
+        if (r.error) throw r.error;
+        if (r.data && r.data.length) inventario.push(r.data[0]);
+        updAll();
+        toast('"' + n.trim() + '" agregado', 'success');
+    } catch (err) { toast('Error: ' + err.message, 'error'); }
+}
+
+function usoIns() {
+    var m = {};
+    emergencias.forEach(function(e) {
+        if (e.insumos) e.insumos.forEach(function(i) {
+            m[i.nombre] = (m[i.nombre] || 0) + i.cantidad;
+        });
+    });
+    return m;
+}
+
+function updInv() {
+    var tb = document.getElementById('inventarioBody');
+    if (!tb) return;
+    var um = usoIns();
+    tb.innerHTML = '';
+    inventario.forEach(function(item) {
+        var u = um[item.nombre] || 0,
+            d = item.stock - u,
+            lb = item.stock < 20;
+        var r = document.createElement('tr');
+        if (lb) r.className = 'inventory-low';
+        r.innerHTML = '<td><strong>' + esc(item.nombre) + '</strong></td><td>' + item.stock + '</td><td>' + esc(item.unidad) + '</td><td>' + u + '</td><td>' + d + '</td><td>' + (lb ? '<span class="badge bg-warning text-dark">Bajo</span>' : '<span class="badge bg-success">OK</span>') + '</td><td class="admin-only"><button class="btn btn-sm btn-outline-primary ajStockBtn" data-id="' + item.id + '"><i class="fas fa-plus-minus"></i></button> <button class="btn btn-sm btn-outline-danger delInvBtn" data-id="' + item.id + '"><i class="fas fa-trash"></i></button></td>';
+        tb.appendChild(r);
+    });
+    document.querySelectorAll('.ajStockBtn').forEach(function(b) {
+        b.addEventListener('click', async function() {
+            var id = this.getAttribute('data-id'),
+                v = prompt('Ajuste (ej: +5, -3):', '0');
+            if (v === null || v === '' || isNaN(parseFloat(v))) return;
+            try {
+                var it = inventario.find(function(i) { return i.id === id; });
+                if (!it) return;
+                var ns = Math.max(0, it.stock + parseFloat(v)),
+                    r = await sb.from('inventario').update({ stock: ns }).eq('id', id).select();
+                if (r.error) throw r.error;
+                if (r.data && r.data.length) it.stock = r.data[0].stock;
+                updInv();
+                updDropIns();
+                toast('Stock ajustado a ' + ns, 'info');
+            } catch (err) { toast('Error: ' + err.message, 'error'); }
+        });
+    });
+    document.querySelectorAll('.delInvBtn').forEach(function(b) {
+        b.addEventListener('click', async function() {
+            var id = this.getAttribute('data-id'),
+                it = inventario.find(function(i) { return i.id === id; });
+            if (!it || !confirm('¿Eliminar "' + it.nombre + '"?')) return;
+            try {
+                var r = await sb.from('inventario').delete().eq('id', id);
+                if (r.error) throw r.error;
+                inventario = inventario.filter(function(i) { return i.id !== id; });
+                updInv();
+                updDropIns();
+                toast('Eliminado', 'info');
+            } catch (err) { toast('Error: ' + err.message, 'error'); }
+        });
+    });
+}
 
 /* ========== FILTROS Y TABLAS ========== */
-function filtLL(){var dv=document.getElementById('filterFechaDesde').value,hv=document.getElementById('filterFechaHasta').value,tv=document.getElementById('filterTipo').value,sv=document.getElementById('filterSearch').value.trim().toLowerCase();var d=dv?new Date(dv):null,h=hv?new Date(hv):null;if(h)h.setHours(23,59,59,999);return interacciones.filter(function(i){var f=new Date(i.fecha);if(d&&f<d)return false;if(h&&f>h)return false;if(tv!=='todos'&&i.tipo_atencion!==tv)return false;if(sv&&i.paciente.toLowerCase().indexOf(sv)===-1&&(!i.telefono||i.telefono.toLowerCase().indexOf(sv)===-1))return false;return true;});}
-function renLL(){var fl=filtLL(),tb=document.getElementById('tablaBodyLlamadas');if(!tb)return;document.getElementById('registrosCount').innerText=fl.length;if(!fl.length){tb.innerHTML='<tr><td colspan="9" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';return;}var h='';fl.forEach(function(i){var bc=i.tipo_atencion==='Urgencia'?'bg-danger':(i.tipo_atencion==='Consulta'?'bg-primary':(i.tipo_atencion==='Seguimiento'?'bg-success':'bg-secondary'));h+='<tr><td class="text-nowrap">'+new Date(i.fecha).toLocaleString('es-ES')+'</td><td><strong>'+esc(i.paciente)+'</strong></td><td>'+(i.cedula?'<span class="text-muted">'+esc(i.cedula)+'</span>':'—')+'</td><td>'+esc(i.telefono)+'</td><td>'+i.duracion+' min</td><td><span class="badge '+bc+'">'+esc(i.tipo_atencion)+'</span></td><td>'+esc(i.operador)+'</td><td>'+(i.direccion?'<span title="'+esc(i.direccion)+'" class="text-truncate d-inline-block" style="max-width:100px;">'+esc(i.direccion)+'</span>':'—')+'</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edLLBtn" data-id="'+i.id+'"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elLLBtn" data-id="'+i.id+'"><i class="fas fa-trash"></i></button></td></tr>';});tb.innerHTML=h;document.querySelectorAll('.edLLBtn').forEach(function(b){b.addEventListener('click',function(){edLL(this.getAttribute('data-id'));});});document.querySelectorAll('.elLLBtn').forEach(function(b){b.addEventListener('click',function(){elLL(this.getAttribute('data-id'));});});}
-function filtEm(){var dv=document.getElementById('filtroEmergenciaDesde').value,hv=document.getElementById('filtroEmergenciaHasta').value,pv=document.getElementById('filtroEmergenciaProf').value.trim().toLowerCase(),sv=document.getElementById('filtroEmergenciaSearch').value.trim().toLowerCase();var d=dv?new Date(dv):null,h=hv?new Date(hv):null;if(h)h.setHours(23,59,59,999);return emergencias.filter(function(e){var f=new Date(e.fecha);if(d&&f<d)return false;if(h&&f>h)return false;if(pv&&(!e.profesional||e.profesional.toLowerCase().indexOf(pv)===-1))return false;if(sv&&e.paciente.toLowerCase().indexOf(sv)===-1)return false;return true;});}
-function renEm(){var fl=filtEm(),tb=document.getElementById('emergenciasBody');if(!tb)return;document.getElementById('emergenciasCount').innerText=fl.length;tb.innerHTML='';if(!fl.length){tb.innerHTML='<tr><td colspan="9" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';return;}fl.forEach(function(e){var row=document.createElement('tr');var ins=e.insumos&&e.insumos.length?e.insumos.map(function(i){return '<span class="badge bg-info bg-opacity-25 text-dark me-1">'+esc(i.nombre)+' x'+i.cantidad+'</span>';}).join(''):'—';row.innerHTML='<td class="text-nowrap">'+new Date(e.fecha).toLocaleString('es-ES')+'</td><td><strong>'+esc(e.paciente)+'</strong></td><td>'+(e.cedula?'<span class="text-muted">'+esc(e.cedula)+'</span>':'—')+'</td><td><strong>'+esc(e.profesional||'—')+'</strong></td><td>'+(e.tipoEmergencia?'<span title="'+esc(e.tipoEmergencia)+'" class="text-truncate d-inline-block" style="max-width:90px;">'+esc(e.tipoEmergencia)+'</span>':'—')+'</td><td>'+e.duracion+' min</td><td>'+(e.direccion?'<span title="'+esc(e.direccion)+'" class="text-truncate d-inline-block" style="max-width:90px;">'+esc(e.direccion)+'</span>':'—')+'</td><td>'+ins+'</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edEmBtn" data-id="'+e.id+'"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elEmBtn" data-id="'+e.id+'"><i class="fas fa-trash"></i></button></td></tr>';tb.appendChild(row);});document.querySelectorAll('.edEmBtn').forEach(function(b){b.addEventListener('click',function(){edEm(this.getAttribute('data-id'));});});document.querySelectorAll('.elEmBtn').forEach(function(b){b.addEventListener('click',function(){elEm(this.getAttribute('data-id'));});});}
+function filtLL() {
+    var dv = document.getElementById('filterFechaDesde').value,
+        hv = document.getElementById('filterFechaHasta').value,
+        tv = document.getElementById('filterTipo').value,
+        sv = document.getElementById('filterSearch').value.trim().toLowerCase();
+    var d = dv ? new Date(dv) : null,
+        h = hv ? new Date(hv) : null;
+    if (h) h.setHours(23, 59, 59, 999);
+    return interacciones.filter(function(i) {
+        var f = new Date(i.fecha);
+        if (d && f < d) return false;
+        if (h && f > h) return false;
+        if (tv !== 'todos' && i.tipo_atencion !== tv) return false;
+        if (sv && i.paciente.toLowerCase().indexOf(sv) === -1 && (!i.telefono || i.telefono.toLowerCase().indexOf(sv) === -1)) return false;
+        return true;
+    });
+}
+
+function renLL() {
+    var fl = filtLL();
+    var tb = document.getElementById('tablaBodyLlamadas');
+    if (!tb) return;
+    var count = fl.length;
+    var headerCount = document.getElementById('registrosCountHeader');
+    var footerCount = document.getElementById('registrosCount');
+    if (headerCount) headerCount.innerText = count;
+    if (footerCount) footerCount.innerText = count;
+
+    if (!fl.length) {
+        tb.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
+        return;
+    }
+    var h = '';
+    fl.forEach(function(i) {
+        var bc = i.tipo_atencion === 'Urgencia' ? 'bg-danger' : (i.tipo_atencion === 'Consulta' ? 'bg-primary' : (i.tipo_atencion === 'Seguimiento' ? 'bg-success' : 'bg-secondary'));
+        var fechaFormateada = formatLocalDateTime(i.fecha);
+        h += '<tr><td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(i.paciente) + '</strong></td><td>' + (i.cedula ? '<span class="text-muted">' + esc(i.cedula) + '</span>' : '—') + '</td><td>' + esc(i.telefono) + '</td><td>' + i.duracion + ' min</td><td><span class="badge ' + bc + '">' + esc(i.tipo_atencion) + '</span></td><td>' + esc(i.operador) + '</td><td>' + (i.direccion ? '<span title="' + esc(i.direccion) + '" class="text-truncate d-inline-block" style="max-width:100px;">' + esc(i.direccion) + '</span>' : '—') + '</td><td>' + (i.municipio ? '<span class="badge bg-info bg-opacity-25 text-dark">' + esc(i.municipio) + '</span>' : '—') + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edLLBtn" data-id="' + i.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elLLBtn" data-id="' + i.id + '"><i class="fas fa-trash"></i></button></td></tr>';
+    });
+    tb.innerHTML = h;
+    document.querySelectorAll('.edLLBtn').forEach(function(b) { b.addEventListener('click', function() { edLL(this.getAttribute('data-id')); }); });
+    document.querySelectorAll('.elLLBtn').forEach(function(b) { b.addEventListener('click', function() { elLL(this.getAttribute('data-id')); }); });
+}
+
+function filtEm() {
+    var dv = document.getElementById('filtroEmergenciaDesde').value,
+        hv = document.getElementById('filtroEmergenciaHasta').value,
+        pv = document.getElementById('filtroEmergenciaProf').value.trim().toLowerCase(),
+        sv = document.getElementById('filtroEmergenciaSearch').value.trim().toLowerCase();
+    var d = dv ? new Date(dv) : null,
+        h = hv ? new Date(hv) : null;
+    if (h) h.setHours(23, 59, 59, 999);
+    return emergencias.filter(function(e) {
+        var f = new Date(e.fecha);
+        if (d && f < d) return false;
+        if (h && f > h) return false;
+        if (pv && (!e.profesional || e.profesional.toLowerCase().indexOf(pv) === -1)) return false;
+        if (sv && e.paciente.toLowerCase().indexOf(sv) === -1) return false;
+        return true;
+    });
+}
+
+function renEm() {
+    var fl = filtEm(),
+        tb = document.getElementById('emergenciasBody');
+    if (!tb) return;
+    document.getElementById('emergenciasCount').innerText = fl.length;
+    tb.innerHTML = '';
+    if (!fl.length) {
+        tb.innerHTML = '<tr><td colspan="9" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
+        return;
+    }
+    fl.forEach(function(e) {
+        var row = document.createElement('tr');
+        var ins = e.insumos && e.insumos.length ? e.insumos.map(function(i) { return '<span class="badge bg-info bg-opacity-25 text-dark me-1">' + esc(i.nombre) + ' x' + i.cantidad + '</span>'; }).join('') : '—';
+        var fechaFormateada = formatLocalDateTime(e.fecha);
+        row.innerHTML = '<td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(e.paciente) + '</strong></td><td>' + (e.cedula ? '<span class="text-muted">' + esc(e.cedula) + '</span>' : '—') + '</td><td><strong>' + esc(e.profesional || '—') + '</strong></td><td>' + (e.tipoEmergencia ? '<span title="' + esc(e.tipoEmergencia) + '" class="text-truncate d-inline-block" style="max-width:90px;">' + esc(e.tipoEmergencia) + '</span>' : '—') + '</td><td>' + e.duracion + ' min</td><td>' + (e.direccion ? '<span title="' + esc(e.direccion) + '" class="text-truncate d-inline-block" style="max-width:90px;">' + esc(e.direccion) + '</span>' : '—') + '</td><td>' + ins + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edEmBtn" data-id="' + e.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elEmBtn" data-id="' + e.id + '"><i class="fas fa-trash"></i></button></td></tr>';
+        tb.appendChild(row);
+    });
+    document.querySelectorAll('.edEmBtn').forEach(function(b) { b.addEventListener('click', function() { edEm(this.getAttribute('data-id')); }); });
+    document.querySelectorAll('.elEmBtn').forEach(function(b) { b.addEventListener('click', function() { elEm(this.getAttribute('data-id')); }); });
+}
 
 /* ========== KPIs ========== */
-function allAtt(){return interacciones.map(function(i){return{fecha:i.fecha,duracion:i.duracion,tipo_atencion:i.tipo_atencion,operador:i.operador};}).concat(emergencias.map(function(e){return{fecha:e.fecha,duracion:e.duracion,tipo_atencion:e.tipoEmergencia,operador:e.profesional};}));}
-function updKPI(){document.getElementById('totalLlamadas').innerText=interacciones.length;document.getElementById('totalEmergencias').innerText=emergencias.length;var td=allAtt(),s=0;td.forEach(function(a){s+=a.duracion;});document.getElementById('promedioDuracionGlobal').innerText=td.length?(s/td.length).toFixed(1):'0';var ti=0;emergencias.forEach(function(e){if(e.insumos)e.insumos.forEach(function(i){ti+=i.cantidad;});});document.getElementById('totalInsumosGlobal').innerText=ti;}
+function allAtt() {
+    return interacciones.map(function(i) { return { fecha: i.fecha, duracion: i.duracion, tipo_atencion: i.tipo_atencion, operador: i.operador }; }).concat(emergencias.map(function(e) { return { fecha: e.fecha, duracion: e.duracion, tipoEmergencia: e.tipoEmergencia, operador: e.profesional }; }));
+}
+
+function updKPI() {
+    document.getElementById('totalLlamadas').innerText = interacciones.length;
+    document.getElementById('totalEmergencias').innerText = emergencias.length;
+    var td = allAtt(),
+        s = 0;
+    td.forEach(function(a) { s += a.duracion; });
+    document.getElementById('promedioDuracionGlobal').innerText = td.length ? (s / td.length).toFixed(1) : '0';
+    var ti = 0;
+    emergencias.forEach(function(e) { if (e.insumos) e.insumos.forEach(function(i) { ti += i.cantidad; }); });
+    document.getElementById('totalInsumosGlobal').innerText = ti;
+}
 
 /* ========== GRÁFICOS HELPER ========== */
-function mkC(id,cfg){var cv=document.getElementById(id);if(!cv)return null;var ctx=cv.getContext('2d');if(!ctx)return null;if(chartsMap[id]){try{chartsMap[id].destroy();}catch(e){}delete chartsMap[id];}try{var ch=new Chart(ctx,cfg);chartsMap[id]=ch;return ch;}catch(err){console.warn('[CRM] Error gráfico '+id+':',err);return null;}}
+function mkC(id, cfg) {
+    var cv = document.getElementById(id);
+    if (!cv) return null;
+    var ctx = cv.getContext('2d');
+    if (!ctx) return null;
+    if (chartsMap[id]) { try { chartsMap[id].destroy(); } catch (e) {} delete chartsMap[id]; }
+    try { var ch = new Chart(ctx, cfg); chartsMap[id] = ch; return ch; } catch (err) { console.warn('[CRM] Error gráfico ' + id + ':', err); return null; }
+}
 
 /* ========== RENDIMIENTO OPERADORES ========== */
-function updRenOp(){var m={};interacciones.forEach(function(i){if(!m[i.operador])m[i.operador]={t:0,s:0,tp:{}};m[i.operador].t++;m[i.operador].s+=i.duracion;m[i.operador].tp[i.tipo_atencion]=(m[i.operador].tp[i.tipo_atencion]||0)+1;});var n=Object.keys(m);mkC('operadorLlamadasChart',{type:'bar',data:{labels:n,datasets:[{label:'Total',data:n.map(function(x){return m[x].t;}),backgroundColor:'#3b7cbf'}]},options:{responsive:true,plugins:{legend:{display:false}}}});mkC('operadorDuracionLlamadasChart',{type:'bar',data:{labels:n,datasets:[{label:'Promedio (min)',data:n.map(function(x){return m[x].t?(m[x].s/m[x].t).toFixed(1):0;}),backgroundColor:'#2e9d6e'}]},options:{responsive:true,plugins:{legend:{display:false}}}});var tb=document.getElementById('rendimientoOperadoresBody');if(tb){tb.innerHTML='';if(!n.length){tb.innerHTML='<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>';return;}n.forEach(function(op){var d=m[op];var tf=Object.entries(d.tp).sort(function(a,b){return b[1]-a[1];}).slice(0,2).map(function(x){return x[0];}).join(', ')||'—';tb.innerHTML+='<tr><td><strong>'+esc(op)+'</strong></td><td>'+d.t+'</td><td>'+(d.t?(d.s/d.t).toFixed(1):'0')+' min</td><td>'+tf+'</td></tr>';});}}
+function updRenOp() {
+    var m = {};
+    interacciones.forEach(function(i) {
+        if (!m[i.operador]) m[i.operador] = { t: 0, s: 0, tp: {} };
+        m[i.operador].t++;
+        m[i.operador].s += i.duracion;
+        m[i.operador].tp[i.tipo_atencion] = (m[i.operador].tp[i.tipo_atencion] || 0) + 1;
+    });
+    var n = Object.keys(m);
+    mkC('operadorLlamadasChart', { type: 'bar', data: { labels: n, datasets: [{ label: 'Total', data: n.map(function(x) { return m[x].t; }), backgroundColor: '#3b7cbf' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+    mkC('operadorDuracionLlamadasChart', { type: 'bar', data: { labels: n, datasets: [{ label: 'Promedio (min)', data: n.map(function(x) { return m[x].t ? (m[x].s / m[x].t).toFixed(1) : 0; }), backgroundColor: '#2e9d6e' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+    var tb = document.getElementById('rendimientoOperadoresBody');
+    if (tb) {
+        tb.innerHTML = '';
+        if (!n.length) { tb.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>'; return; }
+        n.forEach(function(op) {
+            var d = m[op];
+            var tf = Object.entries(d.tp).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 2).map(function(x) { return x[0]; }).join(', ') || '—';
+            tb.innerHTML += '<tr><td><strong>' + esc(op) + '</strong></td><td>' + d.t + '</td><td>' + (d.t ? (d.s / d.t).toFixed(1) : '0') + ' min</td><td>' + tf + '</td></tr>';
+        });
+    }
+}
 
 /* ========== RENDIMIENTO PROFESIONALES ========== */
-function updRenEm(){var m={};emergencias.forEach(function(e){var p=e.profesional||'Sin asignar';if(!m[p])m[p]={t:0,s:0,it:0,tp:{}};m[p].t++;m[p].s+=e.duracion;if(e.insumos)e.insumos.forEach(function(i){m[p].it+=i.cantidad;});var t=e.tipoEmergencia||'Sin tipo';m[p].tp[t]=(m[p].tp[t]||0)+1;});var n=Object.keys(m),ey=n.length>4;mkC('operadorEmergChart',{type:'bar',data:{labels:n,datasets:[{label:'Total',data:n.map(function(x){return m[x].t;}),backgroundColor:'#f39c12'}]},options:{responsive:true,indexAxis:ey?'y':'x',plugins:{legend:{display:false}}}});mkC('duracionEmergChart',{type:'bar',data:{labels:n,datasets:[{label:'Promedio (min)',data:n.map(function(x){return m[x].t?(m[x].s/m[x].t).toFixed(1):0;}),backgroundColor:'#16a085'}]},options:{responsive:true,indexAxis:ey?'y':'x',plugins:{legend:{display:false}}}});var tb=document.getElementById('rendimientoEmergBody');if(tb){tb.innerHTML='';if(!n.length){tb.innerHTML='<tr><td colspan="5" class="text-center text-muted">Sin datos</td></tr>';return;}n.forEach(function(pr){var d=m[pr];var tf=Object.entries(d.tp).sort(function(a,b){return b[1]-a[1];}).slice(0,2).map(function(x){var t=x[0];return t.length>35?t.substring(0,35)+'...':t;}).join(', ')||'—';tb.innerHTML+='<tr><td><strong>'+esc(pr)+'</strong></td><td>'+d.t+'</td><td>'+(d.t?(d.s/d.t).toFixed(1):'0')+' min</td><td>'+tf+'</td><td>'+(d.t?(d.it/d.t).toFixed(1):'0')+'</td></tr>';});}}
+function updRenEm() {
+    var m = {};
+    emergencias.forEach(function(e) {
+        var p = e.profesional || 'Sin asignar';
+        if (!m[p]) m[p] = { t: 0, s: 0, it: 0, tp: {} };
+        m[p].t++;
+        m[p].s += e.duracion;
+        if (e.insumos) e.insumos.forEach(function(i) { m[p].it += i.cantidad; });
+        var t = e.tipoEmergencia || 'Sin tipo';
+        m[p].tp[t] = (m[p].tp[t] || 0) + 1;
+    });
+    var n = Object.keys(m),
+        ey = n.length > 4;
+    mkC('operadorEmergChart', { type: 'bar', data: { labels: n, datasets: [{ label: 'Total', data: n.map(function(x) { return m[x].t; }), backgroundColor: '#f39c12' }] }, options: { responsive: true, indexAxis: ey ? 'y' : 'x', plugins: { legend: { display: false } } } });
+    mkC('duracionEmergChart', { type: 'bar', data: { labels: n, datasets: [{ label: 'Promedio (min)', data: n.map(function(x) { return m[x].t ? (m[x].s / m[x].t).toFixed(1) : 0; }), backgroundColor: '#16a085' }] }, options: { responsive: true, indexAxis: ey ? 'y' : 'x', plugins: { legend: { display: false } } } });
+    var tb = document.getElementById('rendimientoEmergBody');
+    if (tb) {
+        tb.innerHTML = '';
+        if (!n.length) { tb.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Sin datos</td></tr>'; return; }
+        n.forEach(function(pr) {
+            var d = m[pr];
+            var tf = Object.entries(d.tp).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 2).map(function(x) { var t = x[0]; return t.length > 35 ? t.substring(0, 35) + '...' : t; }).join(', ') || '—';
+            tb.innerHTML += '<tr><td><strong>' + esc(pr) + '</strong></td><td>' + d.t + '</td><td>' + (d.t ? (d.s / d.t).toFixed(1) : '0') + ' min</td><td>' + tf + '</td><td>' + (d.t ? (d.it / d.t).toFixed(1) : '0') + '</td></tr>';
+        });
+    }
+}
 
 /* ========== ANÁLISIS COMPLETO ========== */
 function updAnal() {
-    var td = allAtt(), um = usoIns();
+    var td = allAtt(),
+        um = usoIns();
 
-    /* Top 5 insumos */
-    var ue = Object.entries(um).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-    mkC('topInsumosChart',{type:'bar',data:{labels:ue.map(function(e){return e[0];}),datasets:[{label:'Uds',data:ue.map(function(e){return e[1];}),backgroundColor:'#42a5f5'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}});
-    document.getElementById('topInsumosTable').innerHTML=ue.length?'<ul class="list-group list-group-flush small">'+ue.map(function(e){return '<li class="list-group-item d-flex justify-content-between"><span>'+esc(e[0])+'</span><span class="badge bg-secondary">'+e[1]+' uds</span></li>';}).join('')+'</ul>':'<div class="text-muted">Sin datos</div>';
+    var ue = Object.entries(um).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
+    mkC('topInsumosChart', { type: 'bar', data: { labels: ue.map(function(e) { return e[0]; }), datasets: [{ label: 'Uds', data: ue.map(function(e) { return e[1]; }), backgroundColor: '#42a5f5' }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } } });
+    document.getElementById('topInsumosTable').innerHTML = ue.length ? '<ul class="list-group list-group-flush small">' + ue.map(function(e) { return '<li class="list-group-item d-flex justify-content-between"><span>' + esc(e[0]) + '</span><span class="badge bg-secondary">' + e[1] + ' uds</span></li>'; }).join('') + '</ul>' : '<div class="text-muted">Sin datos</div>';
 
-    /* Atenciones por hora */
-    var ph=new Array(24).fill(0),sdh=new Array(24).fill(0),ch=new Array(24).fill(0);
-    /* Helper: parsear fecha de Supabase de forma segura en todos los navegadores */
-    function parseFechaSafe(raw){if(!raw)return null;var s=String(raw).trim().replace(' ','T');if(!/Z|[+\-]\d{2}:\d{2}$/.test(s))s+='Z';var d=new Date(s);return isNaN(d.getTime())?null:d;}
-    td.forEach(function(a){var dt=parseFechaSafe(a.fecha);if(!dt)return;var h=dt.getHours();ph[h]++;ch[h]++;sdh[h]+=(a.duracion||0);});
-    var dph=ch.map(function(c,i){return c?(sdh[i]/c).toFixed(1):0;});
-    var hl=[];for(var hi=0;hi<24;hi++)hl.push(hi+'h');
-    mkC('llamadasPorHoraChart',{type:'line',data:{labels:hl,datasets:[{label:'Atenciones',data:ph,borderColor:'#e67e22',fill:true,backgroundColor:'rgba(230,126,34,0.1)',tension:0.3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}});
-    mkC('duracionPorHoraChart',{type:'bar',data:{labels:hl,datasets:[{label:'Promedio (min)',data:dph,backgroundColor:'#2ecc71'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    var ph = new Array(24).fill(0),
+        sdh = new Array(24).fill(0),
+        ch = new Array(24).fill(0);
 
-    /* Hora pico */
-    var mx=-1,pi=-1;for(var p2=0;p2<24;p2++){if(ph[p2]>mx){mx=ph[p2];pi=p2;}}
-    document.getElementById('peakHour').innerText=pi!==-1?pi+':00':'--';
-    document.getElementById('peakHourCount').innerText=mx>0?mx:'0';
-    var md=-1;for(var di=0;di<24;di++){if(parseFloat(dph[di])>md)md=parseFloat(dph[di]);}
-    document.getElementById('maxAvgDurationHour').innerText=md>0?md+' min':'--';
+    function parseFechaSafe(raw) { 
+        if (!raw) return null; 
+        try {
+            var d = new Date(raw);
+            return isNaN(d.getTime()) ? null : d;
+        } catch(e) { return null; }
+    }
+    td.forEach(function(a) { var dt = parseFechaSafe(a.fecha); if (!dt) return; var h = dt.getHours(); ph[h]++; ch[h]++; sdh[h] += (a.duracion || 0); });
+    var dph = ch.map(function(c, i) { return c ? (sdh[i] / c).toFixed(1) : 0; });
+    var hl = [];
+    for (var hi = 0; hi < 24; hi++) hl.push(hi + 'h');
+    mkC('llamadasPorHoraChart', { type: 'line', data: { labels: hl, datasets: [{ label: 'Atenciones', data: ph, borderColor: '#e67e22', fill: true, backgroundColor: 'rgba(230,126,34,0.1)', tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } } });
+    mkC('duracionPorHoraChart', { type: 'bar', data: { labels: hl, datasets: [{ label: 'Promedio (min)', data: dph, backgroundColor: '#2ecc71' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
 
-    /* Por día de semana */
-    var ds=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-    var pd=new Array(7).fill(0);
-    td.forEach(function(a){
-        if(!a.fecha)return;
-        /* Supabase devuelve timestamps con timezone (+00:00 o Z).
-           Normalizar a formato ISO válido para que Date() lo parsee correctamente
-           en todos los navegadores, sin convertir a local (usamos UTC explícito). */
+    var mx = -1,
+        pi = -1;
+    for (var p2 = 0; p2 < 24; p2++) { if (ph[p2] > mx) { mx = ph[p2];
+            pi = p2; } }
+    document.getElementById('peakHour').innerText = pi !== -1 ? pi + ':00' : '--';
+    document.getElementById('peakHourCount').innerText = mx > 0 ? mx : '0';
+    var md = -1;
+    for (var di = 0; di < 24; di++) { if (parseFloat(dph[di]) > md) md = parseFloat(dph[di]); }
+    document.getElementById('maxAvgDurationHour').innerText = md > 0 ? md + ' min' : '--';
+
+    var ds = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var pd = new Array(7).fill(0);
+    td.forEach(function(a) {
+        if (!a.fecha) return;
         var dt = parseFechaSafe(a.fecha);
-        if(!dt)return;
-        var day = dt.getDay(); /* 0=Dom … 6=Sáb */
+        if (!dt) return;
+        var day = dt.getDay();
         pd[day]++;
     });
-    /* Colores: fin de semana destacados */
-    var coloresDia=['#e74c3c','#3498db','#3498db','#3498db','#3498db','#3498db','#e67e22'];
-    /* Ordenar para mostrar Lunes primero (opcional, preservar Dom-Sáb como estaba) */
-    mkC('atencionesPorDiaSemanaChart',{type:'bar',data:{labels:ds,datasets:[{
-        label:'Atenciones',
-        data:pd,
-        backgroundColor:coloresDia,
-        borderRadius:4,
-        barPercentage:0.65
-    }]},options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-            legend:{display:false},
-            tooltip:{callbacks:{
-                title:function(items){return ds[items[0].dataIndex];},
-                label:function(item){return ' '+item.raw+' atención'+(item.raw!==1?'es':'');}
-            }}
-        },
-        scales:{
-            y:{beginAtZero:true,ticks:{stepSize:1,precision:0,font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
-            x:{ticks:{font:{size:11}},grid:{display:false}}
-        }
-    }});
+    var coloresDia = ['#e74c3c', '#3498db', '#3498db', '#3498db', '#3498db', '#3498db', '#e67e22'];
+    mkC('atencionesPorDiaSemanaChart', { type: 'bar', data: { labels: ds, datasets: [{ label: 'Atenciones', data: pd, backgroundColor: coloresDia, borderRadius: 4, barPercentage: 0.65 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: function(items) { return ds[items[0].dataIndex]; }, label: function(item) { return ' ' + item.raw + ' atención' + (item.raw !== 1 ? 'es' : ''); } } } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { ticks: { font: { size: 11 } }, grid: { display: false } } } } });
 
-    /* Top 5 fechas */
-    var pf={};td.forEach(function(a){var k=a.fecha.split('T')[0];pf[k]=(pf[k]||0)+1;});
-    var tf=Object.entries(pf).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-    document.getElementById('topFechasTable').innerHTML=tf.length?'<ul class="list-group list-group-flush">'+tf.map(function(e){return '<li class="list-group-item d-flex justify-content-between"><span>'+e[0]+'</span><span class="badge bg-primary">'+e[1]+'</span></li>';}).join('')+'</ul>':'<div class="text-muted">Sin datos</div>';
+    var pf = {};
+    td.forEach(function(a) { var k = a.fecha.split('T')[0];
+        pf[k] = (pf[k] || 0) + 1; });
+    var tf = Object.entries(pf).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
+    document.getElementById('topFechasTable').innerHTML = tf.length ? '<ul class="list-group list-group-flush">' + tf.map(function(e) { return '<li class="list-group-item d-flex justify-content-between"><span>' + e[0] + '</span><span class="badge bg-primary">' + e[1] + '</span></li>'; }).join('') + '</ul>' : '<div class="text-muted">Sin datos</div>';
 
-    /* Tipos presencial */
-    var tem={};emergencias.forEach(function(e){var t=e.tipoEmergencia||'Sin tipo';tem[t]=(tem[t]||0)+1;});
-    var tee=Object.entries(tem).sort(function(a,b){return b[1]-a[1];});
-    var teL=tee.map(function(e){return e[0];}),teD=tee.map(function(e){return e[1];});
-    var teC=['#c0392b','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#2c3e50','#e74c3c','#1abc9c'];
-    var cvEl=document.getElementById('tiposEmergenciasChart'),wr=document.getElementById('wrapTiposEmerg');
-    if(wr&&cvEl){cvEl.style.height=Math.max(120,teL.length*34+30)+'px';cvEl.style.width='100%';}
-    mkC('tiposEmergenciasChart',{type:'bar',data:{labels:teL,datasets:[{label:'Atenciones',data:teD,backgroundColor:teC.slice(0,teL.length),borderRadius:4,barThickness:16}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'rgba(0,0,0,0.05)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}});
-    var teTot=teD.reduce(function(a,b){return a+b;},0);
-    document.getElementById('tiposEmergenciasTable').innerHTML=teL.length?'<table class="table table-sm table-striped mb-0" style="font-size:8pt;"><thead class="table-light"><tr><th>#</th><th>Tipo</th><th style="text-align:center;">Cant.</th><th style="text-align:center;">%</th></tr></thead><tbody>'+tee.map(function(e,i){return '<tr><td>'+(i+1)+'</td><td style="word-break:break-word;">'+esc(e[0])+'</td><td style="text-align:center;font-weight:700;">'+e[1]+'</td><td style="text-align:center;"><span class="badge" style="background:'+teC[i%teC.length]+';color:white;">'+((e[1]/teTot)*100).toFixed(1)+'%</span></td></tr>';}).join('')+'</tbody></table>':'<div class="text-muted">Sin datos</div>';
+    var tem = {};
+    emergencias.forEach(function(e) { var t = e.tipoEmergencia || 'Sin tipo';
+        tem[t] = (tem[t] || 0) + 1; });
+    var tee = Object.entries(tem).sort(function(a, b) { return b[1] - a[1]; });
+    var teL = tee.map(function(e) { return e[0]; }),
+        teD = tee.map(function(e) { return e[1]; });
+    var teC = ['#c0392b', '#2980b9', '#27ae60', '#f39c12', '#8e44ad', '#16a085', '#d35400', '#2c3e50', '#e74c3c', '#1abc9c'];
+    var cvEl = document.getElementById('tiposEmergenciasChart'),
+        wr = document.getElementById('wrapTiposEmerg');
+    if (wr && cvEl) { cvEl.style.height = Math.max(120, teL.length * 34 + 30) + 'px';
+        cvEl.style.width = '100%'; }
+    mkC('tiposEmergenciasChart', { type: 'bar', data: { labels: teL, datasets: [{ label: 'Atenciones', data: teD, backgroundColor: teC.slice(0, teL.length), borderRadius: 4, barThickness: 16 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } }, y: { ticks: { font: { size: 9 } }, grid: { display: false } } } } });
+    var teTot = teD.reduce(function(a, b) { return a + b; }, 0);
+    document.getElementById('tiposEmergenciasTable').innerHTML = teL.length ? '<table class="table table-sm table-striped mb-0" style="font-size:8pt;"><thead class="table-light"><tr><th>#</th><th>Tipo</th><th style="text-align:center;">Cant.</th><th style="text-align:center;">%</th></tr></thead><tbody>' + tee.map(function(e, i) { return '<tr><td>' + (i + 1) + '</td><td style="word-break:break-word;">' + esc(e[0]) + '</td><td style="text-align:center;font-weight:700;">' + e[1] + '</td><td style="text-align:center;"><span class="badge" style="background:' + teC[i % teC.length] + ';color:white;">' + ((e[1] / teTot) * 100).toFixed(1) + '%</span></td></tr>'; }).join('') + '</tbody></table>' : '<div class="text-muted">Sin datos</div>';
 
-    /* Tipos telefónicos */
-    var tlm={};interacciones.forEach(function(i){tlm[i.tipo_atencion]=(tlm[i.tipo_atencion]||0)+1;});
-    var tlL=Object.keys(tlm),tlD=Object.values(tlm);
-    mkC('tiposLlamadasChart',{type:'pie',data:{labels:tlL,datasets:[{data:tlD,backgroundColor:['#2980b9','#e67e22','#27ae60','#8e44ad']}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10}}}}}});
-    document.getElementById('tiposLlamadasTable').innerHTML=tlL.length?'<div class="small">'+tlL.map(function(t,i){return '<span class="badge bg-info me-1">'+esc(t)+': '+tlD[i]+'</span>';}).join('')+'</div>':'<div class="text-muted">Sin datos</div>';
+    var tlm = {};
+    interacciones.forEach(function(i) { tlm[i.tipo_atencion] = (tlm[i.tipo_atencion] || 0) + 1; });
+    var tlL = Object.keys(tlm),
+        tlD = Object.values(tlm);
+    mkC('tiposLlamadasChart', { type: 'pie', data: { labels: tlL, datasets: [{ data: tlD, backgroundColor: ['#2980b9', '#e67e22', '#27ae60', '#8e44ad'] }] }, options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 10 } } } } } });
+    document.getElementById('tiposLlamadasTable').innerHTML = tlL.length ? '<div class="small">' + tlL.map(function(t, i) { return '<span class="badge bg-info me-1">' + esc(t) + ': ' + tlD[i] + '</span>'; }).join('') + '</div>' : '<div class="text-muted">Sin datos</div>';
 }
 
 /* ========== ACTUALIZAR TODO ========== */
-function updAll(){updKPI();updInv();updDropIns();renLL();renEm();updRenOp();updRenEm();updAnal();}
+function updAll() { updKPI();
+    updInv();
+    updDropIns();
+    renLL();
+    renEm();
+    updRenOp();
+    updRenEm();
+    updAnal(); }
 
 /* ========== IMPRIMIR REPORTE ========== */
 function imprimirReporte(mod) {
     try {
-        var ah=new Date().toLocaleString('es-ES',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
-        var modLabel={'llamadas':'Atenciones Telefónicas','atenciones':'Atenciones Presenciales','inventario':'Inventario de Insumos','rendimiento':'Rendimiento de Operadores','analisis':'Análisis General'};
-        var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte CRM</title><style>';
-        h+='@page{margin:8mm 6mm;size:A4 landscape;}';
-        h+='body{font-family:Arial,sans-serif;font-size:7.5pt;color:#1a1a1a;margin:0;}';
-        h+='table{width:100%;border-collapse:collapse;margin:6px 0;table-layout:auto;}';
-        h+='th{background:#0b5e7e;color:#fff;padding:4px 5px;font-size:7pt;text-align:left;border:1px solid #0a4b6e;}';
-        h+='td{padding:3px 5px;border:1px solid #e0e0e0;vertical-align:top;word-break:break-word;}';
-        h+='tr:nth-child(even) td{background:#f4f8fb;}';
-        h+='tr:hover td{background:#eaf3fb;}';
-        h+='.rh1{color:#0b5e7e;font-size:13pt;margin:0 0 2px 0;font-weight:700;}';
-        h+='.rh2{font-size:9pt;color:#0a4b6e;margin:0 0 6px 0;border-bottom:2px solid #0b5e7e;padding-bottom:3px;font-weight:600;}';
-        h+='.meta{font-size:7pt;color:#666;margin:0 0 8px;display:flex;gap:20px;}';
-        h+='.ft{border-top:1px solid #ccc;padding-top:4px;margin-top:12px;font-size:6.5pt;color:#999;text-align:center;}';
-        h+='.badge-tip{padding:1px 5px;border-radius:3px;color:white;font-size:6.5pt;white-space:nowrap;}';
-        h+='</style></head><body>';
-        h+='<h1 class="rh1"><span style="opacity:0.6;">&#9974;</span> CRM Médico Operativo</h1>';
-        h+='<h2 class="rh2">Reporte de '+(modLabel[mod]||mod)+'</h2>';
-        h+='<div class="meta"><span>&#128197; Generado: '+ah+'</span><span>&#128100; Usuario: '+((currentUser&&currentUser.email)||'—')+'</span><span>&#128274; Rol: '+(userRole||'—').toUpperCase()+'</span></div>';
+        var ah = new Date().toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        var modLabel = { llamadas: 'Atenciones Telefónicas', atenciones: 'Atenciones Presenciales', inventario: 'Inventario de Insumos', rendimiento: 'Rendimiento de Operadores', analisis: 'Análisis General' };
+        var h = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte CRM</title><style>';
+        h += '@page{margin:8mm 6mm;size:A4 landscape;}';
+        h += 'body{font-family:Arial,sans-serif;font-size:7.5pt;color:#1a1a1a;margin:0;}';
+        h += 'table{width:100%;border-collapse:collapse;margin:6px 0;table-layout:auto;}';
+        h += 'th{background:#0b5e7e;color:#fff;padding:4px 5px;font-size:7pt;text-align:left;border:1px solid #0a4b6e;}';
+        h += 'td{padding:3px 5px;border:1px solid #e0e0e0;vertical-align:top;word-break:break-word;}';
+        h += 'tr:nth-child(even) td{background:#f4f8fb;}';
+        h += 'tr:hover td{background:#eaf3fb;}';
+        h += '.rh1{color:#0b5e7e;font-size:13pt;margin:0 0 2px 0;font-weight:700;}';
+        h += '.rh2{font-size:9pt;color:#0a4b6e;margin:0 0 6px 0;border-bottom:2px solid #0b5e7e;padding-bottom:3px;font-weight:600;}';
+        h += '.meta{font-size:7pt;color:#666;margin:0 0 8px;display:flex;gap:20px;}';
+        h += '.ft{border-top:1px solid #ccc;padding-top:4px;margin-top:12px;font-size:6.5pt;color:#999;text-align:center;}';
+        h += '.badge-tip{padding:1px 5px;border-radius:3px;color:white;font-size:6.5pt;white-space:nowrap;}';
+        h += '</style></head><body>';
+        h += '<h1 class="rh1"><span style="opacity:0.6;">&#9974;</span> CRM Médico Operativo</h1>';
+        h += '<h2 class="rh2">Reporte de ' + (modLabel[mod] || mod) + '</h2>';
+        h += '<div class="meta"><span>&#128197; Generado: ' + ah + '</span><span>&#128100; Usuario: ' + ((currentUser && currentUser.email) || '—') + '</span><span>&#128274; Rol: ' + (userRole || '—').toUpperCase() + '</span></div>';
 
-        if(mod==='llamadas'){
-            var dt=filtLL();
-            var resumen='<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de registros: <strong>'+dt.length+'</strong></p>';
-            h+=resumen;
-            h+='<table><thead><tr><th>#</th><th>Fecha y Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Duración (min)</th><th>Tipo</th><th>Operador</th><th>Dirección</th><th>Descripción</th></tr></thead><tbody>';
-            dt.forEach(function(d,i){
-                var bc=d.tipo_atencion==='Urgencia'?'#c0392b':(d.tipo_atencion==='Consulta'?'#2980b9':(d.tipo_atencion==='Seguimiento'?'#27ae60':'#7f8c8d'));
-                h+='<tr>';
-                h+='<td>'+(i+1)+'</td>';
-                h+='<td style="white-space:nowrap;">'+new Date(d.fecha).toLocaleString('es-ES')+'</td>';
-                h+='<td><strong>'+esc(d.paciente)+'</strong></td>';
-                h+='<td>'+(d.cedula||'—')+'</td>';
-                h+='<td>'+esc(d.telefono)+'</td>';
-                h+='<td style="text-align:center;">'+d.duracion+'</td>';
-                h+='<td><span style="background:'+bc+';color:white;padding:1px 6px;border-radius:3px;font-size:8pt;">'+esc(d.tipo_atencion)+'</span></td>';
-                h+='<td>'+esc(d.operador)+'</td>';
-                h+='<td>'+(d.direccion?esc(d.direccion):'—')+'</td>';
-                h+='<td style="max-width:140px;word-break:break-word;">'+(d.descripcion?esc(d.descripcion):'—')+'</td>';
-                h+='</tr>';
+        if (mod === 'llamadas') {
+            var dt = filtLL();
+            var resumen = '<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de registros: <strong>' + dt.length + '</strong></p>';
+            h += resumen;
+            h += '<table><thead><tr><th>#</th><th>Fecha y Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Duración (min)</th><th>Tipo</th><th>Operador</th><th>Dirección</th><th>Municipio</th><th>Descripción</th></tr></thead><tbody>';
+            dt.forEach(function(d, i) {
+                var bc = d.tipo_atencion === 'Urgencia' ? '#c0392b' : (d.tipo_atencion === 'Consulta' ? '#2980b9' : (d.tipo_atencion === 'Seguimiento' ? '#27ae60' : '#7f8c8d'));
+                var fechaStr = formatLocalDateTime(d.fecha);
+                h += '<tr>';
+                h += '<td>' + (i + 1) + '</td>';
+                h += '<td style="white-space:nowrap;">' + fechaStr + '</td>';
+                h += '<td><strong>' + esc(d.paciente) + '</strong></td>';
+                h += '<td>' + (d.cedula || '—') + '</td>';
+                h += '<td>' + esc(d.telefono) + '</td>';
+                h += '<td style="text-align:center;">' + d.duracion + '</td>';
+                h += '<td><span style="background:' + bc + ';color:white;padding:1px 6px;border-radius:3px;font-size:8pt;">' + esc(d.tipo_atencion) + '</span></td>';
+                h += '<td>' + esc(d.operador) + '</td>';
+                h += '<td>' + (d.direccion ? esc(d.direccion) : '—') + '</td>';
+                h += '<td>' + (d.municipio ? esc(d.municipio) : '—') + '</td>';
+                h += '<td style="max-width:140px;word-break:break-word;">' + (d.descripcion ? esc(d.descripcion) : '—') + '</td>';
+                h += '</tr>';
             });
-            h+='</tbody></table>';
+            h += '</tbody></table>';
         }
 
-        if(mod==='atenciones'){
-            var dt2=filtEm();
-            var resumen2='<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de registros: <strong>'+dt2.length+'</strong></p>';
-            h+=resumen2;
-            h+='<table><thead><tr><th>#</th><th>Fecha y Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Profesional</th><th>Tipo Atención</th><th>Duración (min)</th><th>Dirección</th><th>Diagnóstico / Notas</th><th>Insumos utilizados</th></tr></thead><tbody>';
-            dt2.forEach(function(d,i){
-                var ins=(d.insumos&&d.insumos.length)?d.insumos.map(function(x){return esc(x.nombre)+' x'+x.cantidad;}).join('<br>'):'—';
-                h+='<tr>';
-                h+='<td>'+(i+1)+'</td>';
-                h+='<td style="white-space:nowrap;">'+new Date(d.fecha).toLocaleString('es-ES')+'</td>';
-                h+='<td><strong>'+esc(d.paciente)+'</strong></td>';
-                h+='<td>'+(d.cedula?esc(d.cedula):'—')+'</td>';
-                h+='<td>'+(d.telefono?esc(d.telefono):'—')+'</td>';
-                h+='<td>'+esc(d.profesional||'—')+'</td>';
-                h+='<td>'+(d.tipoEmergencia?esc(d.tipoEmergencia):'—')+'</td>';
-                h+='<td style="text-align:center;">'+d.duracion+'</td>';
-                h+='<td style="max-width:110px;word-break:break-word;">'+(d.direccion?esc(d.direccion):'—')+'</td>';
-                h+='<td style="max-width:140px;word-break:break-word;">'+(d.notas?esc(d.notas):'—')+'</td>';
-                h+='<td>'+ins+'</td>';
-                h+='</tr>';
+        if (mod === 'atenciones') {
+            var dt2 = filtEm();
+            var resumen2 = '<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de registros: <strong>' + dt2.length + '</strong></p>';
+            h += resumen2;
+            h += '<table><thead><tr><th>#</th><th>Fecha y Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Profesional</th><th>Tipo Atención</th><th>Duración (min)</th><th>Dirección</th><th>Diagnóstico / Notas</th><th>Insumos utilizados</th></tr></thead><tbody>';
+            dt2.forEach(function(d, i) {
+                var ins = (d.insumos && d.insumos.length) ? d.insumos.map(function(x) { return esc(x.nombre) + ' x' + x.cantidad; }).join('<br>') : '—';
+                var fechaStr = formatLocalDateTime(d.fecha);
+                h += '<tr>';
+                h += '<td>' + (i + 1) + '</td>';
+                h += '<td style="white-space:nowrap;">' + fechaStr + '</td>';
+                h += '<td><strong>' + esc(d.paciente) + '</strong></td>';
+                h += '<td>' + (d.cedula ? esc(d.cedula) : '—') + '</td>';
+                h += '<td>' + (d.telefono ? esc(d.telefono) : '—') + '</td>';
+                h += '<td>' + esc(d.profesional || '—') + '</td>';
+                h += '<td>' + (d.tipoEmergencia ? esc(d.tipoEmergencia) : '—') + '</td>';
+                h += '<td style="text-align:center;">' + d.duracion + '</td>';
+                h += '<td style="max-width:110px;word-break:break-word;">' + (d.direccion ? esc(d.direccion) : '—') + '</td>';
+                h += '<td style="max-width:140px;word-break:break-word;">' + (d.notas ? esc(d.notas) : '—') + '</td>';
+                h += '<td>' + ins + '</td>';
+                h += '</tr>';
             });
-            h+='</tbody></table>';
+            h += '</tbody></table>';
         }
 
-        if(mod==='inventario'){var um2=usoIns();h+='<table><thead><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th></tr></thead><tbody>';inventario.forEach(function(i){var u=um2[i.nombre]||0;h+='<tr><td>'+i.nombre+'</td><td>'+i.stock+'</td><td>'+i.unidad+'</td><td>'+u+'</td><td>'+(i.stock-u)+'</td></tr>';});h+='</tbody></table>';}
+        if (mod === 'inventario') { var um2 = usoIns();
+            h += '<table><thead><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th></tr></thead><tbody>';
+            inventario.forEach(function(i) { var u = um2[i.nombre] || 0;
+                h += '<tr><td>' + i.nombre + '</td><td>' + i.stock + '</td><td>' + i.unidad + '</td><td>' + u + '</td><td>' + (i.stock - u) + '</td></tr>'; });
+            h += '</tbody></table>'; }
 
-        if(mod==='rendimiento'||mod==='analisis'){
-            if(chartsMap['tiposEmergenciasChart'])try{h+='<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Tipos presencial</div><img src="'+chartsMap['tiposEmergenciasChart'].toBase64Image()+'" style="max-width:100%;">';}catch(e){}
-            if(chartsMap['tiposLlamadasChart'])try{h+='<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Tipos telefónicos</div><img src="'+chartsMap['tiposLlamadasChart'].toBase64Image()+'" style="max-width:100%;">';}catch(e){}
-            if(chartsMap['llamadasPorHoraChart'])try{h+='<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Atenciones por hora</div><img src="'+chartsMap['llamadasPorHoraChart'].toBase64Image()+'" style="max-width:100%;">';}catch(e){}
-            if(chartsMap['atencionesPorDiaSemanaChart'])try{h+='<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Atenciones por día</div><img src="'+chartsMap['atencionesPorDiaSemanaChart'].toBase64Image()+'" style="max-width:100%;">';}catch(e){}
+        if (mod === 'rendimiento' || mod === 'analisis') {
+            if (chartsMap['tiposEmergenciasChart']) try { h += '<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Tipos presencial</div><img src="' + chartsMap['tiposEmergenciasChart'].toBase64Image() + '" style="max-width:100%;">'; } catch (e) {}
+            if (chartsMap['tiposLlamadasChart']) try { h += '<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Tipos telefónicos</div><img src="' + chartsMap['tiposLlamadasChart'].toBase64Image() + '" style="max-width:100%;">'; } catch (e) {}
+            if (chartsMap['llamadasPorHoraChart']) try { h += '<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Atenciones por hora</div><img src="' + chartsMap['llamadasPorHoraChart'].toBase64Image() + '" style="max-width:100%;">'; } catch (e) {}
+            if (chartsMap['atencionesPorDiaSemanaChart']) try { h += '<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Atenciones por día</div><img src="' + chartsMap['atencionesPorDiaSemanaChart'].toBase64Image() + '" style="max-width:100%;">'; } catch (e) {}
         }
 
-        h+='<div class="ft">CRM Médico Operativo · '+ah+'</div></body></html>';
-        var w=window.open('','_blank','width=900,height=700');
-        if(w){w.document.write(h);w.document.close();w.onload=function(){setTimeout(function(){w.print();},400);};}
-        else toast('Permita ventanas emergentes','error');
-    } catch(err){toast('Error al generar reporte','error');}
+        h += '<div class="ft">CRM Médico Operativo · ' + ah + '</div></body></html>';
+        var w = window.open('', '_blank', 'width=900,height=700');
+        if (w) { w.document.write(h);
+            w.document.close();
+            w.onload = function() { setTimeout(function() { w.print(); }, 400); }; } else toast('Permita ventanas emergentes', 'error');
+    } catch (err) { toast('Error al generar reporte', 'error'); }
 }
 
 /* ========== INICIO DE LA APLICACIÓN ========== */
 async function initApp() {
-    /* Si la librería no cargó, ya se mostró el panel de error CDN */
     if (typeof window.supabase === 'undefined') return;
 
-    /* Si initSupabase falló, mostrar error de config */
     if (!sbReady) {
         if (initError) {
             document.getElementById('configErrorMsg').textContent = initError;
@@ -948,21 +1559,19 @@ async function initApp() {
         return;
     }
 
-    /* Escuchar cambios de auth ANTES de getSession para no perder eventos */
     sb.auth.onAuthStateChange(function(event, session) {
         if (event === 'SIGNED_OUT') {
-            currentUser = null; userRole = 'operador'; crmInitialized = false;
+            currentUser = null;
+            userRole = 'operador';
+            crmInitialized = false;
             document.body.classList.remove('es-admin');
             showOnlyPanel('authPanel');
         }
-        /* SIGNED_IN y TOKEN_REFRESHED: solo actuar si no hay usuario cargado aún
-           (la sesión inicial se maneja por getSession; esto cubre cambios posteriores) */
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && session.user && !currentUser) {
             onLoginSuccess(session.user);
         }
     });
 
-    /* Verificar sesión existente */
     try {
         var res = await sb.auth.getSession();
         if (res.data && res.data.session && res.data.session.user) {
