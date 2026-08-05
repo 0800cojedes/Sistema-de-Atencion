@@ -334,14 +334,14 @@
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#emergencias" type="button"><i class="fas fa-hand-holding-heart me-1"></i> Atenciones</button></li>
         <li class="nav-item admin-tab"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventario" type="button"><i class="fas fa-boxes me-1"></i> Inventario</button></li>
         <li class="nav-item admin-tab"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#rendimiento" type="button"><i class="fas fa-chart-simple me-1"></i> Rendimiento</button></li>
-        <li class="nav-item admin-tab"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analisis" type="button"><i class="fas fa-chart-line me-1"></i> Análisis</button></li>
+        <!-- <-- CAMBIO: Eliminada la clase "admin-tab" para que el operador pueda ver Análisis -->
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analisis" type="button"><i class="fas fa-chart-line me-1"></i> Análisis</button></li>
     </ul>
     <div class="tab-content" id="mainTabContent">
         <!-- ============================================================ -->
-        <!-- TAB LLAMADAS (con acordeón y filtro de sede)                  -->
+        <!-- TAB LLAMADAS (sin cambios)                                   -->
         <!-- ============================================================ -->
         <div class="tab-pane fade show active" id="llamadas" role="tabpanel">
-            <!-- Filtros -->
             <div class="bg-white p-2 rounded-4 shadow-sm mb-3">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-2"><label class="form-label-custom">Desde</label><input type="date" id="filterFechaDesde" class="form-control form-control-sm"></div>
@@ -356,8 +356,6 @@
                     <div class="col-md-2 d-flex gap-1"><button id="btnAplicarFiltros" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i></button><button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-eraser"></i></button></div>
                 </div>
             </div>
-
-            <!-- ========== ACORDEÓN DE ATENCIONES TELEFÓNICAS ========== -->
             <div class="card card-shadow mb-4">
                 <div class="card-header-custom">
                     <div class="d-flex align-items-center gap-2">
@@ -365,9 +363,7 @@
                         <span class="badge-count" id="registrosCountHeader">0</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <button class="btn-crear-registro" id="btnCrearNuevoLlamada" type="button">
-                            <i class="fas fa-plus-circle"></i> Nuevo
-                        </button>
+                        <button class="btn-crear-registro" id="btnCrearNuevoLlamada" type="button"><i class="fas fa-plus-circle"></i> Nuevo</button>
                         <button class="btn-print" id="btnPrintLlamadas" type="button"><i class="fas fa-print me-1"></i>Imprimir</button>
                         <button class="accordion-toggle" id="toggleLlamadasTable" type="button">
                             <span>Ocultar</span>
@@ -401,8 +397,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Formulario de registro de llamadas -->
             <div class="card card-shadow" id="formLlamadaCard">
                 <div class="card-header-custom">
                     <span><i class="fas fa-edit me-2"></i><span id="formTitleLlamada">Registrar nueva atención telefónica</span></span>
@@ -446,10 +440,9 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB EMERGENCIAS (con acordeón, Municipio y filtro de sede)   -->
+        <!-- TAB EMERGENCIAS (sin cambios)                                -->
         <!-- ============================================================ -->
         <div class="tab-pane fade" id="emergencias" role="tabpanel">
-            <!-- Filtros -->
             <div class="bg-white p-2 rounded-4 shadow-sm mb-3">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-2"><label class="form-label-custom">Desde</label><input type="date" id="filtroEmergenciaDesde" class="form-control form-control-sm"></div>
@@ -464,8 +457,6 @@
                     <div class="col-md-2 d-flex gap-1"><button id="btnFiltrarEmergencias" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i></button><button id="btnLimpiarEmergencias" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-eraser"></i></button></div>
                 </div>
             </div>
-
-            <!-- ========== ACORDEÓN DE ATENCIONES PRESENCIALES ========== -->
             <div class="card card-shadow mb-4">
                 <div class="card-header-custom">
                     <div class="d-flex align-items-center gap-2">
@@ -473,9 +464,7 @@
                         <span class="badge-count" id="emergenciasCountHeader">0</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <button class="btn-crear-registro" id="btnCrearNuevoEmergencia" type="button">
-                            <i class="fas fa-plus-circle"></i> Nuevo
-                        </button>
+                        <button class="btn-crear-registro" id="btnCrearNuevoEmergencia" type="button"><i class="fas fa-plus-circle"></i> Nuevo</button>
                         <button class="btn-print" id="btnPrintAtenciones" type="button"><i class="fas fa-print me-1"></i>Imprimir</button>
                         <button class="accordion-toggle" id="toggleEmergenciasTable" type="button">
                             <span>Ocultar</span>
@@ -509,8 +498,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Formulario de registro de atenciones presenciales con Municipio -->
             <div class="card card-shadow" id="formEmergenciaCard">
                 <div class="card-header-custom">
                     <span><i class="fas fa-plus-circle me-2"></i><span id="emergenciaFormTitle">Registrar nueva atención</span></span>
@@ -563,7 +550,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB INVENTARIO                                                -->
+        <!-- TAB INVENTARIO (solo admin)                                  -->
         <!-- ============================================================ -->
         <div class="tab-pane fade admin-tab" id="inventario" role="tabpanel">
             <div class="card card-shadow">
@@ -588,7 +575,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB RENDIMIENTO                                               -->
+        <!-- TAB RENDIMIENTO (solo admin)                                 -->
         <!-- ============================================================ -->
         <div class="tab-pane fade admin-tab" id="rendimiento" role="tabpanel">
             <div class="card card-shadow mb-4"><div class="card-header-custom"><span><i class="fas fa-headset me-2"></i>Operadores telefónicos</span><div><button class="btn-print" id="btnPrintRendimiento" type="button"><i class="fas fa-print me-1"></i>Imprimir</button></div></div><div class="card-body"><div class="row g-3"><div class="col-lg-6"><canvas id="operadorLlamadasChart" style="max-height:220px;"></canvas></div><div class="col-lg-6"><canvas id="operadorDuracionLlamadasChart" style="max-height:220px;"></canvas></div><div class="col-12"><table class="table table-sm table-striped compact-table"><thead class="table-light"><tr><th>Operador</th><th>Total</th><th>Promedio (min)</th><th>Tipos frecuentes</th></tr></thead><tbody id="rendimientoOperadoresBody"></tbody></table></div></div></div></div>
@@ -596,9 +583,9 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB ANÁLISIS OPTIMIZADO (con filtro de sede propio)          -->
+        <!-- TAB ANÁLISIS (visible para todos, con filtro de 7 días para operador) -->
         <!-- ============================================================ -->
-        <div class="tab-pane fade admin-tab" id="analisis" role="tabpanel">
+        <div class="tab-pane fade" id="analisis" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label-custom mb-0">Sede</label>
@@ -609,7 +596,6 @@
                 <button class="btn-print" id="btnPrintAnalisis" type="button" style="font-size:0.85rem;padding:0.35rem 0.9rem;"><i class="fas fa-print me-1"></i>Imprimir reporte</button>
             </div>
 
-            <!-- Fila 1: Evolución diaria + Atenciones por sede -->
             <div class="row g-3 mb-3">
                 <div class="col-md-8">
                     <div class="card card-shadow analytics-card h-100">
@@ -629,7 +615,6 @@
                 </div>
             </div>
 
-            <!-- Fila 2: Tipos presencial + Tipos telefónicos -->
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <div class="card card-shadow analytics-card h-100">
@@ -651,7 +636,6 @@
                 </div>
             </div>
 
-            <!-- Fila 3: Atenciones por día + Top insumos -->
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <div class="card card-shadow analytics-card h-100">
@@ -672,7 +656,6 @@
                 </div>
             </div>
 
-            <!-- Fila 4: Atenciones por hora y duración promedio -->
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <div class="card card-shadow analytics-card h-100">
@@ -692,7 +675,6 @@
                 </div>
             </div>
 
-            <!-- Indicadores rápidos -->
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="stat-indicator">
@@ -1706,18 +1688,40 @@ function updRenEm() {
     }
 }
 
-/* ========== ANÁLISIS ========== */
+/* ========== ANÁLISIS (con filtro de 7 días para operador) ========== */
 function updAnal() {
     var sede = document.getElementById('analisisSede').value;
     var interFiltradas = interacciones;
     var emergFiltradas = emergencias;
+    
+    // Filtrar por sede
     if (sede !== 'todas') {
         interFiltradas = interacciones.filter(function(i) { return i.municipio === sede; });
         emergFiltradas = emergencias.filter(function(e) { return e.municipio === sede; });
     }
-    var td = interFiltradas.map(function(i) { return { fecha: i.fecha, duracion: i.duracion, tipo_atencion: i.tipo_atencion, operador: i.operador }; })
-        .concat(emergFiltradas.map(function(e) { return { fecha: e.fecha, duracion: e.duracion, tipoEmergencia: e.tipoEmergencia, operador: e.profesional }; }));
 
+    // <-- CAMBIO: Si es operador, filtrar solo los últimos 7 días
+    if (userRole === 'operador') {
+        var hoy = new Date();
+        var hace7Dias = new Date();
+        hace7Dias.setDate(hace7Dias.getDate() - 7);
+        hace7Dias.setHours(0, 0, 0, 0);
+        
+        interFiltradas = interFiltradas.filter(function(i) {
+            var f = new Date(i.fecha);
+            return f >= hace7Dias;
+        });
+        emergFiltradas = emergFiltradas.filter(function(e) {
+            var f = new Date(e.fecha);
+            return f >= hace7Dias;
+        });
+    }
+
+    // Combinar atenciones filtradas
+    var td = interFiltradas.map(function(i) { return { fecha: i.fecha, duracion: i.duracion, tipo_atencion: i.tipo_atencion, operador: i.operador, municipio: i.municipio }; })
+        .concat(emergFiltradas.map(function(e) { return { fecha: e.fecha, duracion: e.duracion, tipoEmergencia: e.tipoEmergencia, operador: e.profesional, municipio: e.municipio }; }));
+
+    // --- Evolución diaria ---
     var agrupadoDia = {};
     td.forEach(function(a) {
         var dt = parseFechaSafe(a.fecha);
@@ -1736,6 +1740,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
+    // --- Atenciones por sede ---
     var sedeCount = {};
     td.forEach(function(a) {
         var mun = a.municipio || 'Sin sede';
@@ -1752,6 +1757,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
+    // --- Tipos presencial ---
     var tem = {};
     emergFiltradas.forEach(function(e) { var t = e.tipoEmergencia || 'Sin tipo'; tem[t] = (tem[t] || 0) + 1; });
     var tee = Object.entries(tem).sort(function(a, b) { return b[1] - a[1]; });
@@ -1768,6 +1774,7 @@ function updAnal() {
         return '<span class="badge" style="background:'+colores[i%colores.length]+';color:white;font-size:0.7rem;">'+esc(e[0])+' ('+e[1]+' - '+pct+'%)</span>';
     }).join('') + '</div>' : 'Sin datos';
 
+    // --- Tipos telefónicos ---
     var tlm = {};
     interFiltradas.forEach(function(i) { tlm[i.tipo_atencion] = (tlm[i.tipo_atencion] || 0) + 1; });
     var tlL = Object.keys(tlm), tlD = Object.values(tlm);
@@ -1778,6 +1785,7 @@ function updAnal() {
     });
     document.getElementById('tiposLlamadasTable').innerHTML = tlL.length ? tlL.map(function(t,i) { return '<span class="badge bg-info me-1">'+esc(t)+': '+tlD[i]+'</span>'; }).join('') : 'Sin datos';
 
+    // --- Atenciones por día de la semana ---
     var ds = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     var pd = [0,0,0,0,0,0,0];
     td.forEach(function(a) {
@@ -1791,6 +1799,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
+    // --- Top 5 insumos ---
     var um = usoIns(emergFiltradas);
     var ue = Object.entries(um).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
     mkC('topInsumosChart', {
@@ -1800,6 +1809,7 @@ function updAnal() {
     });
     document.getElementById('topInsumosTable').innerHTML = ue.length ? '<div class="d-flex flex-wrap gap-1">' + ue.map(function(e) { return '<span class="badge bg-secondary">'+esc(e[0])+' ('+e[1]+')</span>'; }).join('') + '</div>' : 'Sin datos';
 
+    // --- Atenciones por hora y duración promedio ---
     var ph = new Array(24).fill(0), sdh = new Array(24).fill(0), ch = new Array(24).fill(0);
     td.forEach(function(a) {
         var dt = parseFechaSafe(a.fecha);
@@ -1820,6 +1830,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
 
+    // --- Indicadores ---
     var mx = -1, pi = -1;
     for (var p2=0; p2<24; p2++) { if (ph[p2] > mx) { mx = ph[p2]; pi = p2; } }
     document.getElementById('peakHour').innerText = pi !== -1 ? pi+':00' : '--';
