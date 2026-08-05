@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== ESTILOS EXISTENTES ===== */
+        /* ===== ESTILOS EXISTENTES (sin cambios) ===== */
         body{background:#eef2f7;font-family:'Segoe UI',Roboto,system-ui;margin:0;}
         .auth-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a2e44 0%,#0b5e7e 50%,#1a8fa8 100%);padding:1rem;}
         .auth-card{background:white;border-radius:1.2rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:460px;width:100%;overflow:hidden;}
@@ -934,27 +934,69 @@ async function onLoginSuccess(user) {
     cargarDatosUsuario();
 }
 
-/* ========== CARGAR DATOS ========== */
+/* ========== CARGA PAGINADA DE TODOS LOS REGISTROS (sin límite) ========== */
 async function cargarDatosUsuario() {
     try {
-        var r1 = await sb.from('interacciones').select('*').order('fecha', { ascending: true });
-        if (r1.error) {
-            if (r1.error.code === '42P01') throw new Error('La tabla "interacciones" no existe en Supabase. Créela desde el panel.');
-            if (r1.error.code === '42501' || r1.error.message.indexOf('policy') !== -1 || r1.error.message.indexOf('RLS') !== -1) throw new Error('Política RLS bloquea "interacciones". Active RLS o agregue políticas de lectura para usuarios autenticados.');
-            throw new Error('interacciones: ' + r1.error.message);
+        // Cargar interacciones (llamadas)
+        var allInter = [];
+        var page = 0;
+        var limit = 1000;
+        var hasMore = true;
+        while (hasMore) {
+            var from = page * limit;
+            var to = from + limit - 1;
+            var r1 = await sb.from('interacciones')
+                .select('*')
+                .order('fecha', { ascending: true })
+                .range(from, to);
+            if (r1.error) {
+                if (r1.error.code === '42P01') throw new Error('La tabla "interacciones" no existe.');
+                if (r1.error.code === '42501' || r1.error.message.indexOf('policy') !== -1) throw new Error('Política RLS bloquea "interacciones".');
+                throw new Error('interacciones: ' + r1.error.message);
+            }
+            if (!r1.data || r1.data.length === 0) {
+                hasMore = false;
+            } else {
+                allInter = allInter.concat(r1.data);
+                if (r1.data.length < limit) hasMore = false;
+                page++;
+            }
         }
-        interacciones = r1.data || [];
-        var r2 = await sb.from('atenciones').select('*').order('fecha', { ascending: true });
-        if (r2.error) {
-            if (r2.error.code === '42P01') throw new Error('La tabla "atenciones" no existe en Supabase. Créela desde el panel.');
-            if (r2.error.code === '42501' || r2.error.message.indexOf('policy') !== -1 || r2.error.message.indexOf('RLS') !== -1) throw new Error('Política RLS bloquea "atenciones". Agregue políticas de lectura.');
-            throw new Error('atenciones: ' + r2.error.message);
+        interacciones = allInter;
+        console.log('[CRM] Total interacciones cargadas:', interacciones.length);
+
+        // Cargar atenciones presenciales
+        var allEmerg = [];
+        page = 0;
+        hasMore = true;
+        while (hasMore) {
+            var from2 = page * limit;
+            var to2 = from2 + limit - 1;
+            var r2 = await sb.from('atenciones')
+                .select('*')
+                .order('fecha', { ascending: true })
+                .range(from2, to2);
+            if (r2.error) {
+                if (r2.error.code === '42P01') throw new Error('La tabla "atenciones" no existe.');
+                if (r2.error.code === '42501' || r2.error.message.indexOf('policy') !== -1) throw new Error('Política RLS bloquea "atenciones".');
+                throw new Error('atenciones: ' + r2.error.message);
+            }
+            if (!r2.data || r2.data.length === 0) {
+                hasMore = false;
+            } else {
+                allEmerg = allEmerg.concat(r2.data);
+                if (r2.data.length < limit) hasMore = false;
+                page++;
+            }
         }
-        emergencias = (r2.data || []).map(function(row) { return Object.assign({}, row, { tipoEmergencia: row.tipo_atencion || '' }); });
+        emergencias = allEmerg.map(function(row) { return Object.assign({}, row, { tipoEmergencia: row.tipo_atencion || '' }); });
+        console.log('[CRM] Total atenciones cargadas:', emergencias.length);
+
+        // Cargar inventario
         var r3 = await sb.from('inventario').select('*').order('nombre', { ascending: true });
         if (r3.error) {
-            if (r3.error.code === '42P01') throw new Error('La tabla "inventario" no existe en Supabase. Créela desde el panel.');
-            if (r3.error.code === '42501' || r3.error.message.indexOf('policy') !== -1 || r3.error.message.indexOf('RLS') !== -1) throw new Error('Política RLS bloquea "inventario". Agregue políticas de lectura.');
+            if (r3.error.code === '42P01') throw new Error('La tabla "inventario" no existe.');
+            if (r3.error.code === '42501' || r3.error.message.indexOf('policy') !== -1) throw new Error('Política RLS bloquea "inventario".');
             throw new Error('inventario: ' + r3.error.message);
         }
         inventario = r3.data || [];
@@ -963,9 +1005,10 @@ async function cargarDatosUsuario() {
             var rIns = await sb.from('inventario').insert(items).select();
             if (!rIns.error && rIns.data) inventario = rIns.data;
         }
-        // Llenar selectores de sede después de cargar datos
+
         actualizarSelectoresSede();
-        inicializarCRM(); toast('Datos sincronizados con Supabase', 'success');
+        inicializarCRM();
+        toast('Datos sincronizados con Supabase (' + interacciones.length + ' llamadas, ' + emergencias.length + ' atenciones)', 'success');
         var dc = document.getElementById('datosCargados');
         if (dc) { dc.style.display = 'block'; setTimeout(function(){ dc.style.display = 'none'; }, 3000); }
     } catch (err) {
@@ -975,7 +1018,7 @@ async function cargarDatosUsuario() {
     }
 }
 
-/* ========== LLENAR SELECTORES DE SEDE (incluye análisis) ========== */
+/* ========== LLENAR SELECTORES DE SEDE ========== */
 function actualizarSelectoresSede() {
     var sedes = new Set();
     interacciones.forEach(function(i) { if (i.municipio) sedes.add(i.municipio); });
@@ -1481,19 +1524,28 @@ function filtLL() {
     });
 }
 
+/* ============================================================
+   RENLL - Muestra solo los 200 registros más recientes,
+   pero el badge muestra el total absoluto (interacciones.length)
+   ============================================================ */
 function renLL() {
     var fl = filtLL();
+    // El badge muestra el total absoluto, no el filtrado
+    var headerCount = document.getElementById('registrosCountHeader');
+    if (headerCount) headerCount.innerText = interacciones.length;
     var tb = document.getElementById('tablaBodyLlamadas');
     if (!tb) return;
-    var count = fl.length;
-    var headerCount = document.getElementById('registrosCountHeader');
-    if (headerCount) headerCount.innerText = count;
-    if (!fl.length) {
+    // Ordenar descendente por fecha y limitar a 200
+    var sorted = fl.slice().sort(function(a, b) {
+        return new Date(b.fecha) - new Date(a.fecha);
+    });
+    var display = sorted.slice(0, 200);
+    if (!display.length) {
         tb.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
         return;
     }
     var h = '';
-    fl.forEach(function(i) {
+    display.forEach(function(i) {
         var bc = i.tipo_atencion === 'Urgencia' ? 'bg-danger' : (i.tipo_atencion === 'Consulta' ? 'bg-primary' : (i.tipo_atencion === 'Seguimiento' ? 'bg-success' : 'bg-secondary'));
         var fechaFormateada = formatLocalDateTime(i.fecha);
         h += '<tr><td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(i.paciente) + '</strong></td><td>' + (i.cedula ? '<span class="text-muted">' + esc(i.cedula) + '</span>' : '—') + '</td><td>' + esc(i.telefono) + '</td><td>' + i.duracion + ' min</td><td><span class="badge ' + bc + '">' + esc(i.tipo_atencion) + '</span></td><td>' + esc(i.operador) + '</td><td>' + (i.direccion ? '<span title="' + esc(i.direccion) + '" class="text-truncate d-inline-block" style="max-width:100px;">' + esc(i.direccion) + '</span>' : '—') + '</td><td>' + (i.municipio ? '<span class="badge bg-info bg-opacity-25 text-dark">' + esc(i.municipio) + '</span>' : '—') + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edLLBtn" data-id="' + i.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elLLBtn" data-id="' + i.id + '"><i class="fas fa-trash"></i></button></td></tr>';
@@ -1523,19 +1575,28 @@ function filtEm() {
     });
 }
 
+/* ============================================================
+   RENEM - Muestra solo los 200 registros más recientes,
+   pero el badge muestra el total absoluto (emergencias.length)
+   ============================================================ */
 function renEm() {
     var fl = filtEm();
+    // El badge muestra el total absoluto
+    var headerCount = document.getElementById('emergenciasCountHeader');
+    if (headerCount) headerCount.innerText = emergencias.length;
     var tb = document.getElementById('emergenciasBody');
     if (!tb) return;
-    var count = fl.length;
-    var headerCount = document.getElementById('emergenciasCountHeader');
-    if (headerCount) headerCount.innerText = count;
+    // Ordenar descendente por fecha y limitar a 200
+    var sorted = fl.slice().sort(function(a, b) {
+        return new Date(b.fecha) - new Date(a.fecha);
+    });
+    var display = sorted.slice(0, 200);
     tb.innerHTML = '';
-    if (!fl.length) {
+    if (!display.length) {
         tb.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
         return;
     }
-    fl.forEach(function(e) {
+    display.forEach(function(e) {
         var row = document.createElement('tr');
         var ins = e.insumos && e.insumos.length ? e.insumos.map(function(i) { return '<span class="badge bg-info bg-opacity-25 text-dark me-1">' + esc(i.nombre) + ' x' + i.cantidad + '</span>'; }).join('') : '—';
         var fechaFormateada = formatLocalDateTime(e.fecha);
@@ -1635,11 +1696,10 @@ function updAnal() {
         emergFiltradas = emergencias.filter(function(e) { return e.municipio === sede; });
     }
 
-    // Combinar atenciones filtradas
     var td = interFiltradas.map(function(i) { return { fecha: i.fecha, duracion: i.duracion, tipo_atencion: i.tipo_atencion, operador: i.operador }; })
         .concat(emergFiltradas.map(function(e) { return { fecha: e.fecha, duracion: e.duracion, tipoEmergencia: e.tipoEmergencia, operador: e.profesional }; }));
 
-    // --- Evolución diaria (línea) ---
+    // --- Evolución diaria ---
     var agrupadoDia = {};
     td.forEach(function(a) {
         var dt = parseFechaSafe(a.fecha);
@@ -1658,7 +1718,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
-    // --- Atenciones por sede (barras) ---
+    // --- Atenciones por sede ---
     var sedeCount = {};
     td.forEach(function(a) {
         var mun = a.municipio || 'Sin sede';
@@ -1675,7 +1735,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
-    // --- Tipos presencial (barras horizontales) ---
+    // --- Tipos presencial ---
     var tem = {};
     emergFiltradas.forEach(function(e) { var t = e.tipoEmergencia || 'Sin tipo'; tem[t] = (tem[t] || 0) + 1; });
     var tee = Object.entries(tem).sort(function(a, b) { return b[1] - a[1]; });
@@ -1692,7 +1752,7 @@ function updAnal() {
         return '<span class="badge" style="background:'+colores[i%colores.length]+';color:white;font-size:0.7rem;">'+esc(e[0])+' ('+e[1]+' - '+pct+'%)</span>';
     }).join('') + '</div>' : 'Sin datos';
 
-    // --- Tipos telefónicos (pastel) ---
+    // --- Tipos telefónicos ---
     var tlm = {};
     interFiltradas.forEach(function(i) { tlm[i.tipo_atencion] = (tlm[i.tipo_atencion] || 0) + 1; });
     var tlL = Object.keys(tlm), tlD = Object.values(tlm);
@@ -1703,7 +1763,7 @@ function updAnal() {
     });
     document.getElementById('tiposLlamadasTable').innerHTML = tlL.length ? tlL.map(function(t,i) { return '<span class="badge bg-info me-1">'+esc(t)+': '+tlD[i]+'</span>'; }).join('') : 'Sin datos';
 
-    // --- Atenciones por día de la semana (barras) ---
+    // --- Atenciones por día de la semana ---
     var ds = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     var pd = [0,0,0,0,0,0,0];
     td.forEach(function(a) {
@@ -1717,7 +1777,7 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
-    // --- Top 5 insumos (barras) ---
+    // --- Top 5 insumos ---
     var um = usoIns(emergFiltradas);
     var ue = Object.entries(um).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
     mkC('topInsumosChart', {
@@ -1761,7 +1821,7 @@ function updAnal() {
 /* ========== ACTUALIZAR TODO ========== */
 function updAll() { updKPI(); updInv(); updDropIns(); renLL(); renEm(); updRenOp(); updRenEm(); updAnal(); }
 
-/* ========== IMPRIMIR REPORTE ========== */
+/* ========== IMPRIMIR REPORTE (sin cambios) ========== */
 function imprimirReporte(mod) {
     try {
         var ah = new Date().toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
