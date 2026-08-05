@@ -807,14 +807,13 @@ function parseFechaSafe(raw) {
     } catch(e) { return null; }
 }
 
-/* ========== FUNCIONES PARA EDAD Y RANGO ========== */
+/* ========== FUNCIÓN PARA OBTENER RANGO ETARIO ========== */
 function obtenerRango(edad) {
     if (edad === null || edad === undefined || edad < 0) return '—';
-    if (edad <= 17) return '0-17';
-    else if (edad <= 30) return '18-30';
-    else if (edad <= 45) return '31-45';
-    else if (edad <= 60) return '46-60';
-    else return '61+';
+    if (edad <= 12) return 'Niño';
+    else if (edad <= 17) return 'Adolescente';
+    else if (edad <= 59) return 'Adulto';
+    else return 'Adulto mayor';
 }
 
 /* ========== INIT SUPABASE ========== */
