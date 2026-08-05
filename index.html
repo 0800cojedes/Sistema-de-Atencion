@@ -383,6 +383,8 @@
                                     <tr>
                                         <th>Fecha/Hora</th>
                                         <th>Paciente</th>
+                                        <th>Edad</th>
+                                        <th>Rango</th>
                                         <th>Cédula</th>
                                         <th>Teléfono</th>
                                         <th>Duración</th>
@@ -409,6 +411,7 @@
                     <form id="interaccionForm" novalidate>
                         <div class="row g-2">
                             <div class="col-md-3"><label class="form-label-custom">Paciente *</label><input type="text" id="paciente" class="form-control form-control-sm" required></div>
+                            <div class="col-md-2"><label class="form-label-custom">Edad (años)</label><input type="number" id="edad" class="form-control form-control-sm" placeholder="Ej: 35" min="0"></div>
                             <div class="col-md-2"><label class="form-label-custom">Cédula</label><input type="text" id="cedula" class="form-control form-control-sm"></div>
                             <div class="col-md-2"><label class="form-label-custom">Teléfono *</label><input type="text" id="telefono" class="form-control form-control-sm" required></div>
                             <div class="col-md-3"><label class="form-label-custom">Fecha y hora *</label><input type="datetime-local" id="fechaHora" class="form-control form-control-sm" required></div>
@@ -488,6 +491,8 @@
                                     <tr>
                                         <th>Fecha/Hora</th>
                                         <th>Paciente</th>
+                                        <th>Edad</th>
+                                        <th>Rango</th>
                                         <th>Cédula</th>
                                         <th>Profesional</th>
                                         <th>Tipo</th>
@@ -514,6 +519,7 @@
                     <form id="emergenciaForm" novalidate>
                         <div class="row g-2">
                             <div class="col-md-3"><label class="form-label-custom">Paciente *</label><input type="text" id="emergPaciente" class="form-control form-control-sm" required></div>
+                            <div class="col-md-2"><label class="form-label-custom">Edad (años)</label><input type="number" id="emergEdad" class="form-control form-control-sm" placeholder="Ej: 35" min="0"></div>
                             <div class="col-md-2"><label class="form-label-custom">Cédula</label><input type="text" id="emergCedula" class="form-control form-control-sm"></div>
                             <div class="col-md-2"><label class="form-label-custom">Teléfono</label><input type="text" id="emergTelefono" class="form-control form-control-sm"></div>
                             <div class="col-md-3"><label class="form-label-custom">Fecha y hora *</label><input type="datetime-local" id="emergFechaHora" class="form-control form-control-sm" required></div>
@@ -521,7 +527,6 @@
                             <div class="col-md-3"><label class="form-label-custom">Profesional *</label><input type="text" id="emergProfesional" class="form-control form-control-sm" required></div>
                             <div class="col-md-4"><label class="form-label-custom">Tipo atención</label><input type="text" id="emergTipo" class="form-control form-control-sm"></div>
                             <div class="col-md-4"><label class="form-label-custom">Dirección</label><input type="text" id="emergDireccion" class="form-control form-control-sm"></div>
-                            <!-- NUEVO CAMPO: Municipio para atenciones presenciales -->
                             <div class="col-md-3">
                                 <label class="form-label-custom">Municipio</label>
                                 <select id="emergMunicipio" class="form-select form-control-sm">
@@ -802,6 +807,16 @@ function parseFechaSafe(raw) {
     } catch(e) { return null; }
 }
 
+/* ========== FUNCIONES PARA EDAD Y RANGO ========== */
+function obtenerRango(edad) {
+    if (edad === null || edad === undefined || edad < 0) return '—';
+    if (edad <= 17) return '0-17';
+    else if (edad <= 30) return '18-30';
+    else if (edad <= 45) return '31-45';
+    else if (edad <= 60) return '46-60';
+    else return '61+';
+}
+
 /* ========== INIT SUPABASE ========== */
 var initError = null;
 function initSupabase() {
@@ -934,10 +949,10 @@ async function onLoginSuccess(user) {
     cargarDatosUsuario();
 }
 
-/* ========== CARGA PAGINADA DE TODOS LOS REGISTROS (sin límite) ========== */
+/* ========== CARGA PAGINADA DE TODOS LOS REGISTROS ========== */
 async function cargarDatosUsuario() {
     try {
-        // Cargar interacciones (llamadas)
+        // Cargar interacciones
         var allInter = [];
         var page = 0;
         var limit = 1000;
@@ -963,9 +978,8 @@ async function cargarDatosUsuario() {
             }
         }
         interacciones = allInter;
-        console.log('[CRM] Total interacciones cargadas:', interacciones.length);
 
-        // Cargar atenciones presenciales
+        // Cargar atenciones
         var allEmerg = [];
         page = 0;
         hasMore = true;
@@ -990,7 +1004,6 @@ async function cargarDatosUsuario() {
             }
         }
         emergencias = allEmerg.map(function(row) { return Object.assign({}, row, { tipoEmergencia: row.tipo_atencion || '' }); });
-        console.log('[CRM] Total atenciones cargadas:', emergencias.length);
 
         // Cargar inventario
         var r3 = await sb.from('inventario').select('*').order('nombre', { ascending: true });
@@ -1008,7 +1021,7 @@ async function cargarDatosUsuario() {
 
         actualizarSelectoresSede();
         inicializarCRM();
-        toast('Datos sincronizados con Supabase (' + interacciones.length + ' llamadas, ' + emergencias.length + ' atenciones)', 'success');
+        toast('Datos sincronizados (' + interacciones.length + ' llamadas, ' + emergencias.length + ' atenciones)', 'success');
         var dc = document.getElementById('datosCargados');
         if (dc) { dc.style.display = 'block'; setTimeout(function(){ dc.style.display = 'none'; }, 3000); }
     } catch (err) {
@@ -1162,9 +1175,16 @@ async function savLL(e) {
     var fechaObj = new Date(parseInt(datePart[0]), parseInt(datePart[1])-1, parseInt(datePart[2]), parseInt(timePart[0]), parseInt(timePart[1]));
     if (isNaN(fechaObj.getTime())) { toast('Fecha inválida', 'error'); setBtnLoading(btn, false); return; }
     var fechaISO = toISOStringLocal(fechaObj);
+
+    var edad = parseInt(document.getElementById('edad').value);
+    if (isNaN(edad) || edad < 0) edad = null;
+    var rango = edad !== null ? obtenerRango(edad) : null;
+
     var p = { 
         fecha: fechaISO,
         paciente: document.getElementById('paciente').value.trim(), 
+        edad: edad,
+        rango_edad: rango,
         cedula: document.getElementById('cedula').value.trim() || null, 
         telefono: document.getElementById('telefono').value.trim(), 
         duracion: parseFloat(document.getElementById('duracion').value) || 0, 
@@ -1198,6 +1218,7 @@ async function edLL(id) {
     if (!i) return;
     currentEditingId = id;
     document.getElementById('paciente').value = i.paciente || '';
+    document.getElementById('edad').value = (i.edad !== null && i.edad !== undefined) ? i.edad : '';
     document.getElementById('cedula').value = i.cedula || '';
     document.getElementById('telefono').value = i.telefono || '';
     document.getElementById('fechaHora').value = toLocalInput(i.fecha);
@@ -1226,7 +1247,7 @@ async function elLL(id) {
 }
 
 function rstLL() {
-    ['paciente', 'cedula', 'telefono', 'fechaHora', 'duracion', 'operador', 'descripcion', 'direccion'].forEach(function(id) { document.getElementById(id).value = ''; });
+    ['paciente', 'edad', 'cedula', 'telefono', 'fechaHora', 'duracion', 'operador', 'descripcion', 'direccion'].forEach(function(id) { document.getElementById(id).value = ''; });
     document.getElementById('municipio').value = '';
     document.getElementById('tipoAtencion').value = 'Consulta';
     currentEditingId = null;
@@ -1279,9 +1300,16 @@ async function savEm(e) {
     var fechaObj = new Date(parseInt(datePart[0]), parseInt(datePart[1])-1, parseInt(datePart[2]), parseInt(timePart[0]), parseInt(timePart[1]));
     if (isNaN(fechaObj.getTime())) { toast('Fecha inválida', 'error'); setBtnLoading(btn, false); return; }
     var fechaISO = toISOStringLocal(fechaObj);
+
+    var edad = parseInt(document.getElementById('emergEdad').value);
+    if (isNaN(edad) || edad < 0) edad = null;
+    var rango = edad !== null ? obtenerRango(edad) : null;
+
     var p = {
         fecha: fechaISO,
         paciente: document.getElementById('emergPaciente').value.trim(),
+        edad: edad,
+        rango_edad: rango,
         cedula: document.getElementById('emergCedula').value.trim() || null,
         telefono: document.getElementById('emergTelefono').value.trim() || null,
         duracion: parseFloat(document.getElementById('emergDuracion').value) || 0,
@@ -1320,6 +1348,7 @@ async function edEm(id) {
     if (!e) return;
     currentEditingEmergId = id;
     document.getElementById('emergPaciente').value = e.paciente || '';
+    document.getElementById('emergEdad').value = (e.edad !== null && e.edad !== undefined) ? e.edad : '';
     document.getElementById('emergCedula').value = e.cedula || '';
     document.getElementById('emergTelefono').value = e.telefono || '';
     document.getElementById('emergFechaHora').value = toLocalInput(e.fecha);
@@ -1352,7 +1381,7 @@ async function elEm(id) {
 }
 
 function rstEm() {
-    ['emergPaciente', 'emergCedula', 'emergTelefono', 'emergFechaHora', 'emergDuracion', 'emergProfesional', 'emergTipo', 'emergNotas', 'emergDireccion'].forEach(function(id) { document.getElementById(id).value = ''; });
+    ['emergPaciente', 'emergEdad', 'emergCedula', 'emergTelefono', 'emergFechaHora', 'emergDuracion', 'emergProfesional', 'emergTipo', 'emergNotas', 'emergDireccion'].forEach(function(id) { document.getElementById(id).value = ''; });
     document.getElementById('emergMunicipio').value = '';
     tempInsumosEmerg = [];
     updInsUI();
@@ -1524,31 +1553,27 @@ function filtLL() {
     });
 }
 
-/* ============================================================
-   RENLL - Muestra solo los 200 registros más recientes,
-   pero el badge muestra el total absoluto (interacciones.length)
-   ============================================================ */
 function renLL() {
     var fl = filtLL();
-    // El badge muestra el total absoluto, no el filtrado
     var headerCount = document.getElementById('registrosCountHeader');
     if (headerCount) headerCount.innerText = interacciones.length;
     var tb = document.getElementById('tablaBodyLlamadas');
     if (!tb) return;
-    // Ordenar descendente por fecha y limitar a 200
     var sorted = fl.slice().sort(function(a, b) {
         return new Date(b.fecha) - new Date(a.fecha);
     });
     var display = sorted.slice(0, 200);
     if (!display.length) {
-        tb.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
+        tb.innerHTML = '<tr><td colspan="12" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
         return;
     }
     var h = '';
     display.forEach(function(i) {
         var bc = i.tipo_atencion === 'Urgencia' ? 'bg-danger' : (i.tipo_atencion === 'Consulta' ? 'bg-primary' : (i.tipo_atencion === 'Seguimiento' ? 'bg-success' : 'bg-secondary'));
         var fechaFormateada = formatLocalDateTime(i.fecha);
-        h += '<tr><td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(i.paciente) + '</strong></td><td>' + (i.cedula ? '<span class="text-muted">' + esc(i.cedula) + '</span>' : '—') + '</td><td>' + esc(i.telefono) + '</td><td>' + i.duracion + ' min</td><td><span class="badge ' + bc + '">' + esc(i.tipo_atencion) + '</span></td><td>' + esc(i.operador) + '</td><td>' + (i.direccion ? '<span title="' + esc(i.direccion) + '" class="text-truncate d-inline-block" style="max-width:100px;">' + esc(i.direccion) + '</span>' : '—') + '</td><td>' + (i.municipio ? '<span class="badge bg-info bg-opacity-25 text-dark">' + esc(i.municipio) + '</span>' : '—') + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edLLBtn" data-id="' + i.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elLLBtn" data-id="' + i.id + '"><i class="fas fa-trash"></i></button></td></tr>';
+        var edad = (i.edad !== null && i.edad !== undefined) ? i.edad : '—';
+        var rango = i.rango_edad || '—';
+        h += '<tr><td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(i.paciente) + '</strong></td><td>' + edad + '</td><td>' + rango + '</td><td>' + (i.cedula ? '<span class="text-muted">' + esc(i.cedula) + '</span>' : '—') + '</td><td>' + esc(i.telefono) + '</td><td>' + i.duracion + ' min</td><td><span class="badge ' + bc + '">' + esc(i.tipo_atencion) + '</span></td><td>' + esc(i.operador) + '</td><td>' + (i.direccion ? '<span title="' + esc(i.direccion) + '" class="text-truncate d-inline-block" style="max-width:100px;">' + esc(i.direccion) + '</span>' : '—') + '</td><td>' + (i.municipio ? '<span class="badge bg-info bg-opacity-25 text-dark">' + esc(i.municipio) + '</span>' : '—') + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edLLBtn" data-id="' + i.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elLLBtn" data-id="' + i.id + '"><i class="fas fa-trash"></i></button></td></tr>';
     });
     tb.innerHTML = h;
     document.querySelectorAll('.edLLBtn').forEach(function(b) { b.addEventListener('click', function() { edLL(this.getAttribute('data-id')); }); });
@@ -1575,32 +1600,28 @@ function filtEm() {
     });
 }
 
-/* ============================================================
-   RENEM - Muestra solo los 200 registros más recientes,
-   pero el badge muestra el total absoluto (emergencias.length)
-   ============================================================ */
 function renEm() {
     var fl = filtEm();
-    // El badge muestra el total absoluto
     var headerCount = document.getElementById('emergenciasCountHeader');
     if (headerCount) headerCount.innerText = emergencias.length;
     var tb = document.getElementById('emergenciasBody');
     if (!tb) return;
-    // Ordenar descendente por fecha y limitar a 200
     var sorted = fl.slice().sort(function(a, b) {
         return new Date(b.fecha) - new Date(a.fecha);
     });
     var display = sorted.slice(0, 200);
     tb.innerHTML = '';
     if (!display.length) {
-        tb.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
+        tb.innerHTML = '<tr><td colspan="12" class="text-center py-3 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin registros</td></tr>';
         return;
     }
     display.forEach(function(e) {
         var row = document.createElement('tr');
         var ins = e.insumos && e.insumos.length ? e.insumos.map(function(i) { return '<span class="badge bg-info bg-opacity-25 text-dark me-1">' + esc(i.nombre) + ' x' + i.cantidad + '</span>'; }).join('') : '—';
         var fechaFormateada = formatLocalDateTime(e.fecha);
-        row.innerHTML = '<td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(e.paciente) + '</strong></td><td>' + (e.cedula ? '<span class="text-muted">' + esc(e.cedula) + '</span>' : '—') + '</td><td><strong>' + esc(e.profesional || '—') + '</strong></td><td>' + (e.tipoEmergencia ? '<span title="' + esc(e.tipoEmergencia) + '" class="text-truncate d-inline-block" style="max-width:90px;">' + esc(e.tipoEmergencia) + '</span>' : '—') + '</td><td>' + e.duracion + ' min</td><td>' + (e.direccion ? '<span title="' + esc(e.direccion) + '" class="text-truncate d-inline-block" style="max-width:90px;">' + esc(e.direccion) + '</span>' : '—') + '</td><td>' + (e.municipio ? '<span class="badge bg-info bg-opacity-25 text-dark">' + esc(e.municipio) + '</span>' : '—') + '</td><td>' + ins + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edEmBtn" data-id="' + e.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elEmBtn" data-id="' + e.id + '"><i class="fas fa-trash"></i></button></td></tr>';
+        var edad = (e.edad !== null && e.edad !== undefined) ? e.edad : '—';
+        var rango = e.rango_edad || '—';
+        row.innerHTML = '<td class="text-nowrap">' + fechaFormateada + '</td><td><strong>' + esc(e.paciente) + '</strong></td><td>' + edad + '</td><td>' + rango + '</td><td>' + (e.cedula ? '<span class="text-muted">' + esc(e.cedula) + '</span>' : '—') + '</td><td><strong>' + esc(e.profesional || '—') + '</strong></td><td>' + (e.tipoEmergencia ? '<span title="' + esc(e.tipoEmergencia) + '" class="text-truncate d-inline-block" style="max-width:90px;">' + esc(e.tipoEmergencia) + '</span>' : '—') + '</td><td>' + e.duracion + ' min</td><td>' + (e.direccion ? '<span title="' + esc(e.direccion) + '" class="text-truncate d-inline-block" style="max-width:90px;">' + esc(e.direccion) + '</span>' : '—') + '</td><td>' + (e.municipio ? '<span class="badge bg-info bg-opacity-25 text-dark">' + esc(e.municipio) + '</span>' : '—') + '</td><td>' + ins + '</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary edEmBtn" data-id="' + e.id + '"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger elEmBtn" data-id="' + e.id + '"><i class="fas fa-trash"></i></button></td></tr>';
         tb.appendChild(row);
     });
     document.querySelectorAll('.edEmBtn').forEach(function(b) { b.addEventListener('click', function() { edEm(this.getAttribute('data-id')); }); });
@@ -1686,7 +1707,7 @@ function updRenEm() {
     }
 }
 
-/* ========== ANÁLISIS OPTIMIZADO ========== */
+/* ========== ANÁLISIS ========== */
 function updAnal() {
     var sede = document.getElementById('analisisSede').value;
     var interFiltradas = interacciones;
@@ -1695,11 +1716,9 @@ function updAnal() {
         interFiltradas = interacciones.filter(function(i) { return i.municipio === sede; });
         emergFiltradas = emergencias.filter(function(e) { return e.municipio === sede; });
     }
-
     var td = interFiltradas.map(function(i) { return { fecha: i.fecha, duracion: i.duracion, tipo_atencion: i.tipo_atencion, operador: i.operador }; })
         .concat(emergFiltradas.map(function(e) { return { fecha: e.fecha, duracion: e.duracion, tipoEmergencia: e.tipoEmergencia, operador: e.profesional }; }));
 
-    // --- Evolución diaria ---
     var agrupadoDia = {};
     td.forEach(function(a) {
         var dt = parseFechaSafe(a.fecha);
@@ -1718,7 +1737,6 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
-    // --- Atenciones por sede ---
     var sedeCount = {};
     td.forEach(function(a) {
         var mun = a.municipio || 'Sin sede';
@@ -1735,7 +1753,6 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
-    // --- Tipos presencial ---
     var tem = {};
     emergFiltradas.forEach(function(e) { var t = e.tipoEmergencia || 'Sin tipo'; tem[t] = (tem[t] || 0) + 1; });
     var tee = Object.entries(tem).sort(function(a, b) { return b[1] - a[1]; });
@@ -1752,7 +1769,6 @@ function updAnal() {
         return '<span class="badge" style="background:'+colores[i%colores.length]+';color:white;font-size:0.7rem;">'+esc(e[0])+' ('+e[1]+' - '+pct+'%)</span>';
     }).join('') + '</div>' : 'Sin datos';
 
-    // --- Tipos telefónicos ---
     var tlm = {};
     interFiltradas.forEach(function(i) { tlm[i.tipo_atencion] = (tlm[i.tipo_atencion] || 0) + 1; });
     var tlL = Object.keys(tlm), tlD = Object.values(tlm);
@@ -1763,7 +1779,6 @@ function updAnal() {
     });
     document.getElementById('tiposLlamadasTable').innerHTML = tlL.length ? tlL.map(function(t,i) { return '<span class="badge bg-info me-1">'+esc(t)+': '+tlD[i]+'</span>'; }).join('') : 'Sin datos';
 
-    // --- Atenciones por día de la semana ---
     var ds = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     var pd = [0,0,0,0,0,0,0];
     td.forEach(function(a) {
@@ -1777,7 +1792,6 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 
-    // --- Top 5 insumos ---
     var um = usoIns(emergFiltradas);
     var ue = Object.entries(um).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
     mkC('topInsumosChart', {
@@ -1787,7 +1801,6 @@ function updAnal() {
     });
     document.getElementById('topInsumosTable').innerHTML = ue.length ? '<div class="d-flex flex-wrap gap-1">' + ue.map(function(e) { return '<span class="badge bg-secondary">'+esc(e[0])+' ('+e[1]+')</span>'; }).join('') + '</div>' : 'Sin datos';
 
-    // --- Atenciones por hora y duración promedio ---
     var ph = new Array(24).fill(0), sdh = new Array(24).fill(0), ch = new Array(24).fill(0);
     td.forEach(function(a) {
         var dt = parseFechaSafe(a.fecha);
@@ -1808,7 +1821,6 @@ function updAnal() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
 
-    // --- Indicadores ---
     var mx = -1, pi = -1;
     for (var p2=0; p2<24; p2++) { if (ph[p2] > mx) { mx = ph[p2]; pi = p2; } }
     document.getElementById('peakHour').innerText = pi !== -1 ? pi+':00' : '--';
@@ -1821,7 +1833,7 @@ function updAnal() {
 /* ========== ACTUALIZAR TODO ========== */
 function updAll() { updKPI(); updInv(); updDropIns(); renLL(); renEm(); updRenOp(); updRenEm(); updAnal(); }
 
-/* ========== IMPRIMIR REPORTE (sin cambios) ========== */
+/* ========== IMPRIMIR REPORTE ========== */
 function imprimirReporte(mod) {
     try {
         var ah = new Date().toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -1853,11 +1865,13 @@ function imprimirReporte(mod) {
         if (mod === 'llamadas') {
             var dt = filtLL();
             h += '<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de registros: <strong>' + dt.length + '</strong></p>';
-            h += '<table><thead><tr><th>#</th><th>Fecha y Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Duración (min)</th><th>Tipo</th><th>Operador</th><th>Dirección</th><th>Municipio</th><th>Descripción</th></tr></thead><tbody>';
+            h += '<table><thead><tr><th>#</th><th>Fecha/Hora</th><th>Paciente</th><th>Edad</th><th>Rango</th><th>Cédula</th><th>Teléfono</th><th>Duración</th><th>Tipo</th><th>Operador</th><th>Dirección</th><th>Municipio</th><th>Descripción</th></tr></thead><tbody>';
             dt.forEach(function(d, i) {
                 var bc = d.tipo_atencion === 'Urgencia' ? '#c0392b' : (d.tipo_atencion === 'Consulta' ? '#2980b9' : (d.tipo_atencion === 'Seguimiento' ? '#27ae60' : '#7f8c8d'));
+                var edad = (d.edad !== null && d.edad !== undefined) ? d.edad : '—';
+                var rango = d.rango_edad || '—';
                 var fechaStr = formatLocalDateTime(d.fecha);
-                h += '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap;">'+fechaStr+'</td><td><strong>'+esc(d.paciente)+'</strong></td><td>'+(d.cedula||'—')+'</td><td>'+esc(d.telefono)+'</td><td style="text-align:center;">'+d.duracion+'</td><td><span style="background:'+bc+';color:white;padding:1px 6px;border-radius:3px;font-size:8pt;">'+esc(d.tipo_atencion)+'</span></td><td>'+esc(d.operador)+'</td><td>'+(d.direccion?esc(d.direccion):'—')+'</td><td>'+(d.municipio?esc(d.municipio):'—')+'</td><td style="max-width:140px;word-break:break-word;">'+(d.descripcion?esc(d.descripcion):'—')+'</td></tr>';
+                h += '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap;">'+fechaStr+'</td><td><strong>'+esc(d.paciente)+'</strong></td><td>'+edad+'</td><td>'+rango+'</td><td>'+(d.cedula||'—')+'</td><td>'+esc(d.telefono)+'</td><td style="text-align:center;">'+d.duracion+'</td><td><span style="background:'+bc+';color:white;padding:1px 6px;border-radius:3px;font-size:8pt;">'+esc(d.tipo_atencion)+'</span></td><td>'+esc(d.operador)+'</td><td>'+(d.direccion?esc(d.direccion):'—')+'</td><td>'+(d.municipio?esc(d.municipio):'—')+'</td><td style="max-width:140px;word-break:break-word;">'+(d.descripcion?esc(d.descripcion):'—')+'</td></tr>';
             });
             h += '</tbody></table>';
         }
@@ -1865,11 +1879,13 @@ function imprimirReporte(mod) {
         if (mod === 'atenciones') {
             var dt2 = filtEm();
             h += '<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de registros: <strong>' + dt2.length + '</strong></p>';
-            h += '<table><thead><tr><th>#</th><th>Fecha y Hora</th><th>Paciente</th><th>Cédula</th><th>Teléfono</th><th>Profesional</th><th>Tipo Atención</th><th>Duración (min)</th><th>Dirección</th><th>Municipio</th><th>Diagnóstico / Notas</th><th>Insumos utilizados</th></tr></thead><tbody>';
+            h += '<table><thead><tr><th>#</th><th>Fecha/Hora</th><th>Paciente</th><th>Edad</th><th>Rango</th><th>Cédula</th><th>Profesional</th><th>Tipo</th><th>Duración</th><th>Dirección</th><th>Municipio</th><th>Diagnóstico</th><th>Insumos</th></tr></thead><tbody>';
             dt2.forEach(function(d, i) {
                 var ins = (d.insumos && d.insumos.length) ? d.insumos.map(function(x) { return esc(x.nombre) + ' x' + x.cantidad; }).join('<br>') : '—';
                 var fechaStr = formatLocalDateTime(d.fecha);
-                h += '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap;">'+fechaStr+'</td><td><strong>'+esc(d.paciente)+'</strong></td><td>'+(d.cedula?esc(d.cedula):'—')+'</td><td>'+(d.telefono?esc(d.telefono):'—')+'</td><td>'+esc(d.profesional||'—')+'</td><td>'+(d.tipoEmergencia?esc(d.tipoEmergencia):'—')+'</td><td style="text-align:center;">'+d.duracion+'</td><td style="max-width:110px;word-break:break-word;">'+(d.direccion?esc(d.direccion):'—')+'</td><td>'+(d.municipio?esc(d.municipio):'—')+'</td><td style="max-width:140px;word-break:break-word;">'+(d.notas?esc(d.notas):'—')+'</td><td>'+ins+'</td></tr>';
+                var edad = (d.edad !== null && d.edad !== undefined) ? d.edad : '—';
+                var rango = d.rango_edad || '—';
+                h += '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap;">'+fechaStr+'</td><td><strong>'+esc(d.paciente)+'</strong></td><td>'+edad+'</td><td>'+rango+'</td><td>'+(d.cedula?esc(d.cedula):'—')+'</td><td>'+esc(d.profesional||'—')+'</td><td>'+(d.tipoEmergencia?esc(d.tipoEmergencia):'—')+'</td><td style="text-align:center;">'+d.duracion+'</td><td style="max-width:110px;word-break:break-word;">'+(d.direccion?esc(d.direccion):'—')+'</td><td>'+(d.municipio?esc(d.municipio):'—')+'</td><td style="max-width:140px;word-break:break-word;">'+(d.notas?esc(d.notas):'—')+'</td><td>'+ins+'</td></tr>';
             });
             h += '</tbody></table>';
         }
