@@ -334,7 +334,6 @@
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#emergencias" type="button"><i class="fas fa-hand-holding-heart me-1"></i> Atenciones</button></li>
         <li class="nav-item admin-tab"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventario" type="button"><i class="fas fa-boxes me-1"></i> Inventario</button></li>
         <li class="nav-item admin-tab"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#rendimiento" type="button"><i class="fas fa-chart-simple me-1"></i> Rendimiento</button></li>
-        <!-- <-- CAMBIO: Eliminada la clase "admin-tab" para que el operador pueda ver Análisis -->
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analisis" type="button"><i class="fas fa-chart-line me-1"></i> Análisis</button></li>
     </ul>
     <div class="tab-content" id="mainTabContent">
@@ -550,7 +549,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB INVENTARIO (solo admin)                                  -->
+        <!-- TAB INVENTARIO (solo admin) - CON FILTRO POR SEDE            -->
         <!-- ============================================================ -->
         <div class="tab-pane fade admin-tab" id="inventario" role="tabpanel">
             <div class="card card-shadow">
@@ -564,6 +563,15 @@
                     </div>
                 </div>
                 <div class="card-body p-2 restricted-overlay">
+                    <!-- Filtro por sede -->
+                    <div class="row g-2 align-items-center mb-2">
+                        <div class="col-md-4">
+                            <label class="form-label-custom">Sede</label>
+                            <select id="filterInventarioSede" class="form-select form-select-sm sede-selector">
+                                <option value="todas">Todas</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm align-middle">
                             <thead class="table-light"><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th><th>Estado</th><th class="admin-only">Acciones</th></tr></thead>
@@ -583,7 +591,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB ANÁLISIS (visible para todos, con filtro de 7 días para operador) -->
+        <!-- TAB ANÁLISIS (visible para todos)                            -->
         <!-- ============================================================ -->
         <div class="tab-pane fade" id="analisis" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -994,8 +1002,12 @@ async function cargarDatosUsuario() {
             throw new Error('inventario: ' + r3.error.message);
         }
         inventario = r3.data || [];
+        // Asignar sede por defecto si no tiene
+        inventario.forEach(function(ins) {
+            if (!ins.sede) ins.sede = 'General';
+        });
         if (inventario.length === 0 && currentUser) {
-            var items = [{ nombre:'Paracetamol',stock:150,unidad:'tableta'},{ nombre:'Ibuprofeno',stock:120,unidad:'tableta'},{ nombre:'Venda',stock:80,unidad:'rollo'},{ nombre:'Alcohol',stock:45,unidad:'litro'},{ nombre:'Jeringa',stock:200,unidad:'unidad'},{ nombre:'Oxígeno',stock:15,unidad:'m3'},{ nombre:'Antibiótico',stock:90,unidad:'dosis'},{ nombre:'Termómetro',stock:25,unidad:'unidad'},{ nombre:'Gasas',stock:300,unidad:'paquete'},{ nombre:'Suero',stock:40,unidad:'bolsa' }];
+            var items = [{ nombre:'Paracetamol',stock:150,unidad:'tableta',sede:'General'},{ nombre:'Ibuprofeno',stock:120,unidad:'tableta',sede:'General'},{ nombre:'Venda',stock:80,unidad:'rollo',sede:'General'},{ nombre:'Alcohol',stock:45,unidad:'litro',sede:'General'},{ nombre:'Jeringa',stock:200,unidad:'unidad',sede:'General'},{ nombre:'Oxígeno',stock:15,unidad:'m3',sede:'General'},{ nombre:'Antibiótico',stock:90,unidad:'dosis',sede:'General'},{ nombre:'Termómetro',stock:25,unidad:'unidad',sede:'General'},{ nombre:'Gasas',stock:300,unidad:'paquete',sede:'General'},{ nombre:'Suero',stock:40,unidad:'bolsa',sede:'General' }];
             var rIns = await sb.from('inventario').insert(items).select();
             if (!rIns.error && rIns.data) inventario = rIns.data;
         }
@@ -1017,6 +1029,7 @@ function actualizarSelectoresSede() {
     var sedes = new Set();
     interacciones.forEach(function(i) { if (i.municipio) sedes.add(i.municipio); });
     emergencias.forEach(function(e) { if (e.municipio) sedes.add(e.municipio); });
+    inventario.forEach(function(ins) { if (ins.sede) sedes.add(ins.sede); });
     var sorted = Array.from(sedes).sort();
 
     ['filterSede', 'filtroEmergenciaSede', 'analisisSede'].forEach(function(id) {
@@ -1031,6 +1044,23 @@ function actualizarSelectoresSede() {
         });
     });
 
+    // Selector de inventario
+    var invSel = document.getElementById('filterInventarioSede');
+    if (invSel) {
+        while (invSel.options.length > 1) invSel.remove(1);
+        sorted.forEach(function(s) {
+            var opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            invSel.appendChild(opt);
+        });
+        // Sincronizar con el filtro principal de sede
+        var mainSede = document.getElementById('filterSede').value;
+        if (mainSede && mainSede !== 'todas' && invSel.value !== mainSede) {
+            invSel.value = mainSede;
+        }
+    }
+
     function syncSede(sourceId) {
         var val = document.getElementById(sourceId).value;
         ['filterSede', 'filtroEmergenciaSede', 'analisisSede'].forEach(function(id) {
@@ -1039,14 +1069,34 @@ function actualizarSelectoresSede() {
                 sel.value = val;
             }
         });
+        // Sincronizar inventario
+        var invS = document.getElementById('filterInventarioSede');
+        if (invS && invS.id !== sourceId && invS.value !== val) {
+            invS.value = val;
+        }
         renLL();
         renEm();
         updAnal();
+        updInv();
     }
 
     document.getElementById('filterSede').addEventListener('change', function() { syncSede('filterSede'); });
     document.getElementById('filtroEmergenciaSede').addEventListener('change', function() { syncSede('filtroEmergenciaSede'); });
     document.getElementById('analisisSede').addEventListener('change', function() { syncSede('analisisSede'); });
+    document.getElementById('filterInventarioSede').addEventListener('change', function() {
+        updInv();
+        // También sincronizar con los demás selectores
+        var val = this.value;
+        ['filterSede', 'filtroEmergenciaSede', 'analisisSede'].forEach(function(id) {
+            var sel = document.getElementById(id);
+            if (sel && sel.value !== val) {
+                sel.value = val;
+                renLL();
+                renEm();
+                updAnal();
+            }
+        });
+    });
 }
 
 /* ========== INIT CRM ========== */
@@ -1061,6 +1111,10 @@ function inicializarCRM() {
     document.getElementById('emergenciaForm').addEventListener('submit', savEm);
     document.getElementById('btnAgregarInsumoEmerg').addEventListener('click', addIns);
     document.getElementById('btnCancelarEmergencia').addEventListener('click', rstEm);
+    // Actualizar insumos al cambiar el municipio
+    document.getElementById('emergMunicipio').addEventListener('change', function() {
+        updDropIns();
+    });
     
     document.getElementById('btnAplicarFiltros').addEventListener('click', renLL);
     document.getElementById('btnLimpiarFiltros').addEventListener('click', function() { 
@@ -1069,7 +1123,8 @@ function inicializarCRM() {
         document.getElementById('filterSede').value='todas';
         document.getElementById('filtroEmergenciaSede').value='todas';
         document.getElementById('analisisSede').value='todas';
-        renLL(); renEm(); updAnal();
+        document.getElementById('filterInventarioSede').value='todas';
+        renLL(); renEm(); updAnal(); updInv();
     });
     document.getElementById('btnFiltrarEmergencias').addEventListener('click', renEm);
     document.getElementById('btnLimpiarEmergencias').addEventListener('click', function() { 
@@ -1077,7 +1132,8 @@ function inicializarCRM() {
         document.getElementById('filtroEmergenciaSede').value='todas';
         document.getElementById('filterSede').value='todas';
         document.getElementById('analisisSede').value='todas';
-        renEm(); renLL(); updAnal();
+        document.getElementById('filterInventarioSede').value='todas';
+        renEm(); renLL(); updAnal(); updInv();
     });
     
     document.getElementById('btnNuevoInsumoInventario').addEventListener('click', addInv);
@@ -1237,7 +1293,7 @@ function rstLL() {
 }
 
 /* ========== CRUD ATENCIONES ========== */
-async function aplicarDeltaStock(insumosNuevos, insumosAnteriores) {
+async function aplicarDeltaStock(insumosNuevos, insumosAnteriores, sede) {
     var delta = {};
     (insumosNuevos || []).forEach(function(i) { delta[i.nombre] = (delta[i.nombre] || 0) + i.cantidad; });
     (insumosAnteriores || []).forEach(function(i) { delta[i.nombre] = (delta[i.nombre] || 0) - i.cantidad; });
@@ -1245,10 +1301,10 @@ async function aplicarDeltaStock(insumosNuevos, insumosAnteriores) {
     for (var nombre in delta) {
         var diff = delta[nombre];
         if (diff === 0) continue;
-        var item = inventario.find(function(x) { return x.nombre === nombre; });
-        if (!item) { errores.push('"' + nombre + '" no existe en inventario local'); continue; }
+        var item = inventario.find(function(x) { return x.nombre === nombre && x.sede === sede; });
+        if (!item) { errores.push('"' + nombre + '" no existe en inventario para la sede "' + sede + '"'); continue; }
         var nuevoStock = Math.max(0, item.stock - diff);
-        console.log('[INV] ' + nombre + ': ' + item.stock + ' → ' + nuevoStock + ' (delta: ' + diff + ')');
+        console.log('[INV] ' + nombre + ' (' + sede + '): ' + item.stock + ' → ' + nuevoStock + ' (delta: ' + diff + ')');
         try {
             var r = await sb.from('inventario').update({ stock: nuevoStock }).eq('id', item.id).select();
             if (r.error) throw r.error;
@@ -1257,7 +1313,7 @@ async function aplicarDeltaStock(insumosNuevos, insumosAnteriores) {
             } else {
                 var ck = await sb.from('inventario').select('stock').eq('id', item.id).single();
                 if (ck.error) {
-                    errores.push('"' + nombre + '": UPDATE enviado pero RLS bloquea SELECT. Agregue politica SELECT para usuarios autenticados en tabla inventario.');
+                    errores.push('"' + nombre + '": UPDATE enviado pero RLS bloquea SELECT. Agregue política SELECT para usuarios autenticados en tabla inventario.');
                 } else {
                     item.stock = ck.data.stock;
                 }
@@ -1285,6 +1341,7 @@ async function savEm(e) {
     var edad = parseInt(document.getElementById('emergEdad').value);
     if (isNaN(edad) || edad < 0) edad = null;
     var rango = edad !== null ? obtenerRango(edad) : null;
+    var sedeAtencion = document.getElementById('emergMunicipio').value || 'General';
 
     var p = {
         fecha: fechaISO,
@@ -1299,7 +1356,7 @@ async function savEm(e) {
         notas: document.getElementById('emergNotas').value.trim() || null,
         insumos: tempInsumosEmerg || [],
         direccion: document.getElementById('emergDireccion').value.trim() || null,
-        municipio: document.getElementById('emergMunicipio').value || null
+        municipio: sedeAtencion
     };
     if (!p.paciente || !p.fecha || !p.profesional) { toast('Complete campos obligatorios', 'error'); setBtnLoading(btn, false); return; }
     try {
@@ -1310,13 +1367,13 @@ async function savEm(e) {
             if (r.error) throw r.error;
             var idx = emergencias.findIndex(function(a) { return a.id === currentEditingEmergId; });
             if (idx !== -1 && r.data && r.data.length) emergencias[idx] = Object.assign({}, emergencias[idx], r.data[0], { tipoEmergencia: r.data[0].tipo_atencion || '' });
-            await aplicarDeltaStock(tempInsumosEmerg, insumosAnteriores);
+            await aplicarDeltaStock(tempInsumosEmerg, insumosAnteriores, sedeAtencion);
             toast('Atención actualizada', 'success');
         } else {
             var r2 = await sb.from('atenciones').insert([p]).select();
             if (r2.error) throw r2.error;
             if (r2.data && r2.data.length) emergencias.push(Object.assign({}, r2.data[0], { tipoEmergencia: r2.data[0].tipo_atencion || '' }));
-            await aplicarDeltaStock(tempInsumosEmerg, []);
+            await aplicarDeltaStock(tempInsumosEmerg, [], sedeAtencion);
             toast('Atención registrada', 'success');
         }
         rstEm(); actualizarSelectoresSede(); updAll();
@@ -1353,7 +1410,8 @@ async function elEm(id) {
         var r = await sb.from('atenciones').delete().eq('id', id);
         if (r.error) throw r.error;
         var insumosAtencion = e.insumos ? JSON.parse(JSON.stringify(e.insumos)) : [];
-        await aplicarDeltaStock([], insumosAtencion);
+        var sede = e.municipio || 'General';
+        await aplicarDeltaStock([], insumosAtencion, sede);
         emergencias = emergencias.filter(function(x) { return x.id !== id; });
         if (currentEditingEmergId === id) rstEm();
         actualizarSelectoresSede(); updAll();
@@ -1376,8 +1434,17 @@ function updDropIns() {
     var s = document.getElementById('selectInsumoEmerg');
     if (!s) return;
     s.innerHTML = '';
-    if (!inventario.length) { s.innerHTML = '<option>Sin insumos</option>'; return; }
-    inventario.forEach(function(i) {
+    // Obtener sede del formulario de atención
+    var sede = document.getElementById('emergMunicipio').value;
+    var inventarioFiltrado = inventario;
+    if (sede) {
+        inventarioFiltrado = inventario.filter(function(i) { return i.sede === sede; });
+    }
+    if (!inventarioFiltrado.length) {
+        s.innerHTML = '<option>' + (sede ? 'Sin insumos para esta sede' : 'Seleccione una sede primero') + '</option>';
+        return;
+    }
+    inventarioFiltrado.forEach(function(i) {
         var o = document.createElement('option');
         o.value = i.nombre;
         var stockDisp = i.stock;
@@ -1420,7 +1487,8 @@ function addIns() {
     if (!n) { toast('Seleccione insumo', 'error'); return; }
     var c = parseInt(document.getElementById('cantidadInsumoEmerg').value);
     if (isNaN(c) || c < 1) c = 1;
-    var item = inventario.find(function(i) { return i.nombre === n; });
+    var sede = document.getElementById('emergMunicipio').value || 'General';
+    var item = inventario.find(function(i) { return i.nombre === n && i.sede === sede; });
     if (item) {
         var yaAsignado = 0;
         var enForm = tempInsumosEmerg.find(function(i) { return i.nombre === n; });
@@ -1432,6 +1500,9 @@ function addIns() {
             toast('Stock insuficiente: disponible ' + disponible + ' ' + item.unidad, 'error');
             return;
         }
+    } else {
+        toast('El insumo "' + n + '" no existe en la sede "' + sede + '"', 'error');
+        return;
     }
     var ex = tempInsumosEmerg.find(function(i) { return i.nombre === n; });
     if (ex) ex.cantidad += c;
@@ -1447,12 +1518,13 @@ async function addInv() {
     var u = prompt('Unidad de medida:', 'unidad') || 'unidad';
     var s = parseInt(prompt('Stock inicial:', '0'));
     if (isNaN(s) || s < 0) s = 0;
+    var sede = prompt('Sede (municipio) a la que pertenece:', 'General') || 'General';
     try {
-        var r = await sb.from('inventario').insert([{ nombre: n.trim(), stock: s, unidad: u.trim() }]).select();
+        var r = await sb.from('inventario').insert([{ nombre: n.trim(), stock: s, unidad: u.trim(), sede: sede.trim() }]).select();
         if (r.error) throw r.error;
         if (r.data && r.data.length) inventario.push(r.data[0]);
         updAll();
-        toast('"' + n.trim() + '" agregado', 'success');
+        toast('"' + n.trim() + '" agregado a la sede "' + sede.trim() + '"', 'success');
     } catch (err) { toast('Error: ' + err.message, 'error'); }
 }
 
@@ -1469,15 +1541,20 @@ function usoIns(emergenciasFiltradas) {
 function updInv() {
     var tb = document.getElementById('inventarioBody');
     if (!tb) return;
+    var sedeFiltro = document.getElementById('filterInventarioSede').value;
+    var inventarioFiltrado = inventario;
+    if (sedeFiltro && sedeFiltro !== 'todas') {
+        inventarioFiltrado = inventario.filter(function(i) { return i.sede === sedeFiltro; });
+    }
     var um = usoIns();
     tb.innerHTML = '';
-    inventario.forEach(function(item) {
+    inventarioFiltrado.forEach(function(item) {
         var u = um[item.nombre] || 0,
             d = item.stock - u,
             lb = item.stock < 20;
         var r = document.createElement('tr');
         if (lb) r.className = 'inventory-low';
-        r.innerHTML = '<td><strong>' + esc(item.nombre) + '</strong></td><td>' + item.stock + '</td><td>' + esc(item.unidad) + '</td><td>' + u + '</td><td>' + d + '</td><td>' + (lb ? '<span class="badge bg-warning text-dark">Bajo</span>' : '<span class="badge bg-success">OK</span>') + '</td><td class="admin-only"><button class="btn btn-sm btn-outline-primary ajStockBtn" data-id="' + item.id + '"><i class="fas fa-plus-minus"></i></button> <button class="btn btn-sm btn-outline-danger delInvBtn" data-id="' + item.id + '"><i class="fas fa-trash"></i></button></td>';
+        r.innerHTML = '<td><strong>' + esc(item.nombre) + '</strong> <span class="badge bg-light text-dark" style="font-size:0.65rem;">' + esc(item.sede || 'General') + '</span></td><td>' + item.stock + '</td><td>' + esc(item.unidad) + '</td><td>' + u + '</td><td>' + d + '</td><td>' + (lb ? '<span class="badge bg-warning text-dark">Bajo</span>' : '<span class="badge bg-success">OK</span>') + '</td><td class="admin-only"><button class="btn btn-sm btn-outline-primary ajStockBtn" data-id="' + item.id + '"><i class="fas fa-plus-minus"></i></button> <button class="btn btn-sm btn-outline-danger delInvBtn" data-id="' + item.id + '"><i class="fas fa-trash"></i></button></td>';
         tb.appendChild(r);
     });
     document.querySelectorAll('.ajStockBtn').forEach(function(b) {
@@ -1700,7 +1777,7 @@ function updAnal() {
         emergFiltradas = emergencias.filter(function(e) { return e.municipio === sede; });
     }
 
-    // <-- CAMBIO: Si es operador, filtrar solo los últimos 7 días
+    // Si es operador, filtrar solo los últimos 7 días
     if (userRole === 'operador') {
         var hoy = new Date();
         var hace7Dias = new Date();
@@ -1852,6 +1929,7 @@ function imprimirReporte(mod) {
         if (mod === 'llamadas') sedeFiltro = document.getElementById('filterSede').value;
         else if (mod === 'atenciones') sedeFiltro = document.getElementById('filtroEmergenciaSede').value;
         else if (mod === 'analisis' || mod === 'rendimiento') sedeFiltro = document.getElementById('analisisSede').value;
+        else if (mod === 'inventario') sedeFiltro = document.getElementById('filterInventarioSede').value;
         var tituloSede = (sedeFiltro && sedeFiltro !== 'todas') ? ' · Sede: ' + sedeFiltro : '';
 
         var h = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte CRM</title><style>';
@@ -1900,11 +1978,19 @@ function imprimirReporte(mod) {
             h += '</tbody></table>';
         }
 
-        if (mod === 'inventario') { var um2 = usoIns();
-            h += '<table><thead><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th></tr></thead><tbody>';
-            inventario.forEach(function(i) { var u = um2[i.nombre] || 0;
-                h += '<tr><td>'+i.nombre+'</td><td>'+i.stock+'</td><td>'+i.unidad+'</td><td>'+u+'</td><td>'+(i.stock-u)+'</td></tr>'; });
-            h += '</tbody></table>'; }
+        if (mod === 'inventario') {
+            var sedeInv = document.getElementById('filterInventarioSede').value;
+            var inventarioFiltrado = inventario;
+            if (sedeInv && sedeInv !== 'todas') {
+                inventarioFiltrado = inventario.filter(function(i) { return i.sede === sedeInv; });
+            }
+            var um2 = usoIns();
+            h += '<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de insumos: <strong>' + inventarioFiltrado.length + '</strong> (sede: ' + (sedeInv !== 'todas' ? sedeInv : 'todas') + ')</p>';
+            h += '<table><thead><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Usado</th><th>Disponible</th><th>Sede</th></tr></thead><tbody>';
+            inventarioFiltrado.forEach(function(i) { var u = um2[i.nombre] || 0;
+                h += '<tr><td>'+esc(i.nombre)+'</td><td>'+i.stock+'</td><td>'+esc(i.unidad)+'</td><td>'+u+'</td><td>'+(i.stock-u)+'</td><td>'+esc(i.sede||'General')+'</td></tr>'; });
+            h += '</tbody></table>';
+        }
 
         if (mod === 'rendimiento' || mod === 'analisis') {
             if (chartsMap['tiposEmergenciasChart']) try { h += '<div style="margin:10px 0 4px;font-weight:600;color:#0a4b6e;">Tipos presencial</div><img src="' + chartsMap['tiposEmergenciasChart'].toBase64Image() + '" style="max-width:100%;">'; } catch (e) {}
