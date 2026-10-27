@@ -244,6 +244,7 @@
                     <button class="print-dropdown-item" data-mod="atenciones"><i class="fas fa-hand-holding-heart"></i>Reporte de atenciones</button>
                     <button class="print-dropdown-item" data-mod="inventario"><i class="fas fa-boxes"></i>Reporte de inventario</button>
                     <button class="print-dropdown-item" data-mod="vehiculos"><i class="fas fa-truck"></i>Reporte de vehículos</button>
+                    <button class="print-dropdown-item" data-mod="analisis"><i class="fas fa-chart-line"></i>Reporte de análisis</button>
                 </div>
             </div>
             <div class="user-badge">
@@ -279,7 +280,6 @@
 
     <!-- PESTAÑAS -->
     <ul class="nav nav-tabs-custom" id="mainTab" role="tablist">
-        <!-- Orden: primero para admin/operador, después para operaciones -->
         <li class="nav-item" data-roles="admin,operador"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#llamadas" type="button"><i class="fas fa-phone"></i> Llamadas</button></li>
         <li class="nav-item" data-roles="admin,operador"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#emergencias" type="button"><i class="fas fa-hand-holding-heart"></i> Atenciones</button></li>
         <li class="nav-item" data-roles="admin"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventario" type="button"><i class="fas fa-boxes"></i> Inventario Clínico</button></li>
@@ -294,7 +294,7 @@
     <div id="datosCargados" class="datos-cargados"><i class="fas fa-check-circle me-2"></i>Datos sincronizados</div>
 
     <div class="tab-content" id="mainTabContent">
-        
+
         <!-- LLAMADAS -->
         <div class="tab-pane fade" id="llamadas" role="tabpanel" data-roles="admin,operador">
             <div class="filters-bar">
@@ -387,7 +387,7 @@
                                     <div class="form-group"><label>Edad (años)</label><input type="number" id="emergEdad" class="form-control" placeholder="Ej: 35" min="0"></div>
                                     <div class="form-group"><label>Cédula</label><input type="text" id="emergCedula" class="form-control"></div>
                                     <div class="form-group"><label>Teléfono</label><input type="text" id="emergTelefono" class="form-control"></div>
-                                    <div class="form-group"><label>Dirección</label><input type="text" id="emergDireccion" class="form-control"></div>
+                                    <div class="form-group"><label>Dirección / Comunidad</label><input type="text" id="emergDireccion" class="form-control" placeholder="Sector, calle, comunidad..."></div>
                                     <div class="form-group"><label>Municipio</label><select id="emergMunicipio" class="form-select"><option value="">Seleccionar...</option></select></div>
                                 </div>
                             </div>
@@ -397,7 +397,7 @@
                                     <div class="form-group"><label>Duración (min) *</label><input type="number" step="0.5" min="0.5" id="emergDuracion" class="form-control" required></div>
                                     <div class="form-group"><label>Profesional *</label><input type="text" id="emergProfesional" class="form-control" required></div>
                                     <div class="form-group"><label>Tipo atención</label><input type="text" id="emergTipo" class="form-control"></div>
-                                    <div class="form-group"><label>Diagnóstico / Notas</label><textarea id="emergNotas" rows="2" class="form-control"></textarea></div>
+                                    <div class="form-group"><label>Diagnóstico / Patología</label><textarea id="emergNotas" rows="2" class="form-control" placeholder="Ej: Hipertensión, Diabetes, Traumatismo..."></textarea></div>
                                 </div>
                                 <div class="form-section"><div class="section-title">Insumos utilizados</div>
                                     <div class="row g-1 align-items-end">
@@ -442,8 +442,8 @@
             </div>
             <div class="analytics-grid">
                 <div class="analytics-card"><div class="card-header"><i class="fas fa-chart-line"></i> Evolución diaria</div><div class="card-body"><div class="chart-container"><canvas id="evolucionDiariaChart"></canvas></div></div></div>
-                <div class="analytics-card"><div class="card-header"><i class="fas fa-building"></i> Atenciones por sede</div><div class="card-body"><div class="chart-container"><canvas id="atencionesPorSedeChart"></canvas></div></div></div>
-                <div class="analytics-card"><div class="card-header"><i class="fas fa-stethoscope"></i> Tipos presencial (Top 10)</div><div class="card-body"><div class="chart-container"><canvas id="tiposEmergenciasChart"></canvas></div><div id="tiposEmergenciasTable" class="mt-1 small text-muted"></div></div></div>
+                <div class="analytics-card"><div class="card-header"><i class="fas fa-map-marker-alt"></i> Comunidades Atendidas (por Dirección)</div><div class="card-body"><div class="chart-container"><canvas id="atencionesPorSedeChart"></canvas></div><div id="comunidadesTable" class="mt-1 small text-muted"></div></div></div>
+                <div class="analytics-card"><div class="card-header"><i class="fas fa-stethoscope"></i> Top 10 Patologías (Diagnóstico)</div><div class="card-body"><div class="chart-container"><canvas id="tiposEmergenciasChart"></canvas></div><div id="tiposEmergenciasTable" class="mt-1 small text-muted"></div></div></div>
                 <div class="analytics-card"><div class="card-header"><i class="fas fa-phone-alt"></i> Tipos telefónicos (Top 10)</div><div class="card-body"><div class="chart-container"><canvas id="tiposLlamadasChart"></canvas></div><div id="tiposLlamadasTable" class="mt-1 small text-muted"></div></div></div>
                 <div class="analytics-card"><div class="card-header"><i class="fas fa-calendar-week"></i> Atenciones por día</div><div class="card-body"><div class="chart-container"><canvas id="atencionesPorDiaSemanaChart"></canvas></div></div></div>
                 <div class="analytics-card"><div class="card-header"><i class="fas fa-capsules"></i> Top 5 insumos</div><div class="card-body"><div class="chart-container"><canvas id="topInsumosChart"></canvas></div><div id="topInsumosTable" class="mt-1 small"></div></div></div>
@@ -864,14 +864,12 @@ async function onLoginSuccess(user){
     }
     document.getElementById('footerRol').textContent=userRole.toUpperCase();
 
-    // Filtrar por rol
     document.querySelectorAll('[data-roles]').forEach(el=>{
         const roles=el.getAttribute('data-roles').split(',');
         if(roles.includes(userRole)||roles.includes('admin')) el.classList.remove('hidden-by-role');
         else el.classList.add('hidden-by-role');
     });
 
-    // Activar primera pestaña visible
     setTimeout(()=>{
         const firstVisibleItem = document.querySelector('.nav-tabs-custom .nav-item:not(.hidden-by-role)');
         if(!firstVisibleItem) return;
@@ -893,6 +891,7 @@ async function onLoginSuccess(user){
     
     await cargarTodo();
     setupRealtime();
+    setupPrintButtons();
 }
 
 // ========================================================================
@@ -900,7 +899,6 @@ async function onLoginSuccess(user){
 // ========================================================================
 async function cargarTodo(){
     try{
-        // Reset
         interacciones=[]; emergencias=[]; inventario=[];
         vehiculos=[]; mantenimientos=[]; combustibles=[]; guardias=[]; invVehiculos=[];
 
@@ -916,7 +914,6 @@ async function cargarTodo(){
             return all;
         };
 
-        // Datos clínicos: admin + operador (operador necesita inventario para insumos)
         if(userRole==='admin'||userRole==='operador'){
             interacciones = await paginar('interacciones','fecha');
             const ats = await paginar('atenciones','fecha');
@@ -924,7 +921,6 @@ async function cargarTodo(){
             inventario = await paginar('inventario','nombre');
         }
 
-        // Datos operaciones: admin + operaciones
         if(userRole==='admin'||userRole==='operaciones'){
             vehiculos = await paginar('vehiculos','ficha_unidad');
             mantenimientos = await paginar('registro_mantenimiento','fecha');
@@ -933,7 +929,6 @@ async function cargarTodo(){
             invVehiculos = await paginar('inventario_vehiculo','fecha');
         }
 
-        // Filtro por sede
         if(userRole!=='admin'&&userSede){
             interacciones=interacciones.filter(i=>i.municipio===userSede);
             emergencias=emergencias.filter(e=>e.municipio===userSede);
@@ -1256,7 +1251,7 @@ window.edLL=(id)=>{
 window.elLL=async(id)=>{ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('interacciones').delete().eq('id',id); if(r.error) throw r.error; toast('Eliminada','info'); }catch(err){ toast(err.message,'error'); } };
 
 // ========================================================================
-// FORM: EMERGENCIAS (con descuento de stock)
+// FORM: EMERGENCIAS
 // ========================================================================
 document.getElementById('btnCrearNuevoEmergencia').addEventListener('click',()=>{
     document.getElementById('emergenciaForm').reset();
@@ -1302,7 +1297,6 @@ function updDropIns(){
     inv.forEach(i=>{ const o=document.createElement('option'); o.value=i.nombre; o.textContent=i.nombre+' ('+i.stock+' '+i.unidad+')'; s.appendChild(o); });
 }
 
-// Descuento/restauración de stock
 async function aplicarDeltaStock(insumosNuevos, insumosAnteriores, sede){
     const delta={};
     (insumosNuevos||[]).forEach(i=>{ delta[i.nombre]=(delta[i.nombre]||0)+i.cantidad; });
@@ -1396,7 +1390,7 @@ window.elEm=async(id)=>{
         const r=await sb.from('atenciones').delete().eq('id',id);
         if(r.error) throw r.error;
         const insAnt=e.insumos?JSON.parse(JSON.stringify(e.insumos)):[];
-        await aplicarDeltaStock([], insAent, e.municipio||'General');
+        await aplicarDeltaStock([], insAnt, e.municipio||'General');
         toast('Eliminada','info');
     }catch(err){ toast(err.message,'error'); }
 };
@@ -1574,7 +1568,7 @@ document.getElementById('invVehiculoForm').addEventListener('submit',async(e)=>{
 });
 
 // ========================================================================
-// ANÁLISIS (Gráficos)
+// ANÁLISIS (CON PATOLOGÍAS Y COMUNIDADES)
 // ========================================================================
 function mkC(id,cfg){
     const cv=document.getElementById(id); if(!cv) return null;
@@ -1593,8 +1587,22 @@ function updAnal(){
         interF=interF.filter(i=>new Date(i.fecha)>=hace7);
         emerF=emerF.filter(e=>new Date(e.fecha)>=hace7);
     }
-    const td=interF.map(i=>({fecha:i.fecha,duracion:i.duracion,municipio:i.municipio}))
-        .concat(emerF.map(e=>({fecha:e.fecha,duracion:e.duracion,municipio:e.municipio})));
+
+    // Dataset combinado con dirección y notas
+    const td=interF.map(i=>({
+        fecha:i.fecha,
+        duracion:i.duracion,
+        municipio:i.municipio,
+        direccion:i.direccion,
+        tipo_atencion:i.tipo_atencion
+    })).concat(emerF.map(e=>({
+        fecha:e.fecha,
+        duracion:e.duracion,
+        municipio:e.municipio,
+        direccion:e.direccion,
+        notas:e.notas,
+        tipo_atencion:e.tipoEmergencia
+    })));
 
     // Evolución diaria
     const agrup={};
@@ -1602,22 +1610,89 @@ function updAnal(){
     const fechas=Object.keys(agrup).sort();
     mkC('evolucionDiariaChart',{type:'line',data:{labels:fechas.map(f=>{const d=new Date(f); return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'});}),datasets:[{label:'Atenciones',data:fechas.map(f=>agrup[f]),borderColor:'#0b5e7e',backgroundColor:'rgba(11,94,126,0.1)',fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 
-    // Por sede
-    const sedeCount={};
-    MUNICIPIOS.forEach(m=>sedeCount[m]=0);
-    td.forEach(a=>{ if(sedeCount.hasOwnProperty(a.municipio)) sedeCount[a.municipio]++; });
-    mkC('atencionesPorSedeChart',{type:'bar',data:{labels:Object.keys(sedeCount),datasets:[{label:'Atenciones',data:Object.values(sedeCount),backgroundColor:'#1e88e5',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    // ============ COMUNIDADES ATENDIDAS (por Dirección) ============
+    const comunidadCount = {};
+    td.forEach(a => {
+        const dir = (a.direccion || '').trim();
+        if (!dir) return;
+        comunidadCount[dir] = (comunidadCount[dir] || 0) + 1;
+    });
+    const comunidadesSorted = Object.entries(comunidadCount).sort((a,b)=>b[1]-a[1]);
+    let comunidadesTop = comunidadesSorted.slice(0, 10);
+    if (comunidadesSorted.length > 10) {
+        comunidadesTop.push(['Otras comunidades', comunidadesSorted.slice(10).reduce((s,x)=>s+x[1], 0)]);
+    }
 
-    // Tipos presencial (Top 10)
+    mkC('atencionesPorSedeChart', {
+        type: 'bar',
+        data: {
+            labels: comunidadesTop.length ? comunidadesTop.map(x=>x[0]) : ['Sin datos'],
+            datasets: [{
+                label: 'Atenciones',
+                data: comunidadesTop.length ? comunidadesTop.map(x=>x[1]) : [0],
+                backgroundColor: '#1e88e5',
+                borderRadius: 4
+            }]
+        },
+        options: { 
+            indexAxis: 'y',
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    const comunidadesTable = document.getElementById('comunidadesTable');
+    if (comunidadesTable) {
+        comunidadesTable.innerHTML = comunidadesTop.length
+            ? '<strong>Total comunidades únicas:</strong> ' + comunidadesSorted.length + '<br>' +
+              comunidadesTop.map(x => '<span class="badge bg-info me-1">' + esc(x[0]) + ': ' + x[1] + '</span>').join('')
+            : '<span class="text-muted">Sin direcciones registradas</span>';
+    }
+
+    // ============ TOP 10 PATOLOGÍAS (Diagnóstico/Notas) ============
     const tem={};
-    emerF.forEach(e=>{ const t=e.tipoEmergencia||'Sin tipo'; tem[t]=(tem[t]||0)+1; });
-    const sorted=Object.entries(tem).sort((a,b)=>b[1]-a[1]);
-    let data=sorted.slice(0,10);
-    if(sorted.length>10) data.push(['Otros',sorted.slice(10).reduce((s,x)=>s+x[1],0)]);
-    mkC('tiposEmergenciasChart',{type:'bar',data:{labels:data.map(x=>x[0]),datasets:[{label:'Cantidad',data:data.map(x=>x[1]),backgroundColor:['#c0392b','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#2c3e50','#e74c3c','#1abc9c','#7f8c8d'],borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-    document.getElementById('tiposEmergenciasTable').innerHTML=data.map(x=>'<span class="badge bg-secondary me-1">'+esc(x[0])+': '+x[1]+'</span>').join('');
+    emerF.forEach(e => {
+        const p = (e.notas || '').trim();
+        const key = p ? p : 'Sin diagnóstico';
+        tem[key] = (tem[key] || 0) + 1;
+    });
+    const sortedPat = Object.entries(tem).sort((a,b)=>b[1]-a[1]);
+    let data = sortedPat.slice(0, 10);
+    if (sortedPat.length > 10) {
+        data.push(['Otras patologías', sortedPat.slice(10).reduce((s,x)=>s+x[1], 0)]);
+    }
 
-    // Tipos telefónicos (Top 10)
+    mkC('tiposEmergenciasChart', {
+        type: 'bar',
+        data: {
+            labels: data.length ? data.map(x=>x[0]) : ['Sin datos'],
+            datasets: [{
+                label: 'Casos',
+                data: data.length ? data.map(x=>x[1]) : [0],
+                backgroundColor: ['#c0392b','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#2c3e50','#e74c3c','#1abc9c','#7f8c8d'],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    const tiposEmergenciasTable = document.getElementById('tiposEmergenciasTable');
+    if (tiposEmergenciasTable) {
+        tiposEmergenciasTable.innerHTML = data.length
+            ? '<strong>Total patologías únicas:</strong> ' + sortedPat.length + '<br>' +
+              data.map(x => '<span class="badge bg-secondary me-1">' + esc(x[0]) + ': ' + x[1] + '</span>').join('')
+            : '<span class="text-muted">Sin patologías registradas</span>';
+    }
+
+    // ============ TIPOS TELEFÓNICOS (Top 10) ============
     const tlm={};
     interF.forEach(i=>{ tlm[i.tipo_atencion]=(tlm[i.tipo_atencion]||0)+1; });
     const sortedP=Object.entries(tlm).sort((a,b)=>b[1]-a[1]);
@@ -1657,6 +1732,233 @@ function updAnal(){
 }
 
 // ========================================================================
+// REPORTES IMPRIMIBLES
+// ========================================================================
+function setupPrintButtons(){
+    // Botón de análisis
+    const btnAnalisis = document.getElementById('btnPrintAnalisis');
+    if(btnAnalisis && !btnAnalisis._bound){
+        btnAnalisis._bound = true;
+        btnAnalisis.addEventListener('click', ()=>imprimirReporte('analisis'));
+    }
+    // Dropdown global
+    const btnGlobal = document.getElementById('btnGlobalPrint');
+    if(btnGlobal && !btnGlobal._bound){
+        btnGlobal._bound = true;
+        btnGlobal.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            document.getElementById('printDropdownMenu').classList.toggle('show');
+        });
+    }
+    // Items del dropdown
+    document.querySelectorAll('.print-dropdown-item').forEach(item=>{
+        if(item._bound) return;
+        item._bound = true;
+        item.addEventListener('click', function(e){
+            e.stopPropagation();
+            document.getElementById('printDropdownMenu').classList.remove('show');
+            imprimirReporte(this.getAttribute('data-mod'));
+        });
+    });
+    // Cerrar dropdown al clicar fuera
+    document.addEventListener('click', (e)=>{
+        const dd=document.getElementById('printDropdown');
+        if(dd && !dd.contains(e.target)) document.getElementById('printDropdownMenu').classList.remove('show');
+    });
+}
+
+function imprimirReporte(mod) {
+    try {
+        const ah = new Date().toLocaleString('es-ES', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        const modLabel = {
+            llamadas:'Atenciones Telefónicas',
+            atenciones:'Atenciones Presenciales',
+            inventario:'Inventario Clínico',
+            vehiculos:'Registro de Vehículos',
+            analisis:'Análisis y Métricas'
+        };
+        let tituloSede = '';
+        if(userRole !== 'admin' && userSede){
+            tituloSede = ' · Sede: ' + userSede;
+        } else {
+            const selSede = document.getElementById('analisisSede');
+            if(selSede && selSede.value && selSede.value !== 'todas') tituloSede = ' · Sede: ' + selSede.value;
+        }
+
+        let h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte CRM</title><style>';
+        h+='@page{margin:8mm 6mm;size:A4 landscape;}';
+        h+='body{font-family:Arial,sans-serif;font-size:8pt;color:#1a1a1a;margin:0;}';
+        h+='table{width:100%;border-collapse:collapse;margin:6px 0;table-layout:auto;}';
+        h+='th{background:#0b5e7e;color:#fff;padding:5px 6px;font-size:7.5pt;text-align:left;border:1px solid #0a4b6e;}';
+        h+='td{padding:4px 6px;border:1px solid #e0e0e0;vertical-align:top;word-break:break-word;}';
+        h+='tr:nth-child(even) td{background:#f4f8fb;}';
+        h+='.rh1{color:#0b5e7e;font-size:14pt;margin:0 0 2px 0;font-weight:700;}';
+        h+='.rh2{font-size:10pt;color:#0a4b6e;margin:0 0 6px 0;border-bottom:2px solid #0b5e7e;padding-bottom:3px;font-weight:600;}';
+        h+='.rh3{font-size:9pt;color:#0b5e7e;margin:12px 0 4px 0;font-weight:700;border-left:4px solid #0b5e7e;padding-left:6px;}';
+        h+='.meta{font-size:7pt;color:#666;margin:0 0 10px;display:flex;gap:20px;flex-wrap:wrap;}';
+        h+='.ft{border-top:1px solid #ccc;padding-top:4px;margin-top:14px;font-size:6.5pt;color:#999;text-align:center;}';
+        h+='.kpi-row{display:flex;gap:10px;margin:8px 0;flex-wrap:wrap;}';
+        h+='.kpi-box{border:1px solid #0b5e7e;border-left:4px solid #0b5e7e;padding:6px 10px;border-radius:3px;background:#f0f7fc;}';
+        h+='.kpi-box .num{font-size:14pt;font-weight:700;color:#0b5e7e;}';
+        h+='.kpi-box .lbl{font-size:7pt;color:#666;}';
+        h+='.badge-sm{padding:1px 6px;border-radius:3px;color:#fff;font-size:7pt;display:inline-block;margin:1px 2px;}';
+        h+='</style></head><body>';
+
+        h+='<h1 class="rh1">CRM Médico Operativo · 0800-COJEDES</h1>';
+        h+='<h2 class="rh2">Reporte de '+ (modLabel[mod]||mod) + tituloSede + '</h2>';
+        h+='<div class="meta">';
+        h+='<span>&#128197; Generado: '+ah+'</span>';
+        h+='<span>&#128100; Usuario: '+((currentUser&&currentUser.email)||'—')+'</span>';
+        h+='<span>&#128274; Rol: '+(userRole||'—').toUpperCase()+'</span>';
+        h+='</div>';
+
+        // Filtro por sede para los datos del reporte
+        const sedeFiltro = (userRole!=='admin'&&userSede) ? userSede : (document.getElementById('analisisSede')?.value||'todas');
+        const interF = sedeFiltro!=='todas' ? interacciones.filter(i=>i.municipio===sedeFiltro) : interacciones;
+        const emerF  = sedeFiltro!=='todas' ? emergencias.filter(e=>e.municipio===sedeFiltro) : emergencias;
+
+        if(mod==='analisis'){
+            // ---- KPIs ----
+            const totalAten = interF.length + emerF.length;
+            const durTotal = interF.concat(emerF).reduce((s,x)=>s+(x.duracion||0),0);
+            const promDur = totalAten ? (durTotal/totalAten).toFixed(1) : 0;
+
+            h+='<div class="kpi-row">';
+            h+='<div class="kpi-box"><div class="num">'+totalAten+'</div><div class="lbl">Total Atenciones</div></div>';
+            h+='<div class="kpi-box"><div class="num">'+interF.length+'</div><div class="lbl">Llamadas Telefónicas</div></div>';
+            h+='<div class="kpi-box"><div class="num">'+emerF.length+'</div><div class="lbl">Atenciones Presenciales</div></div>';
+            h+='<div class="kpi-box"><div class="num">'+promDur+'</div><div class="lbl">Duración Promedio (min)</div></div>';
+            h+='</div>';
+
+            // ---- PATOLOGÍAS ----
+            h+='<div class="rh3">PATOLOGÍAS ATENDIDAS (Diagnóstico)</div>';
+            const pats = {};
+            emerF.forEach(e=>{
+                const p = (e.notas||'').trim() || 'Sin diagnóstico';
+                pats[p] = (pats[p]||0)+1;
+            });
+            const sortedPats = Object.entries(pats).sort((a,b)=>b[1]-a[1]);
+            if(sortedPats.length){
+                h+='<table><thead><tr><th style="width:40px;">#</th><th>Patología / Diagnóstico</th><th style="width:100px;">Casos</th><th style="width:90px;">%</th></tr></thead><tbody>';
+                sortedPats.forEach((p,i)=>{
+                    const pct = ((p[1]/emerF.length)*100).toFixed(1);
+                    h+='<tr><td>'+(i+1)+'</td><td>'+esc(p[0])+'</td><td style="text-align:center;">'+p[1]+'</td><td style="text-align:center;">'+pct+'%</td></tr>';
+                });
+                h+='</tbody></table>';
+            } else {
+                h+='<p style="color:#999;">No hay patologías registradas.</p>';
+            }
+
+            // ---- COMUNIDADES ATENDIDAS ----
+            h+='<div class="rh3">COMUNIDADES ATENDIDAS (por Dirección)</div>';
+            const coms = {};
+            interF.concat(emerF).forEach(a=>{
+                const dir = (a.direccion||'').trim();
+                if(!dir) return;
+                coms[dir] = (coms[dir]||0)+1;
+            });
+            const sortedComs = Object.entries(coms).sort((a,b)=>b[1]-a[1]);
+            if(sortedComs.length){
+                h+='<p style="font-size:8pt;color:#555;margin:0 0 6px;">Total comunidades únicas: <strong>'+sortedComs.length+'</strong></p>';
+                h+='<table><thead><tr><th style="width:40px;">#</th><th>Comunidad / Dirección</th><th style="width:120px;">Atenciones</th><th style="width:90px;">%</th></tr></thead><tbody>';
+                const totalComs = sortedComs.reduce((s,x)=>s+x[1], 0);
+                sortedComs.forEach((c,i)=>{
+                    const pct = ((c[1]/totalComs)*100).toFixed(1);
+                    h+='<tr><td>'+(i+1)+'</td><td>'+esc(c[0])+'</td><td style="text-align:center;">'+c[1]+'</td><td style="text-align:center;">'+pct+'%</td></tr>';
+                });
+                h+='</tbody></table>';
+            } else {
+                h+='<p style="color:#999;">No hay direcciones/comunidades registradas.</p>';
+            }
+
+            // ---- TIPOS DE ATENCIÓN ----
+            h+='<div class="rh3">TIPOS DE ATENCIÓN</div>';
+            const tipos = {};
+            interF.forEach(i=>{ tipos[i.tipo_atencion]=(tipos[i.tipo_atencion]||0)+1; });
+            const sortedTipos = Object.entries(tipos).sort((a,b)=>b[1]-a[1]);
+            h+='<table><thead><tr><th>Tipo</th><th style="width:120px;">Cantidad</th></tr></thead><tbody>';
+            sortedTipos.forEach(t=>{ h+='<tr><td>'+esc(t[0])+'</td><td style="text-align:center;">'+t[1]+'</td></tr>'; });
+            h+='<tr><td><strong>Presenciales</strong></td><td style="text-align:center;"><strong>'+emerF.length+'</strong></td></tr>';
+            h+='</tbody></table>';
+
+            // ---- ATENCIONES POR DÍA ----
+            h+='<div class="rh3">ATENCIONES POR DÍA (últimos registros)</div>';
+            const agrupDia = {};
+            interF.concat(emerF).forEach(a=>{
+                const d = new Date(a.fecha); if(isNaN(d)) return;
+                const k = d.toISOString().split('T')[0];
+                agrupDia[k] = (agrupDia[k]||0)+1;
+            });
+            const fechas = Object.keys(agrupDia).sort();
+            h+='<table><thead><tr><th>Fecha</th><th style="width:120px;">Atenciones</th></tr></thead><tbody>';
+            fechas.forEach(f=>{ h+='<tr><td>'+f+'</td><td style="text-align:center;">'+agrupDia[f]+'</td></tr>'; });
+            h+='</tbody></table>';
+
+            // ---- INSUMOS UTILIZADOS ----
+            h+='<div class="rh3">INSUMOS UTILIZADOS (Top 10)</div>';
+            const insumosUso = {};
+            emerF.forEach(e=>{
+                if(e.insumos) e.insumos.forEach(i=>{ insumosUso[i.nombre]=(insumosUso[i.nombre]||0)+i.cantidad; });
+            });
+            const sortedIns = Object.entries(insumosUso).sort((a,b)=>b[1]-a[1]).slice(0,10);
+            if(sortedIns.length){
+                h+='<table><thead><tr><th>Insumo</th><th style="width:120px;">Cantidad</th></tr></thead><tbody>';
+                sortedIns.forEach(i=>{ h+='<tr><td>'+esc(i[0])+'</td><td style="text-align:center;">'+i[1]+'</td></tr>'; });
+                h+='</tbody></table>';
+            } else {
+                h+='<p style="color:#999;">No hay insumos registrados en atenciones.</p>';
+            }
+        }
+
+        if(mod==='llamadas'){
+            h+='<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de llamadas: <strong>'+interF.length+'</strong></p>';
+            h+='<table><thead><tr><th>#</th><th>Fecha/Hora</th><th>Paciente</th><th>Edad</th><th>Cédula</th><th>Teléfono</th><th>Duración</th><th>Tipo</th><th>Operador</th><th>Dirección/Comunidad</th><th>Municipio</th><th>Descripción</th></tr></thead><tbody>';
+            interF.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach((d,i)=>{
+                h+='<tr><td>'+(i+1)+'</td><td style="white-space:nowrap;">'+formatLocalDateTime(d.fecha)+'</td><td><strong>'+esc(d.paciente)+'</strong></td><td>'+(d.edad!=null?d.edad:'—')+'</td><td>'+(d.cedula||'—')+'</td><td>'+esc(d.telefono)+'</td><td style="text-align:center;">'+d.duracion+' min</td><td>'+esc(d.tipo_atencion)+'</td><td>'+esc(d.operador)+'</td><td>'+(d.direccion?esc(d.direccion):'—')+'</td><td>'+(d.municipio?esc(d.municipio):'—')+'</td><td>'+(d.descripcion?esc(d.descripcion):'—')+'</td></tr>';
+            });
+            h+='</tbody></table>';
+        }
+
+        if(mod==='atenciones'){
+            h+='<p style="font-size:8pt;color:#555;margin:0 0 8px;">Total de atenciones: <strong>'+emerF.length+'</strong></p>';
+            h+='<table><thead><tr><th>#</th><th>Fecha/Hora</th><th>Paciente</th><th>Edad</th><th>Cédula</th><th>Profesional</th><th>Tipo</th><th>Diagnóstico/Patología</th><th>Duración</th><th>Dirección/Comunidad</th><th>Municipio</th><th>Insumos</th></tr></thead><tbody>';
+            emerF.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach((d,i)=>{
+                const ins=(d.insumos&&d.insumos.length)?d.insumos.map(x=>esc(x.nombre)+' x'+x.cantidad).join('<br>'):'—';
+                h+='<tr><td>'+(i+1)+'</td><td style="white-space:nowrap;">'+formatLocalDateTime(d.fecha)+'</td><td><strong>'+esc(d.paciente)+'</strong></td><td>'+(d.edad!=null?d.edad:'—')+'</td><td>'+(d.cedula?esc(d.cedula):'—')+'</td><td>'+esc(d.profesional||'—')+'</td><td>'+(d.tipoEmergencia?esc(d.tipoEmergencia):'—')+'</td><td><strong>'+(d.notas?esc(d.notas):'—')+'</strong></td><td style="text-align:center;">'+d.duracion+' min</td><td>'+(d.direccion?esc(d.direccion):'—')+'</td><td>'+(d.municipio?esc(d.municipio):'—')+'</td><td>'+ins+'</td></tr>';
+            });
+            h+='</tbody></table>';
+        }
+
+        if(mod==='inventario'){
+            h+='<table><thead><tr><th>Insumo</th><th>Stock</th><th>Unidad</th><th>Sede</th></tr></thead><tbody>';
+            inventario.forEach(i=>{ h+='<tr><td>'+esc(i.nombre)+'</td><td>'+i.stock+'</td><td>'+esc(i.unidad)+'</td><td>'+esc(i.sede||'General')+'</td></tr>'; });
+            h+='</tbody></table>';
+        }
+
+        if(mod==='vehiculos'){
+            h+='<table><thead><tr><th>Ficha/Unidad</th><th>Sede</th><th>Asignación</th><th>Marca/Modelo</th><th>Placa</th><th>Código Aceite</th></tr></thead><tbody>';
+            vehiculos.forEach(v=>{ h+='<tr><td>'+esc(v.ficha_unidad)+'</td><td>'+esc(v.sede||'—')+'</td><td>'+esc(v.asignacion||'—')+'</td><td>'+esc(v.marca_modelo||'—')+'</td><td>'+esc(v.placa||'—')+'</td><td>'+esc(v.cod_aceite||'—')+'</td></tr>'; });
+            h+='</tbody></table>';
+        }
+
+        h+='<div class="ft">CRM Médico Operativo · 0800-COJEDES · '+ah+'</div>';
+        h+='</body></html>';
+
+        const w = window.open('', '_blank', 'width=1000,height=800');
+        if(w){
+            w.document.write(h);
+            w.document.close();
+            w.onload = function(){ setTimeout(()=>w.print(), 500); };
+        } else {
+            toast('Permita ventanas emergentes','error');
+        }
+    } catch(err){
+        console.error('[CRM] Error reporte:', err);
+        toast('Error al generar reporte: '+err.message,'error');
+    }
+}
+
+// ========================================================================
 // TIEMPO REAL
 // ========================================================================
 function setupRealtime(){
@@ -1676,7 +1978,6 @@ function setupRealtime(){
 }
 
 function handleRT(tipo,payload){
-    // Guardar acceso por rol
     const acceso={
         interacciones: userRole==='admin'||userRole==='operador',
         atenciones: userRole==='admin'||userRole==='operador',
@@ -1688,9 +1989,9 @@ function handleRT(tipo,payload){
         invVehiculos: userRole==='admin'||userRole==='operaciones'
     };
     if(!acceso[tipo]) return;
-    
+
     const ev=payload.eventType, nR=payload.new, oR=payload.old;
-    
+
     const upd=(arr,nuevo,old,sedeCheck)=>{
         if(ev==='INSERT'){
             if(sedeCheck&&userRole!=='admin'&&userSede&&nuevo.sede!==userSede) return arr;
@@ -1706,44 +2007,25 @@ function handleRT(tipo,payload){
         if(ev==='DELETE') return arr.filter(x=>x.id!==old.id);
         return arr;
     };
-    
-    if(tipo==='interacciones'){ 
-        interacciones=upd(interacciones,nR,oR); 
-        // Aplicar filtro sede
+
+    if(tipo==='interacciones'){
+        interacciones=upd(interacciones,nR,oR);
         if(userRole!=='admin'&&userSede) interacciones=interacciones.filter(i=>i.municipio===userSede);
-        renLL(); updKpis(); updAnal(); 
+        renLL(); updKpis(); updAnal();
     }
-    else if(tipo==='atenciones'){ 
+    else if(tipo==='atenciones'){
         if(ev==='INSERT') nR.tipoEmergencia=nR.tipo_atencion||'';
-        emergencias=upd(emergencias,nR,oR); 
+        emergencias=upd(emergencias,nR,oR);
         if(userRole!=='admin'&&userSede) emergencias=emergencias.filter(e=>e.municipio===userSede);
-        renEm(); updKpis(); updAnal(); 
+        renEm(); updKpis(); updAnal();
     }
-    else if(tipo==='inventario'){ 
-        inventario=upd(inventario,nR,oR,true); 
-        updInv(); updDropIns(); 
-    }
-    else if(tipo==='vehiculos'){ 
-        vehiculos=upd(vehiculos,nR,oR,true); 
-        renderVehiculos(); llenarSelectsVehiculos(); updKpis(); 
-    }
-    else if(tipo==='mantenimientos'){ 
-        mantenimientos=upd(mantenimientos,nR,oR); 
-        renderMantenimientos(); updKpis(); 
-    }
-    else if(tipo==='combustibles'){ 
-        combustibles=upd(combustibles,nR,oR); 
-        renderCombustibles(); updKpis(); 
-    }
-    else if(tipo==='guardias'){ 
-        guardias=upd(guardias,nR,oR); 
-        renderGuardias(); updKpis(); 
-    }
-    else if(tipo==='invVehiculos'){ 
-        invVehiculos=upd(invVehiculos,nR,oR); 
-        renderInvVehiculos(); 
-    }
-    
+    else if(tipo==='inventario'){ inventario=upd(inventario,nR,oR,true); updInv(); updDropIns(); }
+    else if(tipo==='vehiculos'){ vehiculos=upd(vehiculos,nR,oR,true); renderVehiculos(); llenarSelectsVehiculos(); updKpis(); }
+    else if(tipo==='mantenimientos'){ mantenimientos=upd(mantenimientos,nR,oR); renderMantenimientos(); updKpis(); }
+    else if(tipo==='combustibles'){ combustibles=upd(combustibles,nR,oR); renderCombustibles(); updKpis(); }
+    else if(tipo==='guardias'){ guardias=upd(guardias,nR,oR); renderGuardias(); updKpis(); }
+    else if(tipo==='invVehiculos'){ invVehiculos=upd(invVehiculos,nR,oR); renderInvVehiculos(); }
+
     toast('Actualización en tiempo real','info');
 }
 
@@ -1752,8 +2034,9 @@ function handleRT(tipo,payload){
 // ========================================================================
 document.addEventListener('DOMContentLoaded',()=>{
     llenarSedeRegistro();
+    setupPrintButtons();
     if(!sbReady){ showOnlyPanel('cdnError'); return; }
-    
+
     sb.auth.getSession().then(res=>{
         if(res.data?.session?.user) onLoginSuccess(res.data.session.user);
         else showOnlyPanel('authPanel');
