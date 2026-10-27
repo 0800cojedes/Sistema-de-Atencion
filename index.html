@@ -170,7 +170,6 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ERRORES -->
 <div id="cdnError" class="auth-wrapper" style="display:none;">
     <div class="config-error">
         <i class="fas fa-exclamation-triangle"></i>
@@ -209,22 +208,13 @@
                 <div class="auth-input-group"><i class="fas fa-envelope input-icon"></i><input type="email" id="regEmail" class="form-control" placeholder="Correo electrónico" required></div>
                 <div class="auth-input-group"><i class="fas fa-lock input-icon"></i><input type="password" id="regPassword" class="form-control" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6"></div>
                 <div class="auth-input-group"><i class="fas fa-lock input-icon"></i><input type="password" id="regPasswordConfirm" class="form-control" placeholder="Confirmar contraseña" required minlength="6"></div>
-                <label class="form-label-custom" style="margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;color:#334155;">Seleccione su rol en el sistema</label>
+                <label style="margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;color:#334155;">Seleccione su rol en el sistema</label>
                 <div class="role-selector">
-                    <div class="role-option">
-                        <input type="radio" name="regRole" id="roleOperador" value="operador" checked>
-                        <label for="roleOperador"><i class="fas fa-headset role-icon"></i><span class="role-name">Operador</span><span class="role-desc">Llamadas y atenciones</span></label>
-                    </div>
-                    <div class="role-option">
-                        <input type="radio" name="regRole" id="roleOperaciones" value="operaciones">
-                        <label for="roleOperaciones"><i class="fas fa-briefcase role-icon"></i><span class="role-name">Operaciones</span><span class="role-desc">Vehículos e inventario</span></label>
-                    </div>
-                    <div class="role-option">
-                        <input type="radio" name="regRole" id="roleAdmin" value="admin">
-                        <label for="roleAdmin"><i class="fas fa-user-shield role-icon"></i><span class="role-name">Administrador</span><span class="role-desc">Acceso completo</span></label>
-                    </div>
+                    <div class="role-option"><input type="radio" name="regRole" id="roleOperador" value="operador" checked><label for="roleOperador"><i class="fas fa-headset role-icon"></i><span class="role-name">Operador</span><span class="role-desc">Llamadas y atenciones</span></label></div>
+                    <div class="role-option"><input type="radio" name="regRole" id="roleOperaciones" value="operaciones"><label for="roleOperaciones"><i class="fas fa-briefcase role-icon"></i><span class="role-name">Operaciones</span><span class="role-desc">Vehículos e inventario</span></label></div>
+                    <div class="role-option"><input type="radio" name="regRole" id="roleAdmin" value="admin"><label for="roleAdmin"><i class="fas fa-user-shield role-icon"></i><span class="role-name">Administrador</span><span class="role-desc">Acceso completo</span></label></div>
                 </div>
-                <label class="form-label-custom" id="regSedeLabel" style="margin-top:0.4rem;margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;color:#334155;">Sede asignada *</label>
+                <label id="regSedeLabel" style="margin-top:0.4rem;margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;color:#334155;">Sede asignada *</label>
                 <div class="auth-input-group">
                     <i class="fas fa-map-marker-alt input-icon"></i>
                     <select id="regSede"><option value="">Seleccione su sede</option></select>
@@ -244,7 +234,7 @@
             <h1><i class="fas fa-phone-alt me-2"></i>CRM Médico Operativo
                 <span class="live-indicator" id="liveIndicator" style="display:none;"><span class="live-dot"></span> EN VIVO</span>
             </h1>
-            <p>Gestión integral · Sincronización en tiempo real</p>
+            <p>Gestión integral · Sincronización automática</p>
         </div>
         <div class="app-actions">
             <div class="print-dropdown" id="printDropdown">
@@ -254,7 +244,6 @@
                     <button class="print-dropdown-item" data-mod="atenciones"><i class="fas fa-hand-holding-heart"></i>Reporte de atenciones</button>
                     <button class="print-dropdown-item" data-mod="inventario"><i class="fas fa-boxes"></i>Reporte de inventario</button>
                     <button class="print-dropdown-item" data-mod="vehiculos"><i class="fas fa-truck"></i>Reporte de vehículos</button>
-                    <button class="print-dropdown-item" data-mod="mantenimiento"><i class="fas fa-tools"></i>Reporte de mantenimiento</button>
                 </div>
             </div>
             <div class="user-badge">
@@ -281,7 +270,7 @@
     </div>
 
     <!-- KPIs CLÍNICOS -->
-    <div class="kpi-grid" id="kpiClinicos" data-roles="admin,operador">
+    <div class="kpi-grid hidden-by-role" id="kpiClinicos" data-roles="admin,operador">
         <div class="kpi-card" style="border-left-color:#1e88e5;"><div><i class="fas fa-phone-volume kpi-icon" style="color:#1e88e5;"></i><span class="kpi-number" id="totalLlamadas">0</span></div><div class="kpi-label">Total Llamadas</div></div>
         <div class="kpi-card" style="border-left-color:#e67e22;"><div><i class="fas fa-truck-medical kpi-icon" style="color:#e67e22;"></i><span class="kpi-number" id="totalEmergencias">0</span></div><div class="kpi-label">Total Atenciones</div></div>
         <div class="kpi-card" style="border-left-color:#2e7d64;"><div><i class="fas fa-clock kpi-icon" style="color:#2e7d64;"></i><span class="kpi-number" id="promedioDuracionGlobal">0</span></div><div class="kpi-label">Duración Promedio (min)</div></div>
@@ -290,9 +279,10 @@
 
     <!-- PESTAÑAS -->
     <ul class="nav nav-tabs-custom" id="mainTab" role="tablist">
-        <li class="nav-item" data-roles="admin,operador"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#llamadas" type="button"><i class="fas fa-phone"></i> Llamadas</button></li>
+        <!-- Orden: primero para admin/operador, después para operaciones -->
+        <li class="nav-item" data-roles="admin,operador"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#llamadas" type="button"><i class="fas fa-phone"></i> Llamadas</button></li>
         <li class="nav-item" data-roles="admin,operador"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#emergencias" type="button"><i class="fas fa-hand-holding-heart"></i> Atenciones</button></li>
-        <li class="nav-item" data-roles="admin,operaciones"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventario" type="button"><i class="fas fa-boxes"></i> Inventario Clínico</button></li>
+        <li class="nav-item" data-roles="admin"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventario" type="button"><i class="fas fa-boxes"></i> Inventario Clínico</button></li>
         <li class="nav-item" data-roles="admin,operador"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analisis" type="button"><i class="fas fa-chart-line"></i> Análisis</button></li>
         <li class="nav-item" data-roles="admin,operaciones"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#vehiculos" type="button"><i class="fas fa-truck"></i> Vehículos</button></li>
         <li class="nav-item" data-roles="admin,operaciones"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#mantenimiento" type="button"><i class="fas fa-tools"></i> Mantenimiento</button></li>
@@ -306,24 +296,19 @@
     <div class="tab-content" id="mainTabContent">
         
         <!-- LLAMADAS -->
-        <div class="tab-pane fade show active" id="llamadas" role="tabpanel" data-roles="admin,operador">
+        <div class="tab-pane fade" id="llamadas" role="tabpanel" data-roles="admin,operador">
             <div class="filters-bar">
                 <div class="filter-group"><label>Desde</label><input type="date" id="filterFechaDesde"></div>
                 <div class="filter-group"><label>Hasta</label><input type="date" id="filterFechaHasta"></div>
                 <div class="filter-group"><label>Tipo</label><select id="filterTipo"><option value="todos">Todos</option><option value="Consulta">Consulta</option><option value="Urgencia">Urgencia</option><option value="Seguimiento">Seguimiento</option><option value="Otro">Otro</option></select></div>
                 <div class="filter-group"><label>Sede</label><select id="filterSede" class="sede-selector"><option value="todas">Todas</option></select></div>
                 <div class="filter-group"><label>Buscar</label><input type="text" id="filterSearch" placeholder="Paciente / Teléfono"></div>
-                <div class="filter-actions">
-                    <button id="btnAplicarFiltros" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button>
-                    <button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser"></i> Limpiar</button>
-                </div>
+                <div class="filter-actions"><button id="btnAplicarFiltros" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button><button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser"></i> Limpiar</button></div>
             </div>
             <div class="table-card">
                 <div class="card-header">
                     <span><i class="fas fa-list-ul me-2"></i>Atenciones telefónicas <span class="badge-count" id="registrosCountHeader">0</span></span>
-                    <div class="header-actions">
-                        <button class="btn" id="btnCrearNuevoLlamada"><i class="fas fa-plus-circle"></i> Nuevo</button>
-                    </div>
+                    <div class="header-actions"><button class="btn" id="btnCrearNuevoLlamada"><i class="fas fa-plus-circle"></i> Nuevo</button></div>
                 </div>
                 <div class="card-body">
                     <div style="max-height:450px; overflow-y:auto;">
@@ -332,10 +317,7 @@
                             <tbody id="tablaBodyLlamadas"></tbody>
                         </table>
                     </div>
-                    <div class="pagination-controls">
-                        <span id="pageInfoLlamadas">Mostrando 0-0 de 0</span>
-                        <div><button class="btn" id="prevPageLlamadas" disabled><i class="fas fa-chevron-left"></i></button><button class="btn" id="nextPageLlamadas"><i class="fas fa-chevron-right"></i></button></div>
-                    </div>
+                    <div class="pagination-controls"><span id="pageInfoLlamadas">Mostrando 0-0 de 0</span><div><button class="btn" id="prevPageLlamadas" disabled><i class="fas fa-chevron-left"></i></button><button class="btn" id="nextPageLlamadas"><i class="fas fa-chevron-right"></i></button></div></div>
                 </div>
             </div>
             <div class="form-card d-none" id="formLlamadaCard">
@@ -363,10 +345,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success" id="btnSubmitLlamada"><i class="fas fa-save me-1"></i>Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formLlamadaCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success" id="btnSubmitLlamada"><i class="fas fa-save me-1"></i>Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formLlamadaCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
@@ -380,17 +359,12 @@
                 <div class="filter-group"><label>Profesional</label><input type="text" id="filtroEmergenciaProf" placeholder="Nombre"></div>
                 <div class="filter-group"><label>Sede</label><select id="filtroEmergenciaSede" class="sede-selector"><option value="todas">Todas</option></select></div>
                 <div class="filter-group"><label>Paciente</label><input type="text" id="filtroEmergenciaSearch" placeholder="Nombre"></div>
-                <div class="filter-actions">
-                    <button id="btnFiltrarEmergencias" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button>
-                    <button id="btnLimpiarEmergencias" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser"></i> Limpiar</button>
-                </div>
+                <div class="filter-actions"><button id="btnFiltrarEmergencias" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button><button id="btnLimpiarEmergencias" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser"></i> Limpiar</button></div>
             </div>
             <div class="table-card">
                 <div class="card-header">
                     <span><i class="fas fa-hand-holding-heart me-2"></i>Atenciones presenciales <span class="badge-count" id="emergenciasCountHeader">0</span></span>
-                    <div class="header-actions">
-                        <button class="btn" id="btnCrearNuevoEmergencia"><i class="fas fa-plus-circle"></i> Nuevo</button>
-                    </div>
+                    <div class="header-actions"><button class="btn" id="btnCrearNuevoEmergencia"><i class="fas fa-plus-circle"></i> Nuevo</button></div>
                 </div>
                 <div class="card-body">
                     <div style="max-height:450px; overflow-y:auto;">
@@ -399,10 +373,7 @@
                             <tbody id="emergenciasBody"></tbody>
                         </table>
                     </div>
-                    <div class="pagination-controls">
-                        <span id="pageInfoEmergencias">Mostrando 0-0 de 0</span>
-                        <div><button class="btn" id="prevPageEmergencias" disabled><i class="fas fa-chevron-left"></i></button><button class="btn" id="nextPageEmergencias"><i class="fas fa-chevron-right"></i></button></div>
-                    </div>
+                    <div class="pagination-controls"><span id="pageInfoEmergencias">Mostrando 0-0 de 0</span><div><button class="btn" id="prevPageEmergencias" disabled><i class="fas fa-chevron-left"></i></button><button class="btn" id="nextPageEmergencias"><i class="fas fa-chevron-right"></i></button></div></div>
                 </div>
             </div>
             <div class="form-card d-none" id="formEmergenciaCard">
@@ -438,22 +409,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success" id="btnSubmitEmergencia"><i class="fas fa-save me-1"></i>Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formEmergenciaCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success" id="btnSubmitEmergencia"><i class="fas fa-save me-1"></i>Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formEmergenciaCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- INVENTARIO CLÍNICO -->
-        <div class="tab-pane fade" id="inventario" role="tabpanel" data-roles="admin,operaciones">
+        <!-- INVENTARIO CLÍNICO (solo admin) -->
+        <div class="tab-pane fade" id="inventario" role="tabpanel" data-roles="admin">
             <div class="filters-bar">
                 <div class="filter-group"><label>Sede</label><select id="filterInventarioSede" class="sede-selector"><option value="todas">Todas</option></select></div>
-                <div class="filter-actions">
-                    <button id="btnNuevoInsumoInventario" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle"></i> Nuevo insumo</button>
-                </div>
+                <div class="filter-actions"><button id="btnNuevoInsumoInventario" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle"></i> Nuevo insumo</button></div>
             </div>
             <div class="table-card">
                 <div class="card-header"><span><i class="fas fa-boxes me-2"></i>Stock de insumos <span class="badge-count" id="inventarioCountHeader">0</span></span></div>
@@ -507,7 +473,7 @@
                 </div>
             </div>
             <div class="form-card d-none" id="formVehiculoCard">
-                <div class="form-header"><span id="formTitleVehiculo">Registrar Vehículo</span></div>
+                <div class="form-header">Registrar Vehículo</div>
                 <div class="form-body">
                     <form id="vehiculoForm">
                         <div class="row">
@@ -522,10 +488,7 @@
                             <div class="col-md-4"><label>Cód. Filtro Gasoil</label><input type="text" id="vehFiltroGasoil" class="form-control"></div>
                             <div class="col-md-4"><label>Cód. Filtro Aire</label><input type="text" id="vehFiltroAire" class="form-control"></div>
                         </div>
-                        <div class="form-actions mt-3">
-                            <button type="submit" class="btn btn-success" id="btnSubmitVehiculo">Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formVehiculoCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success" id="btnSubmitVehiculo">Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formVehiculoCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
@@ -559,10 +522,7 @@
                             <div class="col-md-6"><label>Marca</label><input type="text" id="mantMarca" class="form-control"></div>
                             <div class="col-md-6"><label>Observaciones</label><input type="text" id="mantObs" class="form-control"></div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formMantCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success">Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formMantCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
@@ -598,10 +558,7 @@
                             <div class="col-md-4"><label>Monto USD</label><input type="number" step="0.01" id="combMontoUsd" class="form-control"></div>
                             <div class="col-md-4"><label>Responsable</label><input type="text" id="combResp" class="form-control"></div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formCombCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success">Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formCombCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
@@ -641,10 +598,7 @@
                             <div class="col-md-4"><label>Conductor Recibe</label><input type="text" id="guardiaRec" class="form-control"></div>
                             <div class="col-md-4"><label>Coordinador</label><input type="text" id="guardiaCoord" class="form-control"></div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formGuardiaCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success">Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formGuardiaCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
@@ -693,10 +647,7 @@
                             <div class="col-md-4"><label>Conductor Recibe</label><input type="text" id="invVehRec" class="form-control"></div>
                             <div class="col-md-4"><label>Coordinador</label><input type="text" id="invVehCoord" class="form-control"></div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Guardar</button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formInvVehCard').classList.add('d-none')">Cancelar</button>
-                        </div>
+                        <div class="form-actions"><button type="submit" class="btn btn-success">Guardar</button><button type="button" class="btn btn-secondary" onclick="document.getElementById('formInvVehCard').classList.add('d-none')">Cancelar</button></div>
                     </form>
                 </div>
             </div>
@@ -710,7 +661,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // ========================================================================
-// CONFIGURACIÓN Y VARIABLES
+// CONFIGURACIÓN
 // ========================================================================
 const SUPABASE_URL = 'https://cqquaitkuvwdzinqsmxi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcXVhaXRrdXZ3ZHppbnFzbXhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczOTM4MTgsImV4cCI6MjA5Mjk2OTgxOH0.VEsN5KNy3CulwbuyKMXTNctmo-nmw_YwRe-KT_zDM9E';
@@ -724,15 +675,15 @@ let realtimeChannel=null;
 let interacciones=[], emergencias=[], inventario=[];
 let vehiculos=[], mantenimientos=[], combustibles=[], guardias=[], invVehiculos=[];
 
-// Estado de paginación
+// Paginación de tablas
 let pagLlamadas={page:0, size:15};
 let pagEmergencias={page:0, size:15};
 
 // Charts
 const chartsMap = {};
 
-// Edición
-let currentEditingId=null, currentEditingEmergId=null, currentEditingVehiculoId=null;
+// Edición y temporales
+let currentEditingId=null, currentEditingEmergId=null;
 let tempInsumosEmerg=[];
 
 // ========================================================================
@@ -793,7 +744,6 @@ function llenarSelectsFiltroSede(){
         sorted.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
         if(isRestricted){ sel.value=userSede; sel.disabled=true; } else { sel.value='todas'; sel.disabled=false; }
     });
-    // Listener para filtros (solo admin)
     if(!isRestricted){
         document.querySelectorAll('.sede-selector').forEach(sel=>{
             sel.addEventListener('change', ()=>{ syncAllSedes(sel.value); });
@@ -914,12 +864,27 @@ async function onLoginSuccess(user){
     }
     document.getElementById('footerRol').textContent=userRole.toUpperCase();
 
-    // Mostrar/ocultar por rol
+    // Filtrar por rol
     document.querySelectorAll('[data-roles]').forEach(el=>{
         const roles=el.getAttribute('data-roles').split(',');
         if(roles.includes(userRole)||roles.includes('admin')) el.classList.remove('hidden-by-role');
         else el.classList.add('hidden-by-role');
     });
+
+    // Activar primera pestaña visible
+    setTimeout(()=>{
+        const firstVisibleItem = document.querySelector('.nav-tabs-custom .nav-item:not(.hidden-by-role)');
+        if(!firstVisibleItem) return;
+        const firstBtn = firstVisibleItem.querySelector('.nav-link');
+        if(!firstBtn) return;
+        document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('show','active'));
+        firstBtn.classList.add('active');
+        const target=firstBtn.getAttribute('data-bs-target');
+        const pane=document.querySelector(target);
+        if(pane) pane.classList.add('show','active');
+        try{ new bootstrap.Tab(firstBtn).show(); }catch(e){}
+    }, 100);
 
     showOnlyPanel('crmPanel');
     llenarSedeRegistro();
@@ -931,11 +896,14 @@ async function onLoginSuccess(user){
 }
 
 // ========================================================================
-// CARGA DE DATOS (SIN LÍMITE - paginación interna de 1000)
+// CARGA DE DATOS (SIN LÍMITE)
 // ========================================================================
 async function cargarTodo(){
     try{
-        // Carga masiva con paginación interna
+        // Reset
+        interacciones=[]; emergencias=[]; inventario=[];
+        vehiculos=[]; mantenimientos=[]; combustibles=[]; guardias=[]; invVehiculos=[];
+
         const paginar=async(table, orderCol='fecha')=>{
             let all=[],page=0,limit=1000,hasMore=true;
             while(hasMore){
@@ -948,18 +916,21 @@ async function cargarTodo(){
             return all;
         };
 
+        // Datos clínicos: admin + operador (operador necesita inventario para insumos)
         if(userRole==='admin'||userRole==='operador'){
-            interacciones=await paginar('interacciones','fecha');
-            const ats=await paginar('atenciones','fecha');
-            emergencias=ats.map(r=>Object.assign({},r,{tipoEmergencia:r.tipo_atencion||''}));
+            interacciones = await paginar('interacciones','fecha');
+            const ats = await paginar('atenciones','fecha');
+            emergencias = ats.map(r=>Object.assign({},r,{tipoEmergencia:r.tipo_atencion||''}));
+            inventario = await paginar('inventario','nombre');
         }
+
+        // Datos operaciones: admin + operaciones
         if(userRole==='admin'||userRole==='operaciones'){
-            inventario=(await paginar('inventario','nombre'))||[];
-            vehiculos=(await paginar('vehiculos','ficha_unidad'))||[];
-            mantenimientos=(await paginar('registro_mantenimiento','fecha'))||[];
-            combustibles=(await paginar('carga_combustible','fecha'))||[];
-            guardias=(await paginar('entrega_guardia','fecha'))||[];
-            invVehiculos=(await paginar('inventario_vehiculo','fecha'))||[];
+            vehiculos = await paginar('vehiculos','ficha_unidad');
+            mantenimientos = await paginar('registro_mantenimiento','fecha');
+            combustibles = await paginar('carga_combustible','fecha');
+            guardias = await paginar('entrega_guardia','fecha');
+            invVehiculos = await paginar('inventario_vehiculo','fecha');
         }
 
         // Filtro por sede
@@ -977,10 +948,16 @@ async function cargarTodo(){
 
         llenarSelectsVehiculos();
         renderTodo();
-        toast('Datos cargados ('+interacciones.length+' llamadas, '+emergencias.length+' atenciones, '+vehiculos.length+' vehículos)','success');
+        
+        const msg = (userRole==='admin') 
+            ? 'Datos cargados globalmente' 
+            : 'Datos de '+userSede+' cargados ('+interacciones.length+' llamadas, '+emergencias.length+' atenciones'+(vehiculos.length?' , '+vehiculos.length+' vehículos':'')+')';
+        toast(msg,'success');
+        const dc=document.getElementById('datosCargados');
+        if(dc){ dc.innerHTML='<i class="fas fa-check-circle me-2"></i>'+msg; dc.style.display='block'; setTimeout(()=>dc.style.display='none',3000); }
     }catch(err){
         console.error(err);
-        toast('Error: '+err.message,'error');
+        toast('Error cargando: '+err.message,'error');
     }
 }
 
@@ -988,43 +965,31 @@ async function cargarTodo(){
 // RENDERIZADO
 // ========================================================================
 function renderTodo(){
-    updKpis();
-    renLL();
-    renEm();
-    updInv();
-    updAnal();
-    renderVehiculos();
-    renderMantenimientos();
-    renderCombustibles();
-    renderGuardias();
-    renderInvVehiculos();
+    updKpis(); renLL(); renEm(); updInv(); updAnal();
+    renderVehiculos(); renderMantenimientos(); renderCombustibles(); renderGuardias(); renderInvVehiculos();
 }
 
 function updKpis(){
-    // KPIs clínicos
-    const totalLlam=document.getElementById('totalLlamadas');
-    if(totalLlam) totalLlam.innerText=interacciones.length;
-    const totalEmerg=document.getElementById('totalEmergencias');
-    if(totalEmerg) totalEmerg.innerText=emergencias.length;
-    const prom=document.getElementById('promedioDuracionGlobal');
-    if(prom){
-        const todas=interacciones.concat(emergencias);
-        const total= todas.reduce((s,x)=>s+(x.duracion||0),0);
-        prom.innerText=todas.length?(total/todas.length).toFixed(1):'0';
+    const a=document.getElementById('totalLlamadas'); if(a) a.innerText=interacciones.length;
+    const b=document.getElementById('totalEmergencias'); if(b) b.innerText=emergencias.length;
+    const c=document.getElementById('promedioDuracionGlobal');
+    if(c){
+        const td=interacciones.concat(emergencias);
+        const total=td.reduce((s,x)=>s+(x.duracion||0),0);
+        c.innerText=td.length?(total/td.length).toFixed(1):'0';
     }
-    const insumos=document.getElementById('totalInsumosGlobal');
-    if(insumos){
+    const d=document.getElementById('totalInsumosGlobal');
+    if(d){
         let ti=0; emergencias.forEach(e=>{ if(e.insumos) e.insumos.forEach(i=>ti+=i.cantidad); });
-        insumos.innerText=ti;
+        d.innerText=ti;
     }
-    // KPIs ops
-    const v=document.getElementById('kpiTotalVehiculos'); if(v) v.innerText=vehiculos.length;
-    const m=document.getElementById('kpiMantenimientos'); if(m) m.innerText=mantenimientos.length;
-    const c=document.getElementById('kpiCombustible'); if(c) c.innerText=combustibles.length;
-    const g=document.getElementById('kpiGuardias'); if(g) g.innerText=guardias.length;
+    const e1=document.getElementById('kpiTotalVehiculos'); if(e1) e1.innerText=vehiculos.length;
+    const e2=document.getElementById('kpiMantenimientos'); if(e2) e2.innerText=mantenimientos.length;
+    const e3=document.getElementById('kpiCombustible'); if(e3) e3.innerText=combustibles.length;
+    const e4=document.getElementById('kpiGuardias'); if(e4) e4.innerText=guardias.length;
 }
 
-// LLAMADAS
+// ----- LLAMADAS -----
 function filtLL(){
     const dv=document.getElementById('filterFechaDesde').value, hv=document.getElementById('filterFechaHasta').value;
     const tv=document.getElementById('filterTipo').value, sv=document.getElementById('filterSearch').value.trim().toLowerCase();
@@ -1039,43 +1004,38 @@ function filtLL(){
         if(sv&&i.paciente.toLowerCase().indexOf(sv)===-1&&(!i.telefono||i.telefono.toLowerCase().indexOf(sv)===-1)) return false;
         if(sede!=='todas'&&i.municipio!==sede) return false;
         return true;
-    });
+    }).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
 }
 
 function renLL(){
     const fl=filtLL();
-    const count=document.getElementById('registrosCountHeader');
-    if(count) count.innerText=interacciones.length; // Total absoluto
+    const c=document.getElementById('registrosCountHeader'); if(c) c.innerText=interacciones.length;
     const tb=document.getElementById('tablaBodyLlamadas'); if(!tb) return;
     const total=fl.length;
     const start=pagLlamadas.page*pagLlamadas.size;
     const end=Math.min(start+pagLlamadas.size,total);
     const display=fl.slice(start,end);
-    const pageInfo=document.getElementById('pageInfoLlamadas');
-    if(pageInfo) pageInfo.textContent='Mostrando '+(total?start+1:0)+'-'+end+' de '+total;
+    const pi=document.getElementById('pageInfoLlamadas'); if(pi) pi.textContent='Mostrando '+(total?start+1:0)+'-'+end+' de '+total;
     const prev=document.getElementById('prevPageLlamadas'), next=document.getElementById('nextPageLlamadas');
     if(prev) prev.disabled=pagLlamadas.page===0;
     if(next) next.disabled=end>=total;
-    if(!display.length){
-        tb.innerHTML='<tr><td colspan="12" class="text-center py-3 text-muted">Sin registros</td></tr>';
-        return;
-    }
-    let h='';
+    if(!display.length){ tb.innerHTML='<tr><td colspan="12" class="text-center py-3 text-muted">Sin registros</td></tr>'; return; }
+    tb.innerHTML='';
     display.forEach(i=>{
         const bc=i.tipo_atencion==='Urgencia'?'bg-danger':(i.tipo_atencion==='Consulta'?'bg-primary':(i.tipo_atencion==='Seguimiento'?'bg-success':'bg-secondary'));
-        const fecha=formatLocalDateTime(i.fecha);
-        const edad=(i.edad!=null)?i.edad:'—';
-        const rango=i.rango_edad||'—';
+        const tr=document.createElement('tr');
         const mun=(i.municipio&&MUNICIPIOS.includes(i.municipio))?i.municipio:'—';
-        h+='<tr><td class="text-nowrap">'+fecha+'</td><td><strong>'+esc(i.paciente)+'</strong></td><td>'+edad+'</td><td>'+rango+'</td><td>'+(i.cedula?esc(i.cedula):'—')+'</td><td>'+esc(i.telefono)+'</td><td>'+i.duracion+' min</td><td><span class="badge '+bc+'">'+esc(i.tipo_atencion)+'</span></td><td>'+esc(i.operador)+'</td><td>'+(i.direccion?esc(i.direccion):'—')+'</td><td>'+(mun!=='—'?'<span class="badge bg-info bg-opacity-25 text-dark">'+esc(mun)+'</span>':'—')+'</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary" onclick="edLL(\''+i.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="elLL(\''+i.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
+        tr.innerHTML='<td class="text-nowrap">'+formatLocalDateTime(i.fecha)+'</td><td><strong>'+esc(i.paciente)+'</strong></td><td>'+(i.edad!=null?i.edad:'—')+'</td><td>'+(i.rango_edad||'—')+'</td><td>'+(i.cedula?esc(i.cedula):'—')+'</td><td>'+esc(i.telefono)+'</td><td>'+i.duracion+' min</td><td><span class="badge '+bc+'">'+esc(i.tipo_atencion)+'</span></td><td>'+esc(i.operador)+'</td><td>'+(i.direccion?esc(i.direccion):'—')+'</td><td>'+(mun!=='—'?'<span class="badge bg-info bg-opacity-25 text-dark">'+esc(mun)+'</span>':'—')+'</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary" onclick="edLL(\''+i.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="elLL(\''+i.id+'\')"><i class="fas fa-trash"></i></button></td>';
+        tb.appendChild(tr);
     });
-    tb.innerHTML=h;
 }
 
 document.getElementById('prevPageLlamadas').addEventListener('click',()=>{ if(pagLlamadas.page>0){ pagLlamadas.page--; renLL(); } });
-document.getElementById('nextPageLlamadas').addEventListener('click',()=>{ const fl=filtLL(); if((pagLlamadas.page+1)*pagLlamadas.size<fl.length){ pagLlamadas.page++; renLL(); } });
+document.getElementById('nextPageLlamadas').addEventListener('click',()=>{ if((pagLlamadas.page+1)*pagLlamadas.size<filtLL().length){ pagLlamadas.page++; renLL(); } });
+document.getElementById('btnAplicarFiltros').addEventListener('click',()=>{ pagLlamadas.page=0; renLL(); });
+document.getElementById('btnLimpiarFiltros').addEventListener('click',()=>{ ['filterFechaDesde','filterFechaHasta','filterSearch'].forEach(id=>document.getElementById(id).value=''); document.getElementById('filterTipo').value='todos'; pagLlamadas.page=0; renLL(); });
 
-// EMERGENCIAS
+// ----- EMERGENCIAS -----
 function filtEm(){
     const dv=document.getElementById('filtroEmergenciaDesde').value, hv=document.getElementById('filtroEmergenciaHasta').value;
     const pv=document.getElementById('filtroEmergenciaProf').value.trim().toLowerCase();
@@ -1091,49 +1051,45 @@ function filtEm(){
         if(sv&&e.paciente.toLowerCase().indexOf(sv)===-1) return false;
         if(sede!=='todas'&&e.municipio!==sede) return false;
         return true;
-    });
+    }).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
 }
 
 function renEm(){
     const fl=filtEm();
-    const count=document.getElementById('emergenciasCountHeader');
-    if(count) count.innerText=emergencias.length;
+    const c=document.getElementById('emergenciasCountHeader'); if(c) c.innerText=emergencias.length;
     const tb=document.getElementById('emergenciasBody'); if(!tb) return;
     const total=fl.length;
     const start=pagEmergencias.page*pagEmergencias.size;
     const end=Math.min(start+pagEmergencias.size,total);
     const display=fl.slice(start,end);
-    const pageInfo=document.getElementById('pageInfoEmergencias');
-    if(pageInfo) pageInfo.textContent='Mostrando '+(total?start+1:0)+'-'+end+' de '+total;
+    const pi=document.getElementById('pageInfoEmergencias'); if(pi) pi.textContent='Mostrando '+(total?start+1:0)+'-'+end+' de '+total;
     const prev=document.getElementById('prevPageEmergencias'), next=document.getElementById('nextPageEmergencias');
     if(prev) prev.disabled=pagEmergencias.page===0;
     if(next) next.disabled=end>=total;
     if(!display.length){ tb.innerHTML='<tr><td colspan="12" class="text-center py-3 text-muted">Sin registros</td></tr>'; return; }
     tb.innerHTML='';
     display.forEach(e=>{
-        const row=document.createElement('tr');
         const ins=e.insumos&&e.insumos.length?e.insumos.map(i=>'<span class="badge bg-info bg-opacity-25 text-dark me-1">'+esc(i.nombre)+' x'+i.cantidad+'</span>').join(''):'—';
-        const fecha=formatLocalDateTime(e.fecha);
-        const edad=(e.edad!=null)?e.edad:'—';
-        const rango=e.rango_edad||'—';
+        const tr=document.createElement('tr');
         const mun=(e.municipio&&MUNICIPIOS.includes(e.municipio))?e.municipio:'—';
-        row.innerHTML='<td class="text-nowrap">'+fecha+'</td><td><strong>'+esc(e.paciente)+'</strong></td><td>'+edad+'</td><td>'+rango+'</td><td>'+(e.cedula?esc(e.cedula):'—')+'</td><td><strong>'+esc(e.profesional||'—')+'</strong></td><td>'+(e.tipoEmergencia?esc(e.tipoEmergencia):'—')+'</td><td>'+e.duracion+' min</td><td>'+(e.direccion?esc(e.direccion):'—')+'</td><td>'+(mun!=='—'?'<span class="badge bg-info bg-opacity-25 text-dark">'+esc(mun)+'</span>':'—')+'</td><td>'+ins+'</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary" onclick="edEm(\''+e.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="elEm(\''+e.id+'\')"><i class="fas fa-trash"></i></button></td>';
-        tb.appendChild(row);
+        tr.innerHTML='<td class="text-nowrap">'+formatLocalDateTime(e.fecha)+'</td><td><strong>'+esc(e.paciente)+'</strong></td><td>'+(e.edad!=null?e.edad:'—')+'</td><td>'+(e.rango_edad||'—')+'</td><td>'+(e.cedula?esc(e.cedula):'—')+'</td><td><strong>'+esc(e.profesional||'—')+'</strong></td><td>'+(e.tipoEmergencia?esc(e.tipoEmergencia):'—')+'</td><td>'+e.duracion+' min</td><td>'+(e.direccion?esc(e.direccion):'—')+'</td><td>'+(mun!=='—'?'<span class="badge bg-info bg-opacity-25 text-dark">'+esc(mun)+'</span>':'—')+'</td><td>'+ins+'</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary" onclick="edEm(\''+e.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="elEm(\''+e.id+'\')"><i class="fas fa-trash"></i></button></td>';
+        tb.appendChild(tr);
     });
 }
 
 document.getElementById('prevPageEmergencias').addEventListener('click',()=>{ if(pagEmergencias.page>0){ pagEmergencias.page--; renEm(); } });
-document.getElementById('nextPageEmergencias').addEventListener('click',()=>{ const fl=filtEm(); if((pagEmergencias.page+1)*pagEmergencias.size<fl.length){ pagEmergencias.page++; renEm(); } });
+document.getElementById('nextPageEmergencias').addEventListener('click',()=>{ if((pagEmergencias.page+1)*pagEmergencias.size<filtEm().length){ pagEmergencias.page++; renEm(); } });
+document.getElementById('btnFiltrarEmergencias').addEventListener('click',()=>{ pagEmergencias.page=0; renEm(); });
+document.getElementById('btnLimpiarEmergencias').addEventListener('click',()=>{ ['filtroEmergenciaDesde','filtroEmergenciaHasta','filtroEmergenciaProf','filtroEmergenciaSearch'].forEach(id=>document.getElementById(id).value=''); pagEmergencias.page=0; renEm(); });
 
-// INVENTARIO
+// ----- INVENTARIO -----
 function updInv(){
     const tb=document.getElementById('inventarioBody'); if(!tb) return;
     const sedeFiltro=document.getElementById('filterInventarioSede').value;
     let inv=inventario;
     if(sedeFiltro&&sedeFiltro!=='todas') inv=inv.filter(i=>i.sede===sedeFiltro);
     if(userRole!=='admin'&&userSede) inv=inv.filter(i=>i.sede===userSede);
-    const count=document.getElementById('inventarioCountHeader');
-    if(count) count.innerText=inventario.length;
+    const c=document.getElementById('inventarioCountHeader'); if(c) c.innerText=inventario.length;
     const um={};
     emergencias.forEach(e=>{ if(e.insumos) e.insumos.forEach(i=>{ um[i.nombre]=(um[i.nombre]||0)+i.cantidad; }); });
     tb.innerHTML='';
@@ -1150,123 +1106,92 @@ async function ajStock(id){
     const it=inventario.find(i=>i.id===id); if(!it) return;
     const v=prompt('Ajuste (+5, -3):','0');
     if(v===null||isNaN(parseFloat(v))) return;
-    try{
-        const ns=Math.max(0,it.stock+parseFloat(v));
-        const r=await sb.from('inventario').update({stock:ns}).eq('id',id);
-        if(r.error) throw r.error;
-    }catch(err){ toast(err.message,'error'); }
+    try{ const ns=Math.max(0,it.stock+parseFloat(v)); const r=await sb.from('inventario').update({stock:ns}).eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); }
 }
+async function delInv(id){ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('inventario').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); } }
 
-async function delInv(id){
-    if(!confirm('¿Eliminar?')) return;
-    try{ const r=await sb.from('inventario').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); }
-}
-
-// VEHÍCULOS
+// ----- VEHICULOS -----
 function renderVehiculos(){
     const tb=document.getElementById('vehiculosBody'); if(!tb) return;
     const sedeFiltro=document.getElementById('filterVehiculoSede').value;
     let veh=vehiculos;
     if(sedeFiltro&&sedeFiltro!=='todas') veh=veh.filter(v=>v.sede===sedeFiltro);
     if(userRole!=='admin'&&userSede) veh=veh.filter(v=>v.sede===userSede);
-    const count=document.getElementById('vehiculosCountHeader');
-    if(count) count.innerText=vehiculos.length;
+    const c=document.getElementById('vehiculosCountHeader'); if(c) c.innerText=vehiculos.length;
     tb.innerHTML='';
     veh.forEach(v=>{
         tb.innerHTML+='<tr><td>'+esc(v.ficha_unidad)+'</td><td><span class="badge bg-info text-dark">'+esc(v.sede||'—')+'</span></td><td>'+esc(v.asignacion||'—')+'</td><td>'+esc(v.marca_modelo||'—')+'</td><td>'+esc(v.placa||'—')+'</td><td><button class="btn btn-sm btn-outline-danger" onclick="delVehiculo(\''+v.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
     });
 }
+async function delVehiculo(id){ if(!confirm('¿Eliminar vehículo?')) return; try{ const r=await sb.from('vehiculos').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); } }
 
-async function delVehiculo(id){
-    if(!confirm('¿Eliminar vehículo?')) return;
-    try{ const r=await sb.from('vehiculos').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); }
-}
-
-// MANTENIMIENTO
+// ----- MANTENIMIENTO -----
 function renderMantenimientos(){
     const tb=document.getElementById('mantenimientoBody'); if(!tb) return;
     let mants=mantenimientos;
     const sedeFiltro=document.getElementById('filterMantSede').value;
-    if(sedeFiltro&&sedeFiltro!=='todas'){
-        const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id);
-        mants=mants.filter(m=>vIds.includes(m.vehiculo_id));
-    }
-    const count=document.getElementById('mantenimientoCountHeader');
-    if(count) count.innerText=mantenimientos.length;
+    if(sedeFiltro&&sedeFiltro!=='todas'){ const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id); mants=mants.filter(m=>vIds.includes(m.vehiculo_id)); }
+    const c=document.getElementById('mantenimientoCountHeader'); if(c) c.innerText=mantenimientos.length;
     tb.innerHTML='';
-    mants.forEach(m=>{
+    mants.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(m=>{
         const v=vehiculos.find(x=>x.id===m.vehiculo_id);
         tb.innerHTML+='<tr><td>'+m.fecha+'</td><td>'+(v?esc(v.ficha_unidad):'?')+'</td><td>'+(m.km_actual||'—')+'</td><td>'+(m.proximo_cambio||'—')+'</td><td>'+esc(m.descripcion_producto||'—')+'</td><td>'+esc(m.marca||'—')+'</td><td><button class="btn btn-sm btn-outline-danger" onclick="delMant(\''+m.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
     });
 }
-
 async function delMant(id){ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('registro_mantenimiento').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); } }
 
-// COMBUSTIBLE
+// ----- COMBUSTIBLE -----
 function renderCombustibles(){
     const tb=document.getElementById('combustibleBody'); if(!tb) return;
     let combs=combustibles;
     const sedeFiltro=document.getElementById('filterCombSede').value;
-    if(sedeFiltro&&sedeFiltro!=='todas'){
-        const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id);
-        combs=combs.filter(c=>vIds.includes(c.vehiculo_id));
-    }
-    const count=document.getElementById('combustibleCountHeader');
-    if(count) count.innerText=combustibles.length;
+    if(sedeFiltro&&sedeFiltro!=='todas'){ const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id); combs=combs.filter(c=>vIds.includes(c.vehiculo_id)); }
+    const c=document.getElementById('combustibleCountHeader'); if(c) c.innerText=combustibles.length;
     tb.innerHTML='';
-    combs.forEach(c=>{
+    combs.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c=>{
         const v=vehiculos.find(x=>x.id===c.vehiculo_id);
         tb.innerHTML+='<tr><td>'+c.fecha+'</td><td>'+(v?esc(v.ficha_unidad):'?')+'</td><td>'+(c.km_actual||'—')+'</td><td>'+(c.litros||'—')+' L</td><td>'+esc(c.estacion||'—')+'</td><td>'+(c.monto_bs||'—')+'</td><td>'+esc(c.responsable||'—')+'</td><td><button class="btn btn-sm btn-outline-danger" onclick="delComb(\''+c.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
     });
 }
-
 async function delComb(id){ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('carga_combustible').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); } }
 
-// GUARDIAS
+// ----- GUARDIAS -----
 function renderGuardias(){
     const tb=document.getElementById('guardiasBody'); if(!tb) return;
     let gs=guardias;
     const sedeFiltro=document.getElementById('filterGuardiaSede').value;
-    if(sedeFiltro&&sedeFiltro!=='todas'){
-        const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id);
-        gs=gs.filter(g=>vIds.includes(g.vehiculo_id));
-    }
-    const count=document.getElementById('guardiasCountHeader');
-    if(count) count.innerText=guardias.length;
+    if(sedeFiltro&&sedeFiltro!=='todas'){ const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id); gs=gs.filter(g=>vIds.includes(g.vehiculo_id)); }
+    const c=document.getElementById('guardiasCountHeader'); if(c) c.innerText=guardias.length;
     tb.innerHTML='';
-    gs.forEach(g=>{
+    gs.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(g=>{
         const v=vehiculos.find(x=>x.id===g.vehiculo_id);
         tb.innerHTML+='<tr><td>'+g.fecha+' '+g.hora+'</td><td>'+(v?esc(v.ficha_unidad):'?')+'</td><td>'+(g.km_entrega||'—')+'</td><td>'+(g.km_recibe||'—')+'</td><td>'+esc(g.nivel_gasolina||'—')+'</td><td>'+esc(g.conductor_entrega||'—')+'</td><td>'+esc(g.conductor_recibe||'—')+'</td><td><button class="btn btn-sm btn-outline-danger" onclick="delGuardia(\''+g.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
     });
 }
-
 async function delGuardia(id){ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('entrega_guardia').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); } }
 
-// INV VEHICULAR
+// ----- INV VEHICULAR -----
 function renderInvVehiculos(){
     const tb=document.getElementById('invVehiculoBody'); if(!tb) return;
     let invs=invVehiculos;
     const sedeFiltro=document.getElementById('filterInvVehSede').value;
-    if(sedeFiltro&&sedeFiltro!=='todas'){
-        const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id);
-        invs=invs.filter(i=>vIds.includes(i.vehiculo_id));
-    }
-    const count=document.getElementById('invVehiculoCountHeader');
-    if(count) count.innerText=invVehiculos.length;
+    if(sedeFiltro&&sedeFiltro!=='todas'){ const vIds=vehiculos.filter(v=>v.sede===sedeFiltro).map(v=>v.id); invs=invs.filter(i=>vIds.includes(i.vehiculo_id)); }
+    const c=document.getElementById('invVehiculoCountHeader'); if(c) c.innerText=invVehiculos.length;
     tb.innerHTML='';
-    invs.forEach(i=>{
+    invs.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(i=>{
         const v=vehiculos.find(x=>x.id===i.vehiculo_id);
         tb.innerHTML+='<tr><td>'+i.fecha+'</td><td>'+(v?esc(v.ficha_unidad):'?')+'</td><td>'+(i.km_actual||'—')+'</td><td>'+esc(i.observaciones||'—')+'</td><td><button class="btn btn-sm btn-outline-danger" onclick="delInvVeh(\''+i.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
     });
 }
-
 async function delInvVeh(id){ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('inventario_vehiculo').delete().eq('id',id); if(r.error) throw r.error; }catch(err){ toast(err.message,'error'); } }
 
 // ========================================================================
-// FORMULARIOS: LLAMADAS
+// FORM: LLAMADAS
 // ========================================================================
-document.getElementById('btnCrearNuevoLlamada').addEventListener('click',()=>{ 
+document.getElementById('btnCrearNuevoLlamada').addEventListener('click',()=>{
     document.getElementById('interaccionForm').reset();
+    document.getElementById('formTitleLlamada').textContent='Registrar nueva atención telefónica';
+    currentEditingId=null;
     document.getElementById('formLlamadaCard').classList.remove('d-none');
     if(userRole!=='admin'&&userSede) document.getElementById('municipio').value=userSede;
 });
@@ -1298,11 +1223,11 @@ document.getElementById('interaccionForm').addEventListener('submit',async(e)=>{
         if(currentEditingId){
             const r=await sb.from('interacciones').update(p).eq('id',currentEditingId);
             if(r.error) throw r.error;
-            toast('Actualizada','success');
+            toast('Llamada actualizada','success');
         } else {
             const r=await sb.from('interacciones').insert([p]);
             if(r.error) throw r.error;
-            toast('Registrada','success');
+            toast('Llamada registrada','success');
         }
         currentEditingId=null;
         document.getElementById('formLlamadaCard').classList.add('d-none');
@@ -1310,7 +1235,7 @@ document.getElementById('interaccionForm').addEventListener('submit',async(e)=>{
     setBtnLoading(btn,false);
 });
 
-window.edLL=async(id)=>{
+window.edLL=(id)=>{
     const i=interacciones.find(x=>x.id===id); if(!i) return;
     currentEditingId=id;
     document.getElementById('paciente').value=i.paciente||'';
@@ -1328,22 +1253,22 @@ window.edLL=async(id)=>{
     document.getElementById('formTitleLlamada').textContent='Editar atención telefónica';
     document.getElementById('formLlamadaCard').scrollIntoView({behavior:'smooth',block:'start'});
 };
-
-window.elLL=async(id)=>{
-    if(!confirm('¿Eliminar?')) return;
-    try{ const r=await sb.from('interacciones').delete().eq('id',id); if(r.error) throw r.error; toast('Eliminada','info'); }catch(err){ toast(err.message,'error'); }
-};
+window.elLL=async(id)=>{ if(!confirm('¿Eliminar?')) return; try{ const r=await sb.from('interacciones').delete().eq('id',id); if(r.error) throw r.error; toast('Eliminada','info'); }catch(err){ toast(err.message,'error'); } };
 
 // ========================================================================
-// FORMULARIOS: EMERGENCIAS
+// FORM: EMERGENCIAS (con descuento de stock)
 // ========================================================================
 document.getElementById('btnCrearNuevoEmergencia').addEventListener('click',()=>{
     document.getElementById('emergenciaForm').reset();
+    document.getElementById('emergenciaFormTitle').textContent='Registrar nueva atención';
+    currentEditingEmergId=null;
     tempInsumosEmerg=[]; updInsUI();
     document.getElementById('formEmergenciaCard').classList.remove('d-none');
     if(userRole!=='admin'&&userSede) document.getElementById('emergMunicipio').value=userSede;
     updDropIns();
 });
+
+document.getElementById('emergMunicipio').addEventListener('change',updDropIns);
 
 document.getElementById('btnAgregarInsumoEmerg').addEventListener('click',()=>{
     const n=document.getElementById('selectInsumoEmerg').value;
@@ -1366,7 +1291,6 @@ function updInsUI(){
         c.appendChild(d);
     });
 }
-
 window.remIns=(idx)=>{ if(idx>=0&&idx<tempInsumosEmerg.length){ tempInsumosEmerg.splice(idx,1); updInsUI(); } };
 
 function updDropIns(){
@@ -1374,11 +1298,30 @@ function updDropIns(){
     s.innerHTML='';
     const sede=document.getElementById('emergMunicipio').value||(userSede||'');
     const inv=inventario.filter(i=>i.sede===sede);
-    if(!inv.length){ s.innerHTML='<option>Sin insumos en esta sede</option>'; return; }
+    if(!inv.length){ s.innerHTML='<option value="">Sin insumos en esta sede</option>'; return; }
     inv.forEach(i=>{ const o=document.createElement('option'); o.value=i.nombre; o.textContent=i.nombre+' ('+i.stock+' '+i.unidad+')'; s.appendChild(o); });
 }
 
-document.getElementById('emergMunicipio').addEventListener('change',updDropIns);
+// Descuento/restauración de stock
+async function aplicarDeltaStock(insumosNuevos, insumosAnteriores, sede){
+    const delta={};
+    (insumosNuevos||[]).forEach(i=>{ delta[i.nombre]=(delta[i.nombre]||0)+i.cantidad; });
+    (insumosAnteriores||[]).forEach(i=>{ delta[i.nombre]=(delta[i.nombre]||0)-i.cantidad; });
+    const errores=[];
+    for(const nombre in delta){
+        const diff=delta[nombre];
+        if(diff===0) continue;
+        const item=inventario.find(x=>x.nombre===nombre&&x.sede===sede);
+        if(!item){ errores.push('"'+nombre+'" no existe en sede "'+sede+'"'); continue; }
+        const nuevoStock=Math.max(0,item.stock-diff);
+        try{
+            const r=await sb.from('inventario').update({stock:nuevoStock}).eq('id',item.id);
+            if(r.error) throw r.error;
+        }catch(err){ errores.push('"'+nombre+'": '+err.message); }
+    }
+    if(errores.length){ toast('Error stock: '+errores[0],'error'); return false; }
+    return true;
+}
 
 document.getElementById('emergenciaForm').addEventListener('submit',async(e)=>{
     e.preventDefault();
@@ -1406,22 +1349,26 @@ document.getElementById('emergenciaForm').addEventListener('submit',async(e)=>{
     };
     try{
         if(currentEditingEmergId){
+            const ant=emergencias.find(a=>a.id===currentEditingEmergId);
+            const insAnt=(ant&&ant.insumos)?JSON.parse(JSON.stringify(ant.insumos)):[];
             const r=await sb.from('atenciones').update(p).eq('id',currentEditingEmergId);
             if(r.error) throw r.error;
-            toast('Actualizada','success');
+            await aplicarDeltaStock(tempInsumosEmerg, insAnt, mun);
+            toast('Atención actualizada','success');
         } else {
             const r=await sb.from('atenciones').insert([p]);
             if(r.error) throw r.error;
-            toast('Registrada','success');
+            await aplicarDeltaStock(tempInsumosEmerg, [], mun);
+            toast('Atención registrada','success');
         }
         currentEditingEmergId=null;
-        document.getElementById('formEmergenciaCard').classList.add('d-none');
         tempInsumosEmerg=[]; updInsUI();
+        document.getElementById('formEmergenciaCard').classList.add('d-none');
     }catch(err){ toast(err.message,'error'); }
     setBtnLoading(btn,false);
 });
 
-window.edEm=async(id)=>{
+window.edEm=(id)=>{
     const e=emergencias.find(x=>x.id===id); if(!e) return;
     currentEditingEmergId=id;
     document.getElementById('emergPaciente').value=e.paciente||'';
@@ -1443,12 +1390,19 @@ window.edEm=async(id)=>{
 };
 
 window.elEm=async(id)=>{
-    if(!confirm('¿Eliminar?')) return;
-    try{ const r=await sb.from('atenciones').delete().eq('id',id); if(r.error) throw r.error; toast('Eliminada','info'); }catch(err){ toast(err.message,'error'); }
+    const e=emergencias.find(x=>x.id===id); if(!e) return;
+    if(!confirm('¿Eliminar? Se restaurará stock.')) return;
+    try{
+        const r=await sb.from('atenciones').delete().eq('id',id);
+        if(r.error) throw r.error;
+        const insAnt=e.insumos?JSON.parse(JSON.stringify(e.insumos)):[];
+        await aplicarDeltaStock([], insAent, e.municipio||'General');
+        toast('Eliminada','info');
+    }catch(err){ toast(err.message,'error'); }
 };
 
 // ========================================================================
-// INVENTARIO CLÍNICO NUEVO
+// INVENTARIO NUEVO
 // ========================================================================
 document.getElementById('btnNuevoInsumoInventario').addEventListener('click',async()=>{
     const n=prompt('Nombre del insumo:'); if(!n) return;
@@ -1464,7 +1418,7 @@ document.getElementById('btnNuevoInsumoInventario').addEventListener('click',asy
 });
 
 // ========================================================================
-// VEHÍCULOS NUEVO
+// VEHICULOS NUEVO
 // ========================================================================
 document.getElementById('btnNuevoVehiculo').addEventListener('click',()=>{
     document.getElementById('vehiculoForm').reset();
@@ -1502,14 +1456,13 @@ document.getElementById('vehiculoForm').addEventListener('submit',async(e)=>{
 });
 
 // ========================================================================
-// MANTENIMIENTO NUEVO
+// MANT NUEVO
 // ========================================================================
 document.getElementById('btnNuevoMant').addEventListener('click',()=>{
     document.getElementById('mantenimientoForm').reset();
     document.getElementById('mantFecha').valueAsDate=new Date();
     document.getElementById('formMantCard').classList.remove('d-none');
 });
-
 document.getElementById('mantenimientoForm').addEventListener('submit',async(e)=>{
     e.preventDefault();
     const p={
@@ -1522,23 +1475,17 @@ document.getElementById('mantenimientoForm').addEventListener('submit',async(e)=
         observaciones:document.getElementById('mantObs').value.trim()||null
     };
     if(!p.vehiculo_id) return toast('Seleccione vehículo','error');
-    try{
-        const r=await sb.from('registro_mantenimiento').insert([p]);
-        if(r.error) throw r.error;
-        document.getElementById('formMantCard').classList.add('d-none');
-        toast('Mantenimiento registrado','success');
-    }catch(err){ toast(err.message,'error'); }
+    try{ const r=await sb.from('registro_mantenimiento').insert([p]); if(r.error) throw r.error; document.getElementById('formMantCard').classList.add('d-none'); toast('Registrado','success'); }catch(err){ toast(err.message,'error'); }
 });
 
 // ========================================================================
-// COMBUSTIBLE NUEVO
+// COMB NUEVO
 // ========================================================================
 document.getElementById('btnNuevoComb').addEventListener('click',()=>{
     document.getElementById('combustibleForm').reset();
     document.getElementById('combFecha').valueAsDate=new Date();
     document.getElementById('formCombCard').classList.remove('d-none');
 });
-
 document.getElementById('combustibleForm').addEventListener('submit',async(e)=>{
     e.preventDefault();
     const p={
@@ -1553,23 +1500,17 @@ document.getElementById('combustibleForm').addEventListener('submit',async(e)=>{
         responsable:document.getElementById('combResp').value.trim()||null
     };
     if(!p.vehiculo_id) return toast('Seleccione vehículo','error');
-    try{
-        const r=await sb.from('carga_combustible').insert([p]);
-        if(r.error) throw r.error;
-        document.getElementById('formCombCard').classList.add('d-none');
-        toast('Carga registrada','success');
-    }catch(err){ toast(err.message,'error'); }
+    try{ const r=await sb.from('carga_combustible').insert([p]); if(r.error) throw r.error; document.getElementById('formCombCard').classList.add('d-none'); toast('Registrado','success'); }catch(err){ toast(err.message,'error'); }
 });
 
 // ========================================================================
-// GUARDIAS NUEVO
+// GUARDIA NUEVO
 // ========================================================================
 document.getElementById('btnNuevoGuardia').addEventListener('click',()=>{
     document.getElementById('guardiaForm').reset();
     document.getElementById('guardiaFecha').valueAsDate=new Date();
     document.getElementById('formGuardiaCard').classList.remove('d-none');
 });
-
 document.getElementById('guardiaForm').addEventListener('submit',async(e)=>{
     e.preventDefault();
     const p={
@@ -1588,23 +1529,17 @@ document.getElementById('guardiaForm').addEventListener('submit',async(e)=>{
         coordinador:document.getElementById('guardiaCoord').value.trim()||null
     };
     if(!p.vehiculo_id) return toast('Seleccione vehículo','error');
-    try{
-        const r=await sb.from('entrega_guardia').insert([p]);
-        if(r.error) throw r.error;
-        document.getElementById('formGuardiaCard').classList.add('d-none');
-        toast('Guardia registrada','success');
-    }catch(err){ toast(err.message,'error'); }
+    try{ const r=await sb.from('entrega_guardia').insert([p]); if(r.error) throw r.error; document.getElementById('formGuardiaCard').classList.add('d-none'); toast('Registrado','success'); }catch(err){ toast(err.message,'error'); }
 });
 
 // ========================================================================
-// INVENTARIO VEHICULAR NUEVO
+// INV VEH NUEVO
 // ========================================================================
 document.getElementById('btnNuevoInvVeh').addEventListener('click',()=>{
     document.getElementById('invVehiculoForm').reset();
     document.getElementById('invVehFecha').valueAsDate=new Date();
     document.getElementById('formInvVehCard').classList.remove('d-none');
 });
-
 document.getElementById('invVehiculoForm').addEventListener('submit',async(e)=>{
     e.preventDefault();
     const items={
@@ -1635,12 +1570,7 @@ document.getElementById('invVehiculoForm').addEventListener('submit',async(e)=>{
         coordinador:document.getElementById('invVehCoord').value.trim()||null
     };
     if(!p.vehiculo_id) return toast('Seleccione vehículo','error');
-    try{
-        const r=await sb.from('inventario_vehiculo').insert([p]);
-        if(r.error) throw r.error;
-        document.getElementById('formInvVehCard').classList.add('d-none');
-        toast('Inventario registrado','success');
-    }catch(err){ toast(err.message,'error'); }
+    try{ const r=await sb.from('inventario_vehiculo').insert([p]); if(r.error) throw r.error; document.getElementById('formInvVehCard').classList.add('d-none'); toast('Registrado','success'); }catch(err){ toast(err.message,'error'); }
 });
 
 // ========================================================================
@@ -1663,8 +1593,8 @@ function updAnal(){
         interF=interF.filter(i=>new Date(i.fecha)>=hace7);
         emerF=emerF.filter(e=>new Date(e.fecha)>=hace7);
     }
-    const td=interF.map(i=>({fecha:i.fecha,duracion:i.duracion,tipo_atencion:i.tipo_atencion,municipio:i.municipio}))
-        .concat(emerF.map(e=>({fecha:e.fecha,duracion:e.duracion,tipoEmergencia:e.tipoEmergencia,municipio:e.municipio})));
+    const td=interF.map(i=>({fecha:i.fecha,duracion:i.duracion,municipio:i.municipio}))
+        .concat(emerF.map(e=>({fecha:e.fecha,duracion:e.duracion,municipio:e.municipio})));
 
     // Evolución diaria
     const agrup={};
@@ -1682,18 +1612,17 @@ function updAnal(){
     const tem={};
     emerF.forEach(e=>{ const t=e.tipoEmergencia||'Sin tipo'; tem[t]=(tem[t]||0)+1; });
     const sorted=Object.entries(tem).sort((a,b)=>b[1]-a[1]);
-    const top10=sorted.slice(0,10);
-    let data=top10;
-    if(sorted.length>10){ data.push(['Otros',sorted.slice(10).reduce((s,x)=>s+x[1],0)]); }
+    let data=sorted.slice(0,10);
+    if(sorted.length>10) data.push(['Otros',sorted.slice(10).reduce((s,x)=>s+x[1],0)]);
     mkC('tiposEmergenciasChart',{type:'bar',data:{labels:data.map(x=>x[0]),datasets:[{label:'Cantidad',data:data.map(x=>x[1]),backgroundColor:['#c0392b','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#2c3e50','#e74c3c','#1abc9c','#7f8c8d'],borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-    document.getElementById('tiposEmergenciasTable').innerHTML=data.map((x,i)=>'<span class="badge bg-secondary me-1">'+esc(x[0])+': '+x[1]+'</span>').join('');
+    document.getElementById('tiposEmergenciasTable').innerHTML=data.map(x=>'<span class="badge bg-secondary me-1">'+esc(x[0])+': '+x[1]+'</span>').join('');
 
     // Tipos telefónicos (Top 10)
     const tlm={};
     interF.forEach(i=>{ tlm[i.tipo_atencion]=(tlm[i.tipo_atencion]||0)+1; });
     const sortedP=Object.entries(tlm).sort((a,b)=>b[1]-a[1]);
     let dataP=sortedP.slice(0,10);
-    if(sortedP.length>10){ dataP.push(['Otros',sortedP.slice(10).reduce((s,x)=>s+x[1],0)]); }
+    if(sortedP.length>10) dataP.push(['Otros',sortedP.slice(10).reduce((s,x)=>s+x[1],0)]);
     mkC('tiposLlamadasChart',{type:'pie',data:{labels:dataP.map(x=>x[0]),datasets:[{data:dataP.map(x=>x[1]),backgroundColor:['#2980b9','#e67e22','#27ae60','#8e44ad','#2c3e50','#f1c40f','#e74c3c','#1abc9c','#9b59b6','#34495e','#95a5a6']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9}}}}}});
     document.getElementById('tiposLlamadasTable').innerHTML=dataP.map(x=>'<span class="badge bg-info me-1">'+esc(x[0])+': '+x[1]+'</span>').join('');
 
@@ -1718,7 +1647,6 @@ function updAnal(){
     mkC('llamadasPorHoraChart',{type:'line',data:{labels:hl,datasets:[{label:'Atenciones',data:ph,borderColor:'#e67e22',backgroundColor:'rgba(230,126,34,0.1)',fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     mkC('duracionPorHoraChart',{type:'bar',data:{labels:hl,datasets:[{label:'Promedio (min)',data:dph,backgroundColor:'#2ecc71',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 
-    // Indicadores
     let mx=-1,pi=-1;
     for(let i=0;i<24;i++){ if(ph[i]>mx){ mx=ph[i]; pi=i; } }
     document.getElementById('peakHour').innerText=pi!==-1?pi+':00':'--';
@@ -1729,7 +1657,7 @@ function updAnal(){
 }
 
 // ========================================================================
-// TIEMPO REAL (SUPABASE REALTIME)
+// TIEMPO REAL
 // ========================================================================
 function setupRealtime(){
     if(realtimeChannel){ try{ sb.removeChannel(realtimeChannel); }catch(e){} }
@@ -1748,6 +1676,19 @@ function setupRealtime(){
 }
 
 function handleRT(tipo,payload){
+    // Guardar acceso por rol
+    const acceso={
+        interacciones: userRole==='admin'||userRole==='operador',
+        atenciones: userRole==='admin'||userRole==='operador',
+        inventario: userRole==='admin'||userRole==='operador',
+        vehiculos: userRole==='admin'||userRole==='operaciones',
+        mantenimientos: userRole==='admin'||userRole==='operaciones',
+        combustibles: userRole==='admin'||userRole==='operaciones',
+        guardias: userRole==='admin'||userRole==='operaciones',
+        invVehiculos: userRole==='admin'||userRole==='operaciones'
+    };
+    if(!acceso[tipo]) return;
+    
     const ev=payload.eventType, nR=payload.new, oR=payload.old;
     
     const upd=(arr,nuevo,old,sedeCheck)=>{
@@ -1759,31 +1700,51 @@ function handleRT(tipo,payload){
         if(ev==='UPDATE'){
             const i=arr.findIndex(x=>x.id===nuevo.id);
             if(i!==-1){ arr[i]={...arr[i],...nuevo}; }
+            else if(sedeCheck&&userRole!=='admin'&&userSede&&nuevo.sede===userSede){ arr.push(nuevo); }
             return arr;
         }
         if(ev==='DELETE') return arr.filter(x=>x.id!==old.id);
         return arr;
     };
     
-    if(tipo==='interacciones'){ interacciones=upd(interacciones,nR,oR); renLL(); updKpis(); }
+    if(tipo==='interacciones'){ 
+        interacciones=upd(interacciones,nR,oR); 
+        // Aplicar filtro sede
+        if(userRole!=='admin'&&userSede) interacciones=interacciones.filter(i=>i.municipio===userSede);
+        renLL(); updKpis(); updAnal(); 
+    }
     else if(tipo==='atenciones'){ 
         if(ev==='INSERT') nR.tipoEmergencia=nR.tipo_atencion||'';
         emergencias=upd(emergencias,nR,oR); 
-        // Filtro sede
-        if(userRole!=='admin'&&userSede){ emergencias=emergencias.filter(e=>e.municipio===userSede); interacciones=interacciones.filter(i=>i.municipio===userSede); }
-        renEm(); updKpis(); 
+        if(userRole!=='admin'&&userSede) emergencias=emergencias.filter(e=>e.municipio===userSede);
+        renEm(); updKpis(); updAnal(); 
     }
-    else if(tipo==='inventario'){ inventario=upd(inventario,nR,oR,true); updInv(); updDropIns(); }
-    else if(tipo==='vehiculos'){ vehiculos=upd(vehiculos,nR,oR,true); renderVehiculos(); llenarSelectsVehiculos(); updKpis(); }
-    else if(tipo==='mantenimientos'){ mantenimientos=upd(mantenimientos,nR,oR); renderMantenimientos(); updKpis(); }
-    else if(tipo==='combustibles'){ combustibles=upd(combustibles,nR,oR); renderCombustibles(); updKpis(); }
-    else if(tipo==='guardias'){ guardias=upd(guardias,nR,oR); renderGuardias(); updKpis(); }
-    else if(tipo==='invVehiculos'){ invVehiculos=upd(invVehiculos,nR,oR); renderInvVehiculos(); }
+    else if(tipo==='inventario'){ 
+        inventario=upd(inventario,nR,oR,true); 
+        updInv(); updDropIns(); 
+    }
+    else if(tipo==='vehiculos'){ 
+        vehiculos=upd(vehiculos,nR,oR,true); 
+        renderVehiculos(); llenarSelectsVehiculos(); updKpis(); 
+    }
+    else if(tipo==='mantenimientos'){ 
+        mantenimientos=upd(mantenimientos,nR,oR); 
+        renderMantenimientos(); updKpis(); 
+    }
+    else if(tipo==='combustibles'){ 
+        combustibles=upd(combustibles,nR,oR); 
+        renderCombustibles(); updKpis(); 
+    }
+    else if(tipo==='guardias'){ 
+        guardias=upd(guardias,nR,oR); 
+        renderGuardias(); updKpis(); 
+    }
+    else if(tipo==='invVehiculos'){ 
+        invVehiculos=upd(invVehiculos,nR,oR); 
+        renderInvVehiculos(); 
+    }
     
-    // Recalcular análisis si aplica
-    if(tipo==='interacciones'||tipo==='atenciones'){ try{ updAnal(); }catch(e){} }
-    
-    toast('Dato actualizado en tiempo real','info');
+    toast('Actualización en tiempo real','info');
 }
 
 // ========================================================================
