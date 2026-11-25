@@ -164,10 +164,11 @@
             .table-card table { font-size: 0.7rem; }
             .analytics-grid { grid-template-columns: 1fr; }
         }
-        /* Selector de diagnóstico EPI-15 */
         .diagnostico-wrapper { display: flex; flex-direction: column; gap: 0.35rem; }
         .diagnostico-wrapper .diag-info { font-size: 0.7rem; color: #64748b; }
         #emergNotas option:checked { font-weight: 600; }
+        .edad-hint { font-size: 0.72rem; color: #0b5e7e; font-weight: 600; margin-top: 0.2rem; }
+        .edad-hint.empty { color: #94a3b8; font-weight: 400; }
     </style>
 </head>
 <body>
@@ -332,7 +333,18 @@
                             <div class="col-md-6">
                                 <div class="form-section"><div class="section-title">Datos del paciente</div>
                                     <div class="form-group"><label>Paciente *</label><input type="text" id="paciente" class="form-control" required></div>
-                                    <div class="form-group"><label>Edad (años)</label><input type="number" id="edad" class="form-control" placeholder="Ej: 35" min="0"></div>
+                                    <div class="form-group">
+                                        <label>Edad</label>
+                                        <div class="input-group">
+                                            <input type="number" id="edad" class="form-control" placeholder="Ej: 35" min="0" step="any">
+                                            <select id="edadUnidad" class="form-select" style="max-width:105px;">
+                                                <option value="años" selected>Años</option>
+                                                <option value="meses">Meses</option>
+                                                <option value="días">Días</option>
+                                            </select>
+                                        </div>
+                                        <div class="edad-hint empty" id="rangoEdadDisplay"><i class="fas fa-user-clock me-1"></i>Rango: —</div>
+                                    </div>
                                     <div class="form-group"><label>Cédula</label><input type="text" id="cedula" class="form-control"></div>
                                     <div class="form-group"><label>Teléfono *</label><input type="text" id="telefono" class="form-control" required></div>
                                     <div class="form-group"><label>Dirección</label><input type="text" id="direccion" class="form-control"></div>
@@ -388,7 +400,18 @@
                             <div class="col-md-6">
                                 <div class="form-section"><div class="section-title">Datos del paciente</div>
                                     <div class="form-group"><label>Paciente *</label><input type="text" id="emergPaciente" class="form-control" required></div>
-                                    <div class="form-group"><label>Edad (años)</label><input type="number" id="emergEdad" class="form-control" placeholder="Ej: 35" min="0"></div>
+                                    <div class="form-group">
+                                        <label>Edad</label>
+                                        <div class="input-group">
+                                            <input type="number" id="emergEdad" class="form-control" placeholder="Ej: 35" min="0" step="any">
+                                            <select id="emergEdadUnidad" class="form-select" style="max-width:105px;">
+                                                <option value="años" selected>Años</option>
+                                                <option value="meses">Meses</option>
+                                                <option value="días">Días</option>
+                                            </select>
+                                        </div>
+                                        <div class="edad-hint empty" id="rangoEmergEdadDisplay"><i class="fas fa-user-clock me-1"></i>Rango: —</div>
+                                    </div>
                                     <div class="form-group"><label>Cédula</label><input type="text" id="emergCedula" class="form-control"></div>
                                     <div class="form-group"><label>Teléfono</label><input type="text" id="emergTelefono" class="form-control"></div>
                                     <div class="form-group"><label>Dirección / Comunidad</label><input type="text" id="emergDireccion" class="form-control" placeholder="Sector, calle, comunidad..."></div>
@@ -408,7 +431,7 @@
                                                 <option value="">— Seleccionar diagnóstico —</option>
                                             </select>
                                             <input type="text" id="emergNotasOtro" class="form-control" placeholder="Especifique diagnóstico personalizado..." style="display:none;">
-                                            <small class="diag-info"><i class="fas fa-info-circle me-1"></i>Catálogo SIS-04/EPI-15 · 270 diagnósticos</small>
+                                            <small class="diag-info"><i class="fas fa-info-circle me-1"></i>Catálogo SIS-04/EPI-15</small>
                                         </div>
                                     </div>
                                 </div>
@@ -678,337 +701,151 @@
 // ========================================================================
 const EPI15_DIAGNOSTICOS = {
   'I. Enfermedades Infecciosas y Parasitarias': [
-    'COLERA (A00.-)',
-    'AMIBIASIS (A06.-)',
-    'DIARREAS <1a (A08.-, A09)',
-    'DIARREAS 1-4a (A08.-, A09)',
-    'DIARREAS 5a Y MAS (A08.-, A09)',
-    'DIARREA SIN DESHIDRATACION (A08-A09)',
-    'DIARREA CON DESHIDRATACION LEVE/MODERADA (A08-A09)',
-    'DIARREA CON DESHIDRATACION GRAVE (A08-A09)',
-    'GIARDIASIS (A07.1)',
-    'HELMINTIASIS (B65-B68, B70-B83)',
-    'FIEBRE TIFOIDEA (A01.0)',
-    'HEPATITIS AGUDA TIPO A (B15.-)',
-    'TUBERCULOSIS (A15-A19)',
-    'TUBERCULOSIS SERIE P (PULMONAR BK+) (A15.0-A15.3)',
-    'TUBERCULOSIS SERIE N (PULMONAR BK-) (A16.0)',
-    'TUBERCULOSIS SERIE EP (EXTRAPULMONARES) (A16.3-A16.9-A17-A19)',
-    'INFLUENZA (J09-J11)',
-    'INFECCION GONOCOCICA (A54.-)',
-    'SIFILIS (A51-A53)',
-    'SIFILIS CONGENITA (A50)',
-    'INFECCION ASINTOMATICA VIH (Z21)',
-    'ENFERMEDAD VIH/SIDA (B20-B24)',
-    'CONDILOMA ACUMINADO (A63.0)',
-    'TRICOMONIASIS (A59.9)',
-    'CANDIDIASIS GENITAL (B37.3)',
-    'ULCERA GENITAL (N76.6-N50.8)',
-    'FLUJO VAGINAL (N89.8)',
-    'EDEMA DE ESCROTO (N50.8)',
-    'FLUJO URETRAL (N51-A54.0-A59.0)',
-    'BUBON INGUINAL (I88.8)',
-    'INFECCION POR VIRUS PAPILOMA HUMANO (B97.7)',
-    'POLIOMIELITIS (A80.-)',
-    'TOSFERINA (A37.-)',
-    'PAROTIDITIS INFECCIOSA (B26.-)',
-    'TETANOS NEONATAL (A33)',
-    'TETANOS OBSTETRICO (A34)',
-    'OTROS TETANOS (A35)',
-    'DIFTERIA (A36.-)',
-    'SARAMPION (B05.-)',
-    'RUBEOLA (B06.-)',
-    'DENGUE SIN SIGNOS DE ALARMA (A90)',
-    'DENGUE CON SIGNOS DE ALARMA (A90)',
-    'DENGUE GRAVE (A91)',
-    'CHIKUNGUNYA (A92.0)',
-    'ZIKA (U06)',
-    'ENCEFALITIS EQUINA VENEZOLANA (A92.2)',
-    'FIEBRE AMARILLA (A95.-)',
-    'PALUDISMO A FALCIPARUM (B50.-)',
-    'PALUDISMO A VIVAX (B51.-)',
-    'PALUDISMO A MALARIAE (B52.-)',
-    'PALUDISMO MIXTA (B50.-, B51.-, B52.-)',
-    'LEISHMANIASIS VISCERAL (B55.0)',
-    'LEISHMANIASIS CUTANEA (B55.1-)',
-    'LEISHMANIASIS MUCOCUTANEA (B55.2-)',
-    'LEISHMANIASIS NO ESPECIFICA (B55.9)',
-    'ENFERMEDAD DE CHAGAS AGUDA (B57.0-B57.1)',
-    'ENFERMEDAD DE CHAGAS CRONICA (B57.2-B57.5)',
-    'ONCOCERCOSIS (B73)',
-    'FIEBRE DEL OESTE DEL NILO (A92.3)',
-    'RABIA HUMANA (A82.-)',
-    'FIEBRE HEMORRAGICA VENEZOLANA (A96.8)',
-    'LEPTOSPIROSIS (A27.-)',
-    'BRUCELOSIS (A23.-)',
-    'CISTICERCOSIS (B69.-)',
-    'PESTE (A20)',
-    'MENINGITIS VIRAL (A87.-)',
-    'MENINGITIS BACTERIANA (G00.-)',
-    'MENINGITIS MENINGOCOCICA (A39.0)',
-    'ENFERMEDAD MENINGOCOCICA (A39.9)',
-    'VARICELA (B01.-)',
-    'HEPATITIS AGUDA TIPO B (B16.-)',
-    'HEPATITIS AGUDA TIPO C (B17.1)',
-    'HEPATITIS OTRAS AGUDAS (B17.-)',
-    'HEPATITIS NO ESPECIFICADA (B19.-)',
-    'SINDROME VIRAL (B34.-)',
-    'PEDICULOSIS (B85) Y ACAROS (B87)',
-    'ESCABIOSIS (B86)',
-    'MICOSIS SUPERFICIAL (B35.-, B36.-)',
-    'LEPRA (A30.-)',
-    'MONONUCLEOSIS INFECCIOSA (B27.-)',
-    'VIRUELA (B03)'
+    'COLERA (A00.-)','AMIBIASIS (A06.-)','DIARREAS <1a (A08.-, A09)','DIARREAS 1-4a (A08.-, A09)','DIARREAS 5a Y MAS (A08.-, A09)',
+    'DIARREA SIN DESHIDRATACION (A08-A09)','DIARREA CON DESHIDRATACION LEVE/MODERADA (A08-A09)','DIARREA CON DESHIDRATACION GRAVE (A08-A09)',
+    'GIARDIASIS (A07.1)','HELMINTIASIS (B65-B68, B70-B83)','FIEBRE TIFOIDEA (A01.0)','HEPATITIS AGUDA TIPO A (B15.-)',
+    'TUBERCULOSIS (A15-A19)','TUBERCULOSIS SERIE P (PULMONAR BK+) (A15.0-A15.3)','TUBERCULOSIS SERIE N (PULMONAR BK-) (A16.0)',
+    'TUBERCULOSIS SERIE EP (EXTRAPULMONARES) (A16.3-A16.9-A17-A19)','INFLUENZA (J09-J11)','INFECCION GONOCOCICA (A54.-)',
+    'SIFILIS (A51-A53)','SIFILIS CONGENITA (A50)','INFECCION ASINTOMATICA VIH (Z21)','ENFERMEDAD VIH/SIDA (B20-B24)',
+    'CONDILOMA ACUMINADO (A63.0)','TRICOMONIASIS (A59.9)','CANDIDIASIS GENITAL (B37.3)','ULCERA GENITAL (N76.6-N50.8)',
+    'FLUJO VAGINAL (N89.8)','EDEMA DE ESCROTO (N50.8)','FLUJO URETRAL (N51-A54.0-A59.0)','BUBON INGUINAL (I88.8)',
+    'INFECCION POR VIRUS PAPILOMA HUMANO (B97.7)','POLIOMIELITIS (A80.-)','TOSFERINA (A37.-)','PAROTIDITIS INFECCIOSA (B26.-)',
+    'TETANOS NEONATAL (A33)','TETANOS OBSTETRICO (A34)','OTROS TETANOS (A35)','DIFTERIA (A36.-)','SARAMPION (B05.-)',
+    'RUBEOLA (B06.-)','DENGUE SIN SIGNOS DE ALARMA (A90)','DENGUE CON SIGNOS DE ALARMA (A90)','DENGUE GRAVE (A91)',
+    'CHIKUNGUNYA (A92.0)','ZIKA (U06)','ENCEFALITIS EQUINA VENEZOLANA (A92.2)','FIEBRE AMARILLA (A95.-)',
+    'PALUDISMO A FALCIPARUM (B50.-)','PALUDISMO A VIVAX (B51.-)','PALUDISMO A MALARIAE (B52.-)','PALUDISMO MIXTA (B50.-, B51.-, B52.-)',
+    'LEISHMANIASIS VISCERAL (B55.0)','LEISHMANIASIS CUTANEA (B55.1-)','LEISHMANIASIS MUCOCUTANEA (B55.2-)','LEISHMANIASIS NO ESPECIFICA (B55.9)',
+    'ENFERMEDAD DE CHAGAS AGUDA (B57.0-B57.1)','ENFERMEDAD DE CHAGAS CRONICA (B57.2-B57.5)','ONCOCERCOSIS (B73)',
+    'FIEBRE DEL OESTE DEL NILO (A92.3)','RABIA HUMANA (A82.-)','FIEBRE HEMORRAGICA VENEZOLANA (A96.8)','LEPTOSPIROSIS (A27.-)',
+    'BRUCELOSIS (A23.-)','CISTICERCOSIS (B69.-)','PESTE (A20)','MENINGITIS VIRAL (A87.-)','MENINGITIS BACTERIANA (G00.-)',
+    'MENINGITIS MENINGOCOCICA (A39.0)','ENFERMEDAD MENINGOCOCICA (A39.9)','VARICELA (B01.-)','HEPATITIS AGUDA TIPO B (B16.-)',
+    'HEPATITIS AGUDA TIPO C (B17.1)','HEPATITIS OTRAS AGUDAS (B17.-)','HEPATITIS NO ESPECIFICADA (B19.-)','SINDROME VIRAL (B34.-)',
+    'PEDICULOSIS (B85) Y ACAROS (B87)','ESCABIOSIS (B86)','MICOSIS SUPERFICIAL (B35.-, B36.-)','LEPRA (A30.-)',
+    'MONONUCLEOSIS INFECCIOSA (B27.-)','VIRUELA (B03)'
   ],
-  'II. Neoplasias': [
-    'NEOPLASIAS (C00-D48)',
-    'TUMORES MALIGNOS NO ESPECIFICADOS (C80.9)'
-  ],
-  'III. Enfermedades de la Sangre y Organos Hematopoyeticos': [
-    'ANEMIAS (D50-D64)'
-  ],
+  'II. Neoplasias': ['NEOPLASIAS (C00-D48)','TUMORES MALIGNOS NO ESPECIFICADOS (C80.9)'],
+  'III. Enfermedades de la Sangre y Organos Hematopoyeticos': ['ANEMIAS (D50-D64)'],
   'IV. Enfermedades Endocrinas, Nutricionales y Metabolicas': [
-    'TRASTORNOS TIROIDEOS (E00-E07)',
-    'DIABETES MELLITUS TIPO 1 (E10.-, E14.-)',
-    'DIABETES MELLITUS TIPO 2 (E10.-, E14.-)',
-    'DESNUTRICION LEVE <15a (E44.1)',
-    'DESNUTRICION MODERADA <15a (E44.0)',
-    'DESNUTRICION GRAVE <15a (E40-E43, E45)',
-    'SOBRE PESO (E66.9)',
-    'OBESIDAD (E66.-)'
+    'TRASTORNOS TIROIDEOS (E00-E07)','DIABETES MELLITUS TIPO 1 (E10.-, E14.-)','DIABETES MELLITUS TIPO 2 (E10.-, E14.-)',
+    'DESNUTRICION LEVE <15a (E44.1)','DESNUTRICION MODERADA <15a (E44.0)','DESNUTRICION GRAVE <15a (E40-E43, E45)',
+    'SOBRE PESO (E66.9)','OBESIDAD (E66.-)'
   ],
   'V. Trastornos Mentales y del Comportamiento': [
-    'TRASTORNOS MENTALES Y DEL COMPORTAMIENTO (F00-F99)',
-    'TRASTORNOS MENTALES ORGANICOS (F00-F09)',
-    'TRASTORNO POR USO DE SUSTANCIAS PSICOACTIVAS (F10-F19)',
-    'ESQUIZOFRENIA Y TRASTORNOS DELIRANTES (F20-F29)',
-    'TRASTORNO DEL HUMOR (F30-F39)',
-    'TRASTORNOS NEUROTICOS DEL ESTRES (F40-F48)',
-    'SINDROME DEL COMPORTAMIENTO ASOC. A FACTORES FISICOS (F50-F59)',
-    'TRASTORNOS DE LA PERSONALIDAD (F60-F69)',
-    'RETARDO MENTAL (F70-F79)',
-    'TRASTORNO DEL DESARROLLO PSICOLOGICO (F80-F89)',
-    'TRASTORNOS EMOCIONALES Y DEL COMPORTAMIENTO (F90-F98)',
-    'TRASTORNO MENTAL NO ESPECIFICADO (F99)'
+    'TRASTORNOS MENTALES Y DEL COMPORTAMIENTO (F00-F99)','TRASTORNOS MENTALES ORGANICOS (F00-F09)',
+    'TRASTORNO POR USO DE SUSTANCIAS PSICOACTIVAS (F10-F19)','ESQUIZOFRENIA Y TRASTORNOS DELIRANTES (F20-F29)',
+    'TRASTORNO DEL HUMOR (F30-F39)','TRASTORNOS NEUROTICOS DEL ESTRES (F40-F48)',
+    'SINDROME DEL COMPORTAMIENTO ASOC. A FACTORES FISICOS (F50-F59)','TRASTORNOS DE LA PERSONALIDAD (F60-F69)',
+    'RETARDO MENTAL (F70-F79)','TRASTORNO DEL DESARROLLO PSICOLOGICO (F80-F89)',
+    'TRASTORNOS EMOCIONALES Y DEL COMPORTAMIENTO (F90-F98)','TRASTORNO MENTAL NO ESPECIFICADO (F99)'
   ],
   'VI. Enfermedades del Sistema Nervioso': [
-    'PARALISIS FLACIDA <15a (G82.0)',
-    'PARALISIS FLACIDA 15a Y MAS (G82.0)',
-    'SINDROME DE GUILLAIN BARRE (G61.0)',
-    'EPILEPSIA (G40.-, G41.-)',
-    'MIGRANA (G43.-)'
+    'PARALISIS FLACIDA <15a (G82.0)','PARALISIS FLACIDA 15a Y MAS (G82.0)','SINDROME DE GUILLAIN BARRE (G61.0)',
+    'EPILEPSIA (G40.-, G41.-)','MIGRANA (G43.-)'
   ],
   'VII. Enfermedades del Ojo y sus Anexos': [
-    'CONJUNTIVITIS (H10.-)',
-    'TRASTORNO DE ACOMODACION Y REFRACCION (H52)',
-    'PERSONA CIEGA (H54.0)',
-    'DEFICIENCIA VISUAL SEVERA (H54.1)',
-    'DEFICIENCIA VISUAL (H54.2)',
-    'OTRAS ENFERMEDADES DEL OJO (H00-H09, H11-H59)',
-    'RETINOPATIA DIABETICA (H36-E14.3)',
-    'GLAUCOMA (H40)',
-    'CATARATA (H25-H28)',
-    'AMBLIOPIA (H53.0)'
+    'CONJUNTIVITIS (H10.-)','TRASTORNO DE ACOMODACION Y REFRACCION (H52)','PERSONA CIEGA (H54.0)',
+    'DEFICIENCIA VISUAL SEVERA (H54.1)','DEFICIENCIA VISUAL (H54.2)','OTRAS ENFERMEDADES DEL OJO (H00-H09, H11-H59)',
+    'RETINOPATIA DIABETICA (H36-E14.3)','GLAUCOMA (H40)','CATARATA (H25-H28)','AMBLIOPIA (H53.0)'
   ],
   'VIII. Enfermedades del Oido y Apofisis Mastoides': [
-    'OTITIS EXTERNA (H60.-)',
-    'OTITIS MEDIA AGUDA <5a (H65.0-H65.1, H66.0, H66.9)',
-    'OTITIS MEDIA AGUDA >=5a (H65.0-H65.1, H66.0, H66.9)',
-    'OTITIS MEDIA CRONICA (H65.2-H65.9)'
+    'OTITIS EXTERNA (H60.-)','OTITIS MEDIA AGUDA <5a (H65.0-H65.1, H66.0, H66.9)',
+    'OTITIS MEDIA AGUDA >=5a (H65.0-H65.1, H66.0, H66.9)','OTITIS MEDIA CRONICA (H65.2-H65.9)'
   ],
   'IX. Enfermedades del Sistema Circulatorio': [
-    'FIEBRE REUMATICA Y ENF. CARDIACA REUMATICA CRONICA (I00-I09)',
-    'FIEBRE REUMATICA SIN COMPLICACIONES CARDIACAS (I00)',
-    'HIPERTENSION ARTERIAL <15a (I10)',
-    'HIPERTENSION ARTERIAL 15-44a (I10)',
-    'HIPERTENSION ARTERIAL 45a Y MAS (I10)',
-    'ENFERMEDADES ISQUEMICAS DEL CORAZON (I20, I22, I25)',
-    'INFARTO AGUDO DEL MIOCARDIO <45a (I21.-)',
-    'INFARTO AGUDO DEL MIOCARDIO 45a Y MAS (I21.-)',
-    'ENFERMEDADES CEREBROVASCULARES (I60-I69)',
-    'VARICES DE MIEMBROS INFERIORES (I83.-)',
-    'INSUFICIENCIA CARDIACA (I50)',
-    'ANGINA DE PECHO (I20)',
-    'CARDIOPATIA ISQUEMICA (I20)'
+    'FIEBRE REUMATICA Y ENF. CARDIACA REUMATICA CRONICA (I00-I09)','FIEBRE REUMATICA SIN COMPLICACIONES CARDIACAS (I00)',
+    'HIPERTENSION ARTERIAL <15a (I10)','HIPERTENSION ARTERIAL 15-44a (I10)','HIPERTENSION ARTERIAL 45a Y MAS (I10)',
+    'ENFERMEDADES ISQUEMICAS DEL CORAZON (I20, I22, I25)','INFARTO AGUDO DEL MIOCARDIO <45a (I21.-)',
+    'INFARTO AGUDO DEL MIOCARDIO 45a Y MAS (I21.-)','ENFERMEDADES CEREBROVASCULARES (I60-I69)',
+    'VARICES DE MIEMBROS INFERIORES (I83.-)','INSUFICIENCIA CARDIACA (I50)','ANGINA DE PECHO (I20)','CARDIOPATIA ISQUEMICA (I20)'
   ],
   'X. Enfermedades del Sistema Respiratorio': [
-    'RINOFARINGITIS AGUDA <5a (J00)',
-    'RINOFARINGITIS AGUDA >=5a (J00)',
-    'FARINGITIS AGUDA <5a (J02.-)',
-    'FARINGITIS AGUDA >=5a (J02.-)',
-    'AMIGDALITIS AGUDA (J03.-)',
-    'NEUMONIAS <1a (J12-J18)',
-    'NEUMONIAS 1-4a (J12-J18)',
-    'NEUMONIAS 5a Y MAS (J12-J18)',
-    'NEUMONIA GRAVE <2 MESES (J12-J18)',
-    'BRONQUIOLITIS AGUDA <2a (J21.-)',
-    'BRONQUITIS AGUDA (J20.-)',
-    'BRONQUITIS CRONICA (J41.-, J42.-, J44.8)',
-    'ASMA <10 AÑOS (J45.-)',
-    'ASMA >=10 AÑOS (J45.-)',
-    'RINITIS ALERGICA (J30.1-J30.4)',
-    'ENFERMEDAD PULMONAR OBSTRUCTIVA CRONICA (J44.9)',
-    'SINUSITIS AGUDA (J01)',
-    'LARINGITIS Y TRAQUEITIS AGUDA (J04)',
-    'LARINGITIS OBSTRUCTIVA Y EPIGLOTITIS (J05)',
-    'IRA VIAS RESPIRATORIAS SUPERIORES (J06)',
-    'IRA NO ESPECIF. VIAS RESPIRATORIAS INFERIORES (J22)',
-    'INFECCION RESPIRATORIA AGUDA GRAVE (J22)',
-    'SINDROME RESPIRATORIO AGUDO SEVERO SARS (U04.9)',
-    'EXACERBACION AGUDA DE EPOC (J44.1)'
+    'RINOFARINGITIS AGUDA <5a (J00)','RINOFARINGITIS AGUDA >=5a (J00)','FARINGITIS AGUDA <5a (J02.-)','FARINGITIS AGUDA >=5a (J02.-)',
+    'AMIGDALITIS AGUDA (J03.-)','NEUMONIAS <1a (J12-J18)','NEUMONIAS 1-4a (J12-J18)','NEUMONIAS 5a Y MAS (J12-J18)',
+    'NEUMONIA GRAVE <2 MESES (J12-J18)','BRONQUIOLITIS AGUDA <2a (J21.-)','BRONQUITIS AGUDA (J20.-)',
+    'BRONQUITIS CRONICA (J41.-, J42.-, J44.8)','ASMA <10 AÑOS (J45.-)','ASMA >=10 AÑOS (J45.-)','RINITIS ALERGICA (J30.1-J30.4)',
+    'ENFERMEDAD PULMONAR OBSTRUCTIVA CRONICA (J44.9)','SINUSITIS AGUDA (J01)','LARINGITIS Y TRAQUEITIS AGUDA (J04)',
+    'LARINGITIS OBSTRUCTIVA Y EPIGLOTITIS (J05)','IRA VIAS RESPIRATORIAS SUPERIORES (J06)',
+    'IRA NO ESPECIF. VIAS RESPIRATORIAS INFERIORES (J22)','INFECCION RESPIRATORIA AGUDA GRAVE (J22)',
+    'SINDROME RESPIRATORIO AGUDO SEVERO SARS (U04.9)','EXACERBACION AGUDA DE EPOC (J44.1)'
   ],
   'XI. Enfermedades del Sistema Digestivo': [
-    'CARIES DENTAL (K02.-)',
-    'GINGIVITIS (K05.0-K05.1)',
-    'ESTOMATITIS (K12.0-K12.1)',
-    'GASTRITIS (K29.-)',
-    'APENDICITIS TODAS FORMAS (K35-K37)',
-    'HERNIAS CAVIDAD ABDOMINAL (K40.-, K46.-)',
-    'COLELITIASIS (K80.-)',
-    'PANCREATITIS AGUDA (K85.-)',
-    'OTRAS ENF. ESOFAGO, ESTOMAGO E INTESTINO (K22-K31-K63)'
+    'CARIES DENTAL (K02.-)','GINGIVITIS (K05.0-K05.1)','ESTOMATITIS (K12.0-K12.1)','GASTRITIS (K29.-)',
+    'APENDICITIS TODAS FORMAS (K35-K37)','HERNIAS CAVIDAD ABDOMINAL (K40.-, K46.-)','COLELITIASIS (K80.-)',
+    'PANCREATITIS AGUDA (K85.-)','OTRAS ENF. ESOFAGO, ESTOMAGO E INTESTINO (K22-K31-K63)'
   ],
   'XII. Enfermedades de la Piel y Tejido Subcutaneo': [
-    'ABSCESOS (L02.-)',
-    'CELULITIS (L03.-)',
-    'DERMATITIS (L20.-, L30.-)',
-    'PIODERMITIS (L08.0)',
-    'URTICARIA (L50.-)'
+    'ABSCESOS (L02.-)','CELULITIS (L03.-)','DERMATITIS (L20.-, L30.-)','PIODERMITIS (L08.0)','URTICARIA (L50.-)'
   ],
   'XIII. Enfermedades Osteomusculares y Tejido Conjuntivo': [
-    'ARTRITIS (M00-M14)',
-    'MIALGIAS (M79.1)',
-    'NEURALGIAS (M79.2)',
-    'BURSITIS (M70.-, M71.-, M75-M77)'
+    'ARTRITIS (M00-M14)','MIALGIAS (M79.1)','NEURALGIAS (M79.2)','BURSITIS (M70.-, M71.-, M75-M77)'
   ],
   'XIV. Enfermedades del Sistema Genito-Urinario': [
-    'INFECCION URINARIA (N39.0)',
-    'URETRITIS NO GONOCOCCICA (N34.1)',
-    'LEUCORREA NO ESPECIFICADA (N89.8)',
-    'HEMORRAGIA GENITAL NO ESPECIFICADA (N93.9)',
-    'COLICO NEFRITICO (N23)',
-    'DISMENORREA NO ESPECIFICADA (N94.6)',
-    'SALPINGITIS Y OOFORITIS (N70.-)',
-    'ENFERMEDADES INFLAMATORIAS DEL UTERO (N71.-, N72)',
-    'ENFERMEDAD RENAL (N00-N08, N10-N13, N14, N20.0, N25, N29.8)',
-    'INSUFICIENCIA RENAL AGUDA (N17.9)',
-    'CALCULO DEL RIÑON Y DEL URETER (N20.0)',
-    'CISTITIS (N30.9)'
+    'INFECCION URINARIA (N39.0)','URETRITIS NO GONOCOCCICA (N34.1)','LEUCORREA NO ESPECIFICADA (N89.8)',
+    'HEMORRAGIA GENITAL NO ESPECIFICADA (N93.9)','COLICO NEFRITICO (N23)','DISMENORREA NO ESPECIFICADA (N94.6)',
+    'SALPINGITIS Y OOFORITIS (N70.-)','ENFERMEDADES INFLAMATORIAS DEL UTERO (N71.-, N72)',
+    'ENFERMEDAD RENAL (N00-N08, N10-N13, N14, N20.0, N25, N29.8)','INSUFICIENCIA RENAL AGUDA (N17.9)',
+    'CALCULO DEL RIÑON Y DEL URETER (N20.0)','CISTITIS (N30.9)'
   ],
   'XV. Embarazo, Parto y Puerperio': [
-    'HEMORRAGIA 1er TRIMESTRE (O20.-, O44.)',
-    'HEMORRAGIA 2do TRIMESTRE (O20-O44)',
-    'HEMORRAGIA 1er TRIM. EMBARAZO (O20.-, O44-O46)',
-    'HIPERTENSION PREVIA (O10)',
-    'PRE-ECLAMPSIA (O13, O14.-)',
-    'ECLAMPSIA (O15.-)',
-    'INTENTO FALLIDO DE ABORTO (O07.-)',
-    'ABORTO (O00-O06, O08.-)',
-    'RUPTURA PREMATURA DE MEMBRANA (O42.9)',
-    'TRASTORNOS MAMARIOS DEL PUERPERIO (O91-O92)',
-    'DM PREGESTACIONAL I (O24.1)',
-    'DM PREGESTACIONAL II (O24.2)',
-    'DIABETES GESTACIONAL (O24.4)',
-    'INFECCIONES PUERPERALES (O85-O86)',
-    'HEMORRAGIAS PUERPERALES (O72.1-O72.2)',
-    'ENDOMETRITIS (N71)',
-    'DEHISCENCIA DE EPISIORRAFIA (O90.1)',
-    'ABSCESO DE PARED ABDOMINAL (O75.4)',
-    'DEPRESION POSTPARTO (O90.1)',
-    'MASTITIS (O91)',
-    'GRIETAS O SIGNOS DE INFECCION EN LOS PEZONES (O92.1)',
+    'HEMORRAGIA 1er TRIMESTRE (O20.-, O44.)','HEMORRAGIA 2do TRIMESTRE (O20-O44)','HEMORRAGIA 1er TRIM. EMBARAZO (O20.-, O44-O46)',
+    'HIPERTENSION PREVIA (O10)','PRE-ECLAMPSIA (O13, O14.-)','ECLAMPSIA (O15.-)','INTENTO FALLIDO DE ABORTO (O07.-)',
+    'ABORTO (O00-O06, O08.-)','RUPTURA PREMATURA DE MEMBRANA (O42.9)','TRASTORNOS MAMARIOS DEL PUERPERIO (O91-O92)',
+    'DM PREGESTACIONAL I (O24.1)','DM PREGESTACIONAL II (O24.2)','DIABETES GESTACIONAL (O24.4)','INFECCIONES PUERPERALES (O85-O86)',
+    'HEMORRAGIAS PUERPERALES (O72.1-O72.2)','ENDOMETRITIS (N71)','DEHISCENCIA DE EPISIORRAFIA (O90.1)',
+    'ABSCESO DE PARED ABDOMINAL (O75.4)','DEPRESION POSTPARTO (O90.1)','MASTITIS (O91)','GRIETAS O SIGNOS DE INFECCION EN LOS PEZONES (O92.1)',
     'OTRAS COMPLIC. DEL EMBARAZO, PARTO Y PUERPERIO'
   ],
-  'XVI. Afecciones del Periodo Perinatal': [
-    'SINDROME DE RUBEOLA CONGENITA (P35.0)'
-  ],
+  'XVI. Afecciones del Periodo Perinatal': ['SINDROME DE RUBEOLA CONGENITA (P35.0)'],
   'XVIII. Sintomas, Signos y Hallazgos Anormales': [
-    'CEFALEA (R51)',
-    'FIEBRE (R50.-)',
-    'CONVULSIONES (R56.-)',
-    'ABDOMEN AGUDO (R10.0)',
-    'DOLOR ABDOMINAL (R10.4)',
-    'PROTEINURIA (R80)'
+    'CEFALEA (R51)','FIEBRE (R50.-)','CONVULSIONES (R56.-)','ABDOMEN AGUDO (R10.0)','DOLOR ABDOMINAL (R10.4)','PROTEINURIA (R80)'
   ],
   'XIX. Traumatismos y Envenenamientos': [
-    'QUEMADURAS (T20-T32)',
-    'ENVENENAMIENTO POR DROGAS Y OTRAS SUSTANCIAS (T36-T50)',
-    'HERIDAS (T14.1)',
-    'FRACTURAS (T14.2)',
-    'LUXACIONES Y ESGUINCES (T14.3)',
-    'INTOXICACION POR PLAGUICIDAS (T60.-)',
-    'CUERPO EXTRAÑO EN ORIFICIO NATURAL (T15-T19)',
-    'TRAUMA OCULAR (S05)',
-    'OTROS TRAUMATISMOS (T14.8)'
+    'QUEMADURAS (T20-T32)','ENVENENAMIENTO POR DROGAS Y OTRAS SUSTANCIAS (T36-T50)','HERIDAS (T14.1)','FRACTURAS (T14.2)',
+    'LUXACIONES Y ESGUINCES (T14.3)','INTOXICACION POR PLAGUICIDAS (T60.-)','CUERPO EXTRAÑO EN ORIFICIO NATURAL (T15-T19)',
+    'TRAUMA OCULAR (S05)','OTROS TRAUMATISMOS (T14.8)'
   ],
   'XX. Causas Externas de Morbilidad y Mortalidad': [
-    'ACCIDENTE DE TRANSPORTE TERRESTRE (V01-V89)',
-    'PICADURA DE INSECTOS Y OTROS ANIMALES (X21-X27, X29)',
-    'EMPOZOÑAMIENTO OFIDICO (X20, W59.-)',
-    'MORDEDURAS SOSPECHOSAS DE RABIA (A82)',
-    'OTROS ACCIDENTES',
-    'ACCIDENTES DEL HOGAR',
-    'ACCIDENTES LABORALES',
-    'EFECTOS ADVERSOS DE MEDICAMENTOS (Y40-Y57)',
-    'EFECTOS ADVERSOS DE VACUNAS (Y58-Y59)',
-    'PICADURA DE ALACRAN (X22)'
+    'ACCIDENTE DE TRANSPORTE TERRESTRE (V01-V89)','PICADURA DE INSECTOS Y OTROS ANIMALES (X21-X27, X29)',
+    'EMPOZOÑAMIENTO OFIDICO (X20, W59.-)','MORDEDURAS SOSPECHOSAS DE RABIA (A82)','OTROS ACCIDENTES',
+    'ACCIDENTES DEL HOGAR','ACCIDENTES LABORALES','EFECTOS ADVERSOS DE MEDICAMENTOS (Y40-Y57)',
+    'EFECTOS ADVERSOS DE VACUNAS (Y58-Y59)','PICADURA DE ALACRAN (X22)'
   ],
   'Violencia Familiar': [
-    'V. FAMILIAR FISICA NIÑO (0-11 AÑOS)',
-    'V. FAMILIAR FISICA NIÑA (0-11 AÑOS)',
-    'V. FAMILIAR FISICA ADOLESCENTE HOMBRE (12-19 AÑOS)',
-    'V. FAMILIAR FISICA ADOLESCENTE MUJER (12-19 AÑOS)',
-    'V. FAMILIAR FISICA ADULTO (20-59 AÑOS)',
-    'V. FAMILIAR FISICA ADULTA (20-59 AÑOS)',
-    'V. FAMILIAR FISICA ADULTO MAYOR (60+ AÑOS)',
-    'V. FAMILIAR FISICA ADULTA MAYOR (60+ AÑOS)',
-    'V. FAMILIAR PSICOLOGICA NIÑO (0-11 AÑOS)',
-    'V. FAMILIAR PSICOLOGICA NIÑA (0-11 AÑOS)',
-    'V. FAMILIAR PSICOLOGICA ADOLESCENTE HOMBRE (12-19 AÑOS)',
-    'V. FAMILIAR PSICOLOGICA ADOLESCENTE MUJER (12-19 AÑOS)',
-    'V. FAMILIAR PSICOLOGICA ADULTO (20-59 AÑOS)',
-    'V. FAMILIAR PSICOLOGICA ADULTA (20-59 AÑOS)',
-    'V. FAMILIAR PSICOLOGICA ADULTO MAYOR (60+ AÑOS)',
-    'V. FAMILIAR PSICOLOGICA ADULTA MAYOR (60+ AÑOS)',
-    'V. FAMILIAR SEXUAL NIÑO (0-11 AÑOS)',
-    'V. FAMILIAR SEXUAL NIÑA (0-11 AÑOS)',
-    'V. FAMILIAR SEXUAL ADOLESCENTE HOMBRE (12-19 AÑOS)',
-    'V. FAMILIAR SEXUAL ADOLESCENTE MUJER (12-19 AÑOS)',
-    'V. FAMILIAR SEXUAL ADULTO (20-59 AÑOS)',
-    'V. FAMILIAR SEXUAL ADULTA (20-59 AÑOS)',
-    'V. FAMILIAR SEXUAL ADULTO MAYOR (60+ AÑOS)',
-    'V. FAMILIAR SEXUAL ADULTA MAYOR (60+ AÑOS)'
+    'V. FAMILIAR FISICA NIÑO (0-11 AÑOS)','V. FAMILIAR FISICA NIÑA (0-11 AÑOS)','V. FAMILIAR FISICA ADOLESCENTE HOMBRE (12-19 AÑOS)',
+    'V. FAMILIAR FISICA ADOLESCENTE MUJER (12-19 AÑOS)','V. FAMILIAR FISICA ADULTO (20-59 AÑOS)','V. FAMILIAR FISICA ADULTA (20-59 AÑOS)',
+    'V. FAMILIAR FISICA ADULTO MAYOR (60+ AÑOS)','V. FAMILIAR FISICA ADULTA MAYOR (60+ AÑOS)',
+    'V. FAMILIAR PSICOLOGICA NIÑO (0-11 AÑOS)','V. FAMILIAR PSICOLOGICA NIÑA (0-11 AÑOS)',
+    'V. FAMILIAR PSICOLOGICA ADOLESCENTE HOMBRE (12-19 AÑOS)','V. FAMILIAR PSICOLOGICA ADOLESCENTE MUJER (12-19 AÑOS)',
+    'V. FAMILIAR PSICOLOGICA ADULTO (20-59 AÑOS)','V. FAMILIAR PSICOLOGICA ADULTA (20-59 AÑOS)',
+    'V. FAMILIAR PSICOLOGICA ADULTO MAYOR (60+ AÑOS)','V. FAMILIAR PSICOLOGICA ADULTA MAYOR (60+ AÑOS)',
+    'V. FAMILIAR SEXUAL NIÑO (0-11 AÑOS)','V. FAMILIAR SEXUAL NIÑA (0-11 AÑOS)',
+    'V. FAMILIAR SEXUAL ADOLESCENTE HOMBRE (12-19 AÑOS)','V. FAMILIAR SEXUAL ADOLESCENTE MUJER (12-19 AÑOS)',
+    'V. FAMILIAR SEXUAL ADULTO (20-59 AÑOS)','V. FAMILIAR SEXUAL ADULTA (20-59 AÑOS)',
+    'V. FAMILIAR SEXUAL ADULTO MAYOR (60+ AÑOS)','V. FAMILIAR SEXUAL ADULTA MAYOR (60+ AÑOS)'
   ],
   'Otras Causas': [
-    'OTRAS CAUSAS DE CONSULTA (R69)',
-    'PACIENTE HOSPITALIZADO O REFERIDO PARA HOSPITALIZACION'
+    'OTRAS CAUSAS DE CONSULTA (R69)','PACIENTE HOSPITALIZADO O REFERIDO PARA HOSPITALIZACION'
   ]
 };
 
 const DIAG_OTRO_VALUE = '__OTRO__';
 
-// Llena el select de diagnóstico con optgroups
 function llenarSelectDiagnostico(){
     const sel = document.getElementById('emergNotas');
     if(!sel) return;
-    // Solo llenar una vez
     if(sel.dataset.loaded === 'true') return;
     sel.dataset.loaded = 'true';
-    // Mantener solo la opción inicial
     while(sel.options.length > 1) sel.remove(1);
-
     for(const categoria in EPI15_DIAGNOSTICOS){
         const og = document.createElement('optgroup');
         og.label = categoria;
         EPI15_DIAGNOSTICOS[categoria].forEach(d => {
             const o = document.createElement('option');
-            o.value = d;
-            o.textContent = d;
+            o.value = d; o.textContent = d;
             og.appendChild(o);
         });
         sel.appendChild(og);
     }
-    // Opción "Otro" al final
     const ogOtro = document.createElement('optgroup');
     ogOtro.label = 'Otros';
     const oOtro = document.createElement('option');
@@ -1018,57 +855,139 @@ function llenarSelectDiagnostico(){
     sel.appendChild(ogOtro);
 }
 
-// Maneja la visibilidad del campo "Otro"
 function toggleDiagOtro(){
     const sel = document.getElementById('emergNotas');
     const otro = document.getElementById('emergNotasOtro');
     if(!sel || !otro) return;
-    if(sel.value === DIAG_OTRO_VALUE){
-        otro.style.display = 'block';
-        otro.focus();
-    } else {
-        otro.style.display = 'none';
-        otro.value = '';
-    }
+    if(sel.value === DIAG_OTRO_VALUE){ otro.style.display = 'block'; otro.focus(); }
+    else { otro.style.display = 'none'; otro.value = ''; }
 }
 
-// Obtiene el diagnóstico final (select o texto personalizado)
 function obtenerDiagnostico(){
     const sel = document.getElementById('emergNotas');
     const otro = document.getElementById('emergNotasOtro');
     if(!sel) return '';
-    if(sel.value === DIAG_OTRO_VALUE){
-        return (otro ? otro.value.trim() : '');
-    }
+    if(sel.value === DIAG_OTRO_VALUE) return (otro ? otro.value.trim() : '');
     return sel.value || '';
 }
 
-// Establece el diagnóstico en el formulario (edición)
 function setDiagnosticoEnForm(notasActual){
     const sel = document.getElementById('emergNotas');
     const otro = document.getElementById('emergNotasOtro');
     if(!sel || !otro) return;
     const valor = (notasActual || '').trim();
-    if(!valor){
-        sel.value = '';
-        otro.style.display = 'none';
-        otro.value = '';
+    if(!valor){ sel.value = ''; otro.style.display = 'none'; otro.value = ''; return; }
+    let existe = false;
+    for(let i = 0; i < sel.options.length; i++){ if(sel.options[i].value === valor){ existe = true; break; } }
+    if(existe){ sel.value = valor; otro.style.display = 'none'; otro.value = ''; }
+    else { sel.value = DIAG_OTRO_VALUE; otro.style.display = 'block'; otro.value = valor; }
+}
+
+// ========================================================================
+// GRUPOS ETARIOS (NUEVA LÓGICA BASADA EN DÍAS)
+// ========================================================================
+const DIAS_POR_ANIO = 365.25;
+const DIAS_POR_MES = 30.4375;
+
+function convertirADias(valor, unidad){
+    if(valor == null || isNaN(valor) || valor < 0) return null;
+    if(unidad === 'días') return Math.round(valor);
+    if(unidad === 'meses') return Math.round(valor * DIAS_POR_MES);
+    return Math.round(valor * DIAS_POR_ANIO); // años
+}
+
+function diasAAnios(dias){
+    if(dias == null || dias < 0) return null;
+    return Math.floor(dias / DIAS_POR_ANIO);
+}
+
+// Nuevos grupos etarios según requerimiento
+function obtenerRangoDias(dias){
+    if(dias == null || dias < 0) return '—';
+    if(dias < 7) return 'RN';                       // < 7 días
+    if(dias < 2 * DIAS_POR_ANIO) return 'Lactante'; // 7 días a < 2 años
+    if(dias < 7 * DIAS_POR_ANIO) return 'Preescolar'; // 2 a < 7 años
+    if(dias < 13 * DIAS_POR_ANIO) return 'Escolar';   // 7 a < 13 años
+    if(dias < 20 * DIAS_POR_ANIO) return 'Adolescente'; // 13 a < 20 años
+    if(dias <= 60 * DIAS_POR_ANIO) return 'Adulto';   // 20 a 60 años (inclusive)
+    return 'Adulto mayor';                              // > 60 años
+}
+
+// Compatibilidad con llamadas antiguas que pasan años
+function obtenerRango(edadAnios){
+    if(edadAnios == null || edadAnios < 0) return '—';
+    return obtenerRangoDias(convertirADias(edadAnios, 'años'));
+}
+
+// Actualiza el display de rango de edad en tiempo real
+function actualizarDisplayRango(idEdad, idUnidad, idDisplay){
+    const e = document.getElementById(idEdad);
+    const u = document.getElementById(idUnidad);
+    const d = document.getElementById(idDisplay);
+    if(!e || !u || !d) return;
+    const v = parseFloat(e.value);
+    if(isNaN(v) || v < 0){
+        d.classList.add('empty');
+        d.innerHTML = '<i class="fas fa-user-clock me-1"></i>Rango: —';
         return;
     }
-    // ¿Coincide con alguna opción del select?
-    let existe = false;
-    for(let i = 0; i < sel.options.length; i++){
-        if(sel.options[i].value === valor){ existe = true; break; }
+    const dias = convertirADias(v, u.value);
+    const rango = obtenerRangoDias(dias);
+    d.classList.remove('empty');
+    d.innerHTML = '<i class="fas fa-user-clock me-1"></i>Rango: <strong>' + rango + '</strong> <span class="text-muted" style="font-weight:400;">(~' + dias + ' días)</span>';
+}
+
+// Configuración del input de edad: convierte edad+unidad a días/años/rango
+function leerEdadFormulario(idEdad, idUnidad){
+    const inputEdad = document.getElementById(idEdad);
+    const selectUnidad = document.getElementById(idUnidad);
+    if(!inputEdad || !selectUnidad) return { dias:null, edadAnios:null, rango:null };
+    const valor = parseFloat(inputEdad.value);
+    if(isNaN(valor) || valor < 0) return { dias:null, edadAnios:null, rango:null };
+    const dias = convertirADias(valor, selectUnidad.value);
+    return {
+        dias,
+        edadAnios: diasAAnios(dias),
+        rango: obtenerRangoDias(dias)
+    };
+}
+
+// Setea el formulario de edad al editar (reconstruye unidad según rango guardado)
+function setEdadEnForm(idEdad, idUnidad, idDisplay, edadAnios, rangoGuardado){
+    const input = document.getElementById(idEdad);
+    const unidad = document.getElementById(idUnidad);
+    if(!input || !unidad) return;
+    if(edadAnios == null || edadAnios === ''){
+        input.value = ''; unidad.value = 'años';
+        if(idDisplay) actualizarDisplayRango(idEdad, idUnidad, idDisplay);
+        return;
     }
-    if(existe){
-        sel.value = valor;
-        otro.style.display = 'none';
-        otro.value = '';
+    // Para RN y Lactante (menores de 1 año), dejamos el campo editable con unidad
+    // por defecto 'meses' o 'días' y valor vacío para que el usuario reingrese el exacto.
+    if(rangoGuardado === 'RN'){
+        input.value = ''; unidad.value = 'días';
+        const d = document.getElementById(idDisplay);
+        if(d) d.innerHTML = '<i class="fas fa-info-circle me-1"></i>RN · reingrese días exactos si edita';
+    } else if(rangoGuardado === 'Lactante' && edadAnios < 1){
+        input.value = ''; unidad.value = 'meses';
+        const d = document.getElementById(idDisplay);
+        if(d) d.innerHTML = '<i class="fas fa-info-circle me-1"></i>Lactante · reingrese meses exactos si edita';
     } else {
-        sel.value = DIAG_OTRO_VALUE;
-        otro.style.display = 'block';
-        otro.value = valor;
+        input.value = edadAnios;
+        unidad.value = 'años';
+        actualizarDisplayRango(idEdad, idUnidad, idDisplay);
     }
+}
+
+function setupEdadDisplays(){
+    const e1 = document.getElementById('edad');
+    const u1 = document.getElementById('edadUnidad');
+    if(e1) e1.addEventListener('input', () => actualizarDisplayRango('edad', 'edadUnidad', 'rangoEdadDisplay'));
+    if(u1) u1.addEventListener('change', () => actualizarDisplayRango('edad', 'edadUnidad', 'rangoEdadDisplay'));
+    const e2 = document.getElementById('emergEdad');
+    const u2 = document.getElementById('emergEdadUnidad');
+    if(e2) e2.addEventListener('input', () => actualizarDisplayRango('emergEdad', 'emergEdadUnidad', 'rangoEmergEdadDisplay'));
+    if(u2) u2.addEventListener('change', () => actualizarDisplayRango('emergEdad', 'emergEdadUnidad', 'rangoEmergEdadDisplay'));
 }
 
 // ========================================================================
@@ -1082,18 +1001,13 @@ let sb=null, sbReady=false;
 let currentUser=null, userRole='operador', userSede=null;
 let realtimeChannel=null;
 
-// Datos en memoria
 let interacciones=[], emergencias=[], inventario=[];
 let vehiculos=[], mantenimientos=[], combustibles=[], guardias=[], invVehiculos=[];
 
-// Paginación de tablas
 let pagLlamadas={page:0, size:15};
 let pagEmergencias={page:0, size:15};
 
-// Charts
 const chartsMap = {};
-
-// Edición y temporales
 let currentEditingId=null, currentEditingEmergId=null;
 let tempInsumosEmerg=[];
 
@@ -1112,7 +1026,6 @@ function showOnlyPanel(id){ hideAllPanels(); const el=document.getElementById(id
 function formatLocalDateTime(iso){ if(!iso) return '—'; try{ const d=new Date(iso); return isNaN(d)?'—':d.toLocaleString('es-ES',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}); }catch(e){ return '—'; } }
 function toLocalInput(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d)) return ''; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 function toISOStringLocal(date){ if(!date) return null; const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0'); const h=String(date.getHours()).padStart(2,'0'),mi=String(date.getMinutes()).padStart(2,'0'),s=String(date.getSeconds()).padStart(2,'0'); const tz=-date.getTimezoneOffset(),sign=tz>=0?'+':'-',oh=String(Math.floor(Math.abs(tz)/60)).padStart(2,'0'),om=String(Math.abs(tz)%60).padStart(2,'0'); return y+'-'+m+'-'+d+'T'+h+':'+mi+':'+s+sign+oh+':'+om; }
-function obtenerRango(edad){ if(edad==null||edad<0) return '—'; if(edad<=12) return 'Niño'; if(edad<=17) return 'Adolescente'; if(edad<=59) return 'Adulto'; return 'Adulto mayor'; }
 
 // ========================================================================
 // INIT SUPABASE
@@ -1134,7 +1047,6 @@ function llenarSedeRegistro(){
     while(sel.options.length>1) sel.remove(1);
     MUNICIPIOS.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
 }
-
 function llenarSelectoresMunicipio(){
     const selects=['municipio','emergMunicipio'];
     selects.forEach(id=>{
@@ -1145,7 +1057,6 @@ function llenarSelectoresMunicipio(){
         if(userRole!=='admin'&&userSede){ sel.value=userSede; sel.disabled=true; } else { sel.disabled=false; }
     });
 }
-
 function llenarSelectsFiltroSede(){
     const sorted=MUNICIPIOS.slice().sort();
     const isRestricted=(userRole!=='admin'&&userSede);
@@ -1161,12 +1072,10 @@ function llenarSelectsFiltroSede(){
         });
     }
 }
-
 function syncAllSedes(val){
     document.querySelectorAll('.sede-selector').forEach(s=>{ if(!s.disabled) s.value=val; });
     renLL(); renEm(); updAnal(); updInv(); renderVehiculos(); renderMantenimientos(); renderCombustibles(); renderGuardias(); renderInvVehiculos();
 }
-
 function llenarSelectsVehiculos(){
     ['mantVehiculo','combVehiculo','guardiaVehiculo','invVehVehiculo'].forEach(id=>{
         const sel=document.getElementById(id); if(!sel) return;
@@ -1299,15 +1208,15 @@ async function onLoginSuccess(user){
     llenarSedeRegistro();
     llenarSelectoresMunicipio();
     llenarSelectsFiltroSede();
-    llenarSelectDiagnostico();  // <-- NUEVO: llena el catálogo EPI-15
-
+    llenarSelectDiagnostico();
+    setupEdadDisplays();
     await cargarTodo();
     setupRealtime();
     setupPrintButtons();
 }
 
 // ========================================================================
-// CARGA DE DATOS (SIN LÍMITE)
+// CARGA DE DATOS
 // ========================================================================
 async function cargarTodo(){
     try{
@@ -1355,9 +1264,9 @@ async function cargarTodo(){
 
         llenarSelectsVehiculos();
         renderTodo();
-        
-        const msg = (userRole==='admin') 
-            ? 'Datos cargados globalmente' 
+
+        const msg = (userRole==='admin')
+            ? 'Datos cargados globalmente'
             : 'Datos de '+userSede+' cargados ('+interacciones.length+' llamadas, '+emergencias.length+' atenciones'+(vehiculos.length?' , '+vehiculos.length+' vehículos':'')+')';
         toast(msg,'success');
         const dc=document.getElementById('datosCargados');
@@ -1509,7 +1418,6 @@ function updInv(){
         tb.appendChild(tr);
     });
 }
-
 async function ajStock(id){
     const it=inventario.find(i=>i.id===id); if(!it) return;
     const v=prompt('Ajuste (+5, -3):','0');
@@ -1600,6 +1508,8 @@ document.getElementById('btnCrearNuevoLlamada').addEventListener('click',()=>{
     document.getElementById('interaccionForm').reset();
     document.getElementById('formTitleLlamada').textContent='Registrar nueva atención telefónica';
     currentEditingId=null;
+    document.getElementById('edadUnidad').value='años';
+    actualizarDisplayRango('edad','edadUnidad','rangoEdadDisplay');
     document.getElementById('formLlamadaCard').classList.remove('d-none');
     if(userRole!=='admin'&&userSede) document.getElementById('municipio').value=userSede;
 });
@@ -1612,12 +1522,13 @@ document.getElementById('interaccionForm').addEventListener('submit',async(e)=>{
     const parts=fechaLocal.split('T'), dp=parts[0].split('-'), tp=parts[1].split(':');
     const fechaObj=new Date(parseInt(dp[0]),parseInt(dp[1])-1,parseInt(dp[2]),parseInt(tp[0]),parseInt(tp[1]));
     const fechaISO=toISOStringLocal(fechaObj);
-    const edad=parseInt(document.getElementById('edad').value); const edadF=isNaN(edad)||edad<0?null:edad;
+
+    const edadData = leerEdadFormulario('edad','edadUnidad');
     let mun=document.getElementById('municipio').value;
     if(userRole!=='admin'&&userSede) mun=userSede;
     const p={
         fecha:fechaISO, paciente:document.getElementById('paciente').value.trim(),
-        edad:edadF, rango_edad:edadF!=null?obtenerRango(edadF):null,
+        edad:edadData.edadAnios, rango_edad:edadData.rango,
         cedula:document.getElementById('cedula').value.trim()||null,
         telefono:document.getElementById('telefono').value.trim(),
         duracion:parseFloat(document.getElementById('duracion').value)||0,
@@ -1647,7 +1558,7 @@ window.edLL=(id)=>{
     const i=interacciones.find(x=>x.id===id); if(!i) return;
     currentEditingId=id;
     document.getElementById('paciente').value=i.paciente||'';
-    document.getElementById('edad').value=i.edad!=null?i.edad:'';
+    setEdadEnForm('edad','edadUnidad','rangoEdadDisplay', i.edad, i.rango_edad);
     document.getElementById('cedula').value=i.cedula||'';
     document.getElementById('telefono').value=i.telefono||'';
     document.getElementById('fechaHora').value=toLocalInput(i.fecha);
@@ -1672,14 +1583,14 @@ document.getElementById('btnCrearNuevoEmergencia').addEventListener('click',()=>
     currentEditingEmergId=null;
     tempInsumosEmerg=[]; updInsUI();
     setDiagnosticoEnForm('');
+    document.getElementById('emergEdadUnidad').value='años';
+    actualizarDisplayRango('emergEdad','emergEdadUnidad','rangoEmergEdadDisplay');
     document.getElementById('formEmergenciaCard').classList.remove('d-none');
     if(userRole!=='admin'&&userSede) document.getElementById('emergMunicipio').value=userSede;
     updDropIns();
 });
 
 document.getElementById('emergMunicipio').addEventListener('change',updDropIns);
-
-// Listener del select de diagnóstico
 document.getElementById('emergNotas').addEventListener('change',toggleDiagOtro);
 
 document.getElementById('btnAgregarInsumoEmerg').addEventListener('click',()=>{
@@ -1742,17 +1653,17 @@ document.getElementById('emergenciaForm').addEventListener('submit',async(e)=>{
     const parts=fechaLocal.split('T'), dp=parts[0].split('-'), tp=parts[1].split(':');
     const fechaObj=new Date(parseInt(dp[0]),parseInt(dp[1])-1,parseInt(dp[2]),parseInt(tp[0]),parseInt(tp[1]));
     const fechaISO=toISOStringLocal(fechaObj);
-    const edad=parseInt(document.getElementById('emergEdad').value); const edadF=isNaN(edad)||edad<0?null:edad;
+
+    const edadData = leerEdadFormulario('emergEdad','emergEdadUnidad');
     let mun=document.getElementById('emergMunicipio').value;
     if(userRole!=='admin'&&userSede) mun=userSede;
 
-    // Diagnóstico desde el select EPI-15 (o texto personalizado)
     const diagnostico = obtenerDiagnostico();
     if(!diagnostico){ toast('Seleccione un diagnóstico','error'); setBtnLoading(btn,false); return; }
 
     const p={
         fecha:fechaISO, paciente:document.getElementById('emergPaciente').value.trim(),
-        edad:edadF, rango_edad:edadF!=null?obtenerRango(edadF):null,
+        edad:edadData.edadAnios, rango_edad:edadData.rango,
         cedula:document.getElementById('emergCedula').value.trim()||null,
         telefono:document.getElementById('emergTelefono').value.trim()||null,
         duracion:parseFloat(document.getElementById('emergDuracion').value)||0,
@@ -1789,7 +1700,7 @@ window.edEm=(id)=>{
     const e=emergencias.find(x=>x.id===id); if(!e) return;
     currentEditingEmergId=id;
     document.getElementById('emergPaciente').value=e.paciente||'';
-    document.getElementById('emergEdad').value=e.edad!=null?e.edad:'';
+    setEdadEnForm('emergEdad','emergEdadUnidad','rangoEmergEdadDisplay', e.edad, e.rango_edad);
     document.getElementById('emergCedula').value=e.cedula||'';
     document.getElementById('emergTelefono').value=e.telefono||'';
     document.getElementById('emergFechaHora').value=toLocalInput(e.fecha);
@@ -1798,7 +1709,6 @@ window.edEm=(id)=>{
     document.getElementById('emergTipo').value=e.tipoEmergencia||'';
     document.getElementById('emergDireccion').value=e.direccion||'';
     document.getElementById('emergMunicipio').value=MUNICIPIOS.includes(e.municipio)?e.municipio:'';
-    // Cargar diagnóstico en el select (o como personalizado si no está en el catálogo)
     setDiagnosticoEnForm(e.notas || '');
     tempInsumosEmerg=e.insumos?JSON.parse(JSON.stringify(e.insumos)):[];
     updInsUI(); updDropIns();
@@ -2014,132 +1924,70 @@ function destroyChart(key){
 function updAnal(){
     const sede=document.getElementById('analisisSede').value;
     let ll=interacciones.slice(), em=emergencias.slice();
-    if(sede&&sede!=='todas'){
-        ll=ll.filter(i=>i.municipio===sede);
-        em=em.filter(e=>e.municipio===sede);
-    }
-    // Evolución diaria
+    if(sede&&sede!=='todas'){ ll=ll.filter(i=>i.municipio===sede); em=em.filter(e=>e.municipio===sede); }
+
     const dailyMap={};
-    ll.concat(em).forEach(r=>{
-        const f=new Date(r.fecha);
-        if(isNaN(f)) return;
-        const key=f.toISOString().split('T')[0];
-        dailyMap[key]=(dailyMap[key]||0)+1;
-    });
+    ll.concat(em).forEach(r=>{ const f=new Date(r.fecha); if(isNaN(f)) return; const key=f.toISOString().split('T')[0]; dailyMap[key]=(dailyMap[key]||0)+1; });
     const dias=Object.keys(dailyMap).sort();
     destroyChart('evolucionDiariaChart');
     const ctx1=document.getElementById('evolucionDiariaChart');
-    if(ctx1) chartsMap.evolucionDiariaChart=new Chart(ctx1,{
-        type:'line',
-        data:{ labels:dias, datasets:[{ label:'Atenciones', data:dias.map(d=>dailyMap[d]), borderColor:'#0b5e7e', backgroundColor:'rgba(11,94,126,0.12)', fill:true, tension:0.3 }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
-    });
+    if(ctx1) chartsMap.evolucionDiariaChart=new Chart(ctx1,{ type:'line', data:{ labels:dias, datasets:[{ label:'Atenciones', data:dias.map(d=>dailyMap[d]), borderColor:'#0b5e7e', backgroundColor:'rgba(11,94,126,0.12)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } } });
 
-    // Comunidades (por dirección)
     const comMap={};
-    em.forEach(e=>{
-        const d=(e.direccion||'Sin dirección').trim().substring(0,30);
-        comMap[d]=(comMap[d]||0)+1;
-    });
+    em.forEach(e=>{ const d=(e.direccion||'Sin dirección').trim().substring(0,30); comMap[d]=(comMap[d]||0)+1; });
     const comTop=Object.entries(comMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
     destroyChart('atencionesPorSedeChart');
     const ctx2=document.getElementById('atencionesPorSedeChart');
-    if(ctx2) chartsMap.atencionesPorSedeChart=new Chart(ctx2,{
-        type:'bar',
-        data:{ labels:comTop.map(x=>x[0]), datasets:[{ label:'Atenciones', data:comTop.map(x=>x[1]), backgroundColor:'#1a8fa8' }] },
-        options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{ display:false } } }
-    });
+    if(ctx2) chartsMap.atencionesPorSedeChart=new Chart(ctx2,{ type:'bar', data:{ labels:comTop.map(x=>x[0]), datasets:[{ label:'Atenciones', data:comTop.map(x=>x[1]), backgroundColor:'#1a8fa8' }] }, options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{ display:false } } } });
     const cTab=document.getElementById('comunidadesTable');
     if(cTab) cTab.innerHTML=comTop.map(x=>'<span class="badge bg-light text-dark me-1">'+esc(x[0])+' ('+x[1]+')</span>').join('');
 
-    // Top 10 patologías (diagnóstico EPI-15)
     const patMap={};
-    em.forEach(e=>{
-        const d=(e.notas||'Sin diagnóstico').trim();
-        patMap[d]=(patMap[d]||0)+1;
-    });
+    em.forEach(e=>{ const d=(e.notas||'Sin diagnóstico').trim(); patMap[d]=(patMap[d]||0)+1; });
     const patTop=Object.entries(patMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
     destroyChart('tiposEmergenciasChart');
     const ctx3=document.getElementById('tiposEmergenciasChart');
-    if(ctx3) chartsMap.tiposEmergenciasChart=new Chart(ctx3,{
-        type:'bar',
-        data:{ labels:patTop.map(x=>x[0].length>28?x[0].substring(0,28)+'…':x[0]), datasets:[{ label:'Casos', data:patTop.map(x=>x[1]), backgroundColor:'#e67e22' }] },
-        options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{ display:false } } }
-    });
+    if(ctx3) chartsMap.tiposEmergenciasChart=new Chart(ctx3,{ type:'bar', data:{ labels:patTop.map(x=>x[0].length>28?x[0].substring(0,28)+'…':x[0]), datasets:[{ label:'Casos', data:patTop.map(x=>x[1]), backgroundColor:'#e67e22' }] }, options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{ display:false } } } });
     const pTab=document.getElementById('tiposEmergenciasTable');
     if(pTab) pTab.innerHTML=patTop.map(x=>'<div class="d-flex justify-content-between"><span>'+esc(x[0])+'</span><strong class="ms-2">'+x[1]+'</strong></div>').join('');
 
-    // Top 10 tipos telefónicos
     const tlMap={};
     ll.forEach(i=>{ tlMap[i.tipo_atencion||'Otro']=(tlMap[i.tipo_atencion||'Otro']||0)+1; });
     const tlTop=Object.entries(tlMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
     destroyChart('tiposLlamadasChart');
     const ctx4=document.getElementById('tiposLlamadasChart');
-    if(ctx4) chartsMap.tiposLlamadasChart=new Chart(ctx4,{
-        type:'doughnut',
-        data:{ labels:tlTop.map(x=>x[0]), datasets:[{ data:tlTop.map(x=>x[1]), backgroundColor:['#0b5e7e','#1a8fa8','#27ae60','#e67e22','#c0392b','#8e44ad','#2980b9','#f39c12','#16a085','#7f8c8d'] }] },
-        options:{ responsive:true, maintainAspectRatio:false }
-    });
+    if(ctx4) chartsMap.tiposLlamadasChart=new Chart(ctx4,{ type:'doughnut', data:{ labels:tlTop.map(x=>x[0]), datasets:[{ data:tlTop.map(x=>x[1]), backgroundColor:['#0b5e7e','#1a8fa8','#27ae60','#e67e22','#c0392b','#8e44ad','#2980b9','#f39c12','#16a085','#7f8c8d'] }] }, options:{ responsive:true, maintainAspectRatio:false } });
     const tlTab=document.getElementById('tiposLlamadasTable');
     if(tlTab) tlTab.innerHTML=tlTop.map(x=>'<span class="badge bg-light text-dark me-1">'+esc(x[0])+' ('+x[1]+')</span>').join('');
 
-    // Por día de semana
     const daysNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
     const daysCount=[0,0,0,0,0,0,0];
-    em.forEach(e=>{
-        const d=new Date(e.fecha); if(isNaN(d)) return;
-        daysCount[d.getDay()]++;
-    });
+    em.forEach(e=>{ const d=new Date(e.fecha); if(isNaN(d)) return; daysCount[d.getDay()]++; });
     destroyChart('atencionesPorDiaSemanaChart');
     const ctx5=document.getElementById('atencionesPorDiaSemanaChart');
-    if(ctx5) chartsMap.atencionesPorDiaSemanaChart=new Chart(ctx5,{
-        type:'bar',
-        data:{ labels:daysNames, datasets:[{ label:'Atenciones', data:daysCount, backgroundColor:'#0b5e7e' }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
-    });
+    if(ctx5) chartsMap.atencionesPorDiaSemanaChart=new Chart(ctx5,{ type:'bar', data:{ labels:daysNames, datasets:[{ label:'Atenciones', data:daysCount, backgroundColor:'#0b5e7e' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } } });
 
-    // Top 5 insumos
     const insMap={};
     em.forEach(e=>{ if(e.insumos) e.insumos.forEach(i=>{ insMap[i.nombre]=(insMap[i.nombre]||0)+i.cantidad; }); });
     const insTop=Object.entries(insMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
     destroyChart('topInsumosChart');
     const ctx6=document.getElementById('topInsumosChart');
-    if(ctx6) chartsMap.topInsumosChart=new Chart(ctx6,{
-        type:'bar',
-        data:{ labels:insTop.map(x=>x[0]), datasets:[{ label:'Unidades', data:insTop.map(x=>x[1]), backgroundColor:'#27ae60' }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
-    });
+    if(ctx6) chartsMap.topInsumosChart=new Chart(ctx6,{ type:'bar', data:{ labels:insTop.map(x=>x[0]), datasets:[{ label:'Unidades', data:insTop.map(x=>x[1]), backgroundColor:'#27ae60' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } } });
     const insTab=document.getElementById('topInsumosTable');
     if(insTab) insTab.innerHTML=insTop.map(x=>'<span class="badge bg-light text-dark me-1">'+esc(x[0])+' ('+x[1]+')</span>').join('');
 
-    // Llamadas por hora
     const hourCount=new Array(24).fill(0);
     const hourDur=new Array(24).fill(0);
-    ll.forEach(i=>{
-        const d=new Date(i.fecha); if(isNaN(d)) return;
-        const h=d.getHours();
-        hourCount[h]++;
-        hourDur[h]+=(i.duracion||0);
-    });
+    ll.forEach(i=>{ const d=new Date(i.fecha); if(isNaN(d)) return; const h=d.getHours(); hourCount[h]++; hourDur[h]+=(i.duracion||0); });
     destroyChart('llamadasPorHoraChart');
     const ctx7=document.getElementById('llamadasPorHoraChart');
-    if(ctx7) chartsMap.llamadasPorHoraChart=new Chart(ctx7,{
-        type:'line',
-        data:{ labels:hourCount.map((_,i)=>i+'h'), datasets:[{ label:'Llamadas', data:hourCount, borderColor:'#1e88e5', backgroundColor:'rgba(30,136,229,0.15)', fill:true, tension:0.3 }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
-    });
+    if(ctx7) chartsMap.llamadasPorHoraChart=new Chart(ctx7,{ type:'line', data:{ labels:hourCount.map((_,i)=>i+'h'), datasets:[{ label:'Llamadas', data:hourCount, borderColor:'#1e88e5', backgroundColor:'rgba(30,136,229,0.15)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } } });
 
-    // Duración promedio por hora
     const hourAvg=hourCount.map((c,i)=>c?+(hourDur[i]/c).toFixed(1):0);
     destroyChart('duracionPorHoraChart');
     const ctx8=document.getElementById('duracionPorHoraChart');
-    if(ctx8) chartsMap.duracionPorHoraChart=new Chart(ctx8,{
-        type:'line',
-        data:{ labels:hourAvg.map((_,i)=>i+'h'), datasets:[{ label:'Min', data:hourAvg, borderColor:'#c0392b', backgroundColor:'rgba(192,57,43,0.15)', fill:true, tension:0.3 }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
-    });
+    if(ctx8) chartsMap.duracionPorHoraChart=new Chart(ctx8,{ type:'line', data:{ labels:hourAvg.map((_,i)=>i+'h'), datasets:[{ label:'Min', data:hourAvg, borderColor:'#c0392b', backgroundColor:'rgba(192,57,43,0.15)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } } });
 
-    // Indicadores
     let peakH=0,peakC=0;
     hourCount.forEach((c,i)=>{ if(c>peakC){ peakC=c; peakH=i; } });
     let maxDur=0,maxDurH=0;
@@ -2149,10 +1997,10 @@ function updAnal(){
     const mdh=document.getElementById('maxAvgDurationHour'); if(mdh) mdh.innerText=maxDurH+'h ('+maxDur+'m)';
 }
 
-// Listener para cambio de sede en análisis
 document.addEventListener('DOMContentLoaded',()=>{
     const as=document.getElementById('analisisSede');
     if(as) as.addEventListener('change',updAnal);
+    setupEdadDisplays();
 });
 
 // ========================================================================
@@ -2167,7 +2015,7 @@ function setupRealtime(){
             .on('postgres_changes',{event:'*',schema:'public',table:'atenciones'},()=>{ cargarTodo(); })
             .on('postgres_changes',{event:'*',schema:'public',table:'inventario'},()=>{ cargarTodo(); })
             .on('postgres_changes',{event:'*',schema:'public',table:'vehiculos'},()=>{ cargarTodo(); })
-            .subscribe((status)=>{ 
+            .subscribe((status)=>{
                 const li=document.getElementById('liveIndicator');
                 if(li) li.style.display=(status==='SUBSCRIBED')?'inline-flex':'none';
             });
@@ -2180,16 +2028,10 @@ function setupRealtime(){
 function setupPrintButtons(){
     const btnGlobal=document.getElementById('btnGlobalPrint');
     const menu=document.getElementById('printDropdownMenu');
-    if(btnGlobal){
-        btnGlobal.addEventListener('click',(e)=>{ e.stopPropagation(); if(menu) menu.classList.toggle('show'); });
-    }
+    if(btnGlobal){ btnGlobal.addEventListener('click',(e)=>{ e.stopPropagation(); if(menu) menu.classList.toggle('show'); }); }
     document.addEventListener('click',()=>{ if(menu) menu.classList.remove('show'); });
     document.querySelectorAll('.print-dropdown-item').forEach(item=>{
-        item.addEventListener('click',()=>{
-            const mod=item.getAttribute('data-mod');
-            if(menu) menu.classList.remove('show');
-            printModule(mod);
-        });
+        item.addEventListener('click',()=>{ const mod=item.getAttribute('data-mod'); if(menu) menu.classList.remove('show'); printModule(mod); });
     });
     const bpa=document.getElementById('btnPrintAnalisis');
     if(bpa) bpa.addEventListener('click',()=>printModule('analisis'));
@@ -2203,13 +2045,13 @@ function printModule(mod){
 
     if(mod==='llamadas'){
         const fl=filtLL();
-        content='<h3 style="color:#0b5e7e;">Reporte de Llamadas ('+fl.length+')</h3><table style="width:100%;border-collapse:collapse;font-size:0.75rem;margin-top:0.5rem;"><thead><tr style="background:#f8fafc;"><th style="padding:0.4rem;border:1px solid #e2e8f0;">Fecha</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Paciente</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Teléfono</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Duración</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Tipo</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Operador</th></tr></thead><tbody>';
-        fl.forEach(i=>{ content+='<tr><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+formatLocalDateTime(i.fecha)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.paciente)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.telefono)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+i.duracion+'min</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.tipo_atencion)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.operador)+'</td></tr>'; });
+        content='<h3 style="color:#0b5e7e;">Reporte de Llamadas ('+fl.length+')</h3><table style="width:100%;border-collapse:collapse;font-size:0.75rem;margin-top:0.5rem;"><thead><tr style="background:#f8fafc;"><th style="padding:0.4rem;border:1px solid #e2e8f0;">Fecha</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Paciente</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Edad</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Rango</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Teléfono</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Duración</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Tipo</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Operador</th></tr></thead><tbody>';
+        fl.forEach(i=>{ content+='<tr><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+formatLocalDateTime(i.fecha)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.paciente)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+(i.edad!=null?i.edad:'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+(i.rango_edad||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.telefono)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+i.duracion+'min</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.tipo_atencion)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(i.operador)+'</td></tr>'; });
         content+='</tbody></table>';
     } else if(mod==='atenciones'){
         const fl=filtEm();
-        content='<h3 style="color:#0b5e7e;">Reporte de Atenciones ('+fl.length+')</h3><table style="width:100%;border-collapse:collapse;font-size:0.75rem;margin-top:0.5rem;"><thead><tr style="background:#f8fafc;"><th style="padding:0.4rem;border:1px solid #e2e8f0;">Fecha</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Paciente</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Profesional</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Diagnóstico</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Duración</th></tr></thead><tbody>';
-        fl.forEach(e=>{ content+='<tr><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+formatLocalDateTime(e.fecha)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(e.paciente)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(e.profesional||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(e.notas||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+e.duracion+'min</td></tr>'; });
+        content='<h3 style="color:#0b5e7e;">Reporte de Atenciones ('+fl.length+')</h3><table style="width:100%;border-collapse:collapse;font-size:0.75rem;margin-top:0.5rem;"><thead><tr style="background:#f8fafc;"><th style="padding:0.4rem;border:1px solid #e2e8f0;">Fecha</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Paciente</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Edad</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Rango</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Profesional</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Diagnóstico</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Duración</th></tr></thead><tbody>';
+        fl.forEach(e=>{ content+='<tr><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+formatLocalDateTime(e.fecha)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(e.paciente)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+(e.edad!=null?e.edad:'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+(e.rango_edad||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(e.profesional||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(e.notas||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+e.duracion+'min</td></tr>'; });
         content+='</tbody></table>';
     } else if(mod==='inventario'){
         content='<h3 style="color:#0b5e7e;">Reporte de Inventario ('+inventario.length+')</h3><table style="width:100%;border-collapse:collapse;font-size:0.75rem;margin-top:0.5rem;"><thead><tr style="background:#f8fafc;"><th style="padding:0.4rem;border:1px solid #e2e8f0;">Insumo</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Sede</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Stock</th><th style="padding:0.4rem;border:1px solid #e2e8f0;">Unidad</th></tr></thead><tbody>';
@@ -2220,7 +2062,6 @@ function printModule(mod){
         vehiculos.forEach(v=>{ content+='<tr><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(v.ficha_unidad)+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(v.sede||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(v.asignacion||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(v.marca_modelo||'—')+'</td><td style="padding:0.35rem;border:1px solid #e2e8f0;">'+esc(v.placa||'—')+'</td></tr>'; });
         content+='</tbody></table>';
     } else if(mod==='analisis'){
-        // Recolectar patologías
         const patMap={};
         emergencias.forEach(e=>{ const d=e.notas||'Sin diagnóstico'; patMap[d]=(patMap[d]||0)+1; });
         const patTop=Object.entries(patMap).sort((a,b)=>b[1]-a[1]).slice(0,15);
@@ -2241,8 +2082,8 @@ function printModule(mod){
 if(!sbReady){ document.getElementById('cdnError').style.display='flex'; document.getElementById('authPanel').style.display='none'; }
 else { document.getElementById('authPanel').style.display='flex'; }
 
-// Llenar el selector de diagnósticos EPI-15 desde el arranque
 llenarSelectDiagnostico();
+setupEdadDisplays();
 </script>
 </body>
 </html>
